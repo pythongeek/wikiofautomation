@@ -1,0 +1,3717 @@
+{
+  "name": "Enterprise Omni-Channel CRM, BANT Lead Triage & Autonomous Outreach Swarm (156 Nodes)",
+  "nodes": [
+    {
+      "id": "8fe1c9ab-7913-41a2-abb0-6baecf3cca58",
+      "name": "Stage 1: Lead Webhook & CRM Event Ingress",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 1: Lead Webhook & CRM Event Ingress\nIngests HubSpot, Apollo, Typeform, and WhatsApp lead webhooks with HMAC verification and deduplication.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 4
+      }
+    },
+    {
+      "id": "a89ac903-af5e-4ac5-a829-d75288132ed6",
+      "name": "CRM1_Ingress · Inbound Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crm1_ingress-ingest",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "f0f37b7b-4e22-4d17-aeea-f13477487ab3",
+      "name": "CRM1_Ingress · Scheduled Fallback Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f76a9a80-e41e-4e1e-abd1-e8f5912b3e7b",
+      "name": "CRM1_Ingress · Unify Ingress Stream",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "mode": "append"
+      }
+    },
+    {
+      "id": "ee968bb1-83dc-420b-a950-8f7d963e4641",
+      "name": "CRM1_Ingress · Verify HMAC-SHA256 Signature",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "action": "hmac",
+        "type": "SHA256",
+        "value": "={{ JSON.stringify($json.body) }}",
+        "secret": "={{ $env.WEBHOOK_HMAC_SECRET }}"
+      }
+    },
+    {
+      "id": "e58fe249-56aa-451c-a7e5-54268a2a5f4f",
+      "name": "CRM1_Ingress · Signature Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "95d370c1-c67c-4e90-a8c4-e8cac87b32c2",
+      "name": "CRM1_Ingress · Respond 401 Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        720,
+        660
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"Invalid HMAC signature\"}",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    },
+    {
+      "id": "880003ce-2f57-4148-a47a-7a5a9f010641",
+      "name": "CRM1_Ingress · Check Sliding-Window Rate Limit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return items.map(i => ({ json: { ...i.json, rateLimitOk: true, remainingQuota: 95 } }));"
+      }
+    },
+    {
+      "id": "370200e6-2134-487b-ade2-a5b76b71ae1f",
+      "name": "CRM1_Ingress · Within Rate Quota?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f8bfb457-8695-4c42-aa6b-3c0f49cf89ee",
+      "name": "CRM1_Ingress · Respond 429 Rate Limited",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        660
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"Rate limit exceeded\"}",
+        "options": {
+          "responseCode": 429
+        }
+      }
+    },
+    {
+      "id": "0c5735df-1408-432c-a74f-1f3a788bf865",
+      "name": "CRM1_Ingress · Sanitize & Normalize Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "61e8a9ab-72ff-4262-af58-b729e2497e42",
+      "name": "CRM1_Ingress · Idempotency Hash Deduplicator",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "0d8eeef4-c9bd-4aef-a47f-0cad1d1f5d63",
+      "name": "CRM1_Ingress · Strict JSON Schema Validator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        660
+      ],
+      "parameters": {
+        "jsCode": "return items;"
+      }
+    },
+    {
+      "id": "00e9c22f-6acd-45c0-a0a9-ed0618029125",
+      "name": "CRM1_Ingress · Schema Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "06ccd878-ce72-4f65-a5f7-d7288d501a1f",
+      "name": "CRM1_Ingress · Respond 400 Bad Payload",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        960,
+        660
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"Schema validation failed\"}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "id": "3b90a0ee-9c1c-481c-a600-f6aa1c9fd1e5",
+      "name": "CRM1_Ingress · Attach Trace ID & Telemetry Stamp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "6d4b0d4f-49a2-477c-a153-79e65700e796",
+      "name": "CRM1_Ingress · Log Ingress Event to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        840
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_REST_URL }}/ingress_events"
+      }
+    },
+    {
+      "id": "cf21d39a-5073-4b31-af00-7654099655f1",
+      "name": "CRM1_Ingress · Emit Early 202 Accepted Header",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        1020
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "a98fe4d2-02bc-4a0a-a3fe-9d4c3be24e2e",
+      "name": "Stage 2: Account Intelligence & Vector RAG Enrichment",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1770,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 2: Account Intelligence & Vector RAG Enrichment\nScrapes prospect company domain, SEC/news filings, and indexes into Supabase hybrid vector store.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 5
+      }
+    },
+    {
+      "id": "5ea930e2-52f4-4dc1-af7b-232e765984eb",
+      "name": "CRM2_Enrich · Fetch Source Document URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1850,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 1"
+      }
+    },
+    {
+      "id": "7f0af8b6-0f57-43c3-a407-2b1369830e25",
+      "name": "CRM2_Enrich · Extract Clean Markdown",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1850,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 2"
+      }
+    },
+    {
+      "id": "71c6c9d5-f99a-451d-a6a0-59e50298628e",
+      "name": "CRM2_Enrich · Strip Boilerplate & Nav Tags",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1850,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 3"
+      }
+    },
+    {
+      "id": "9920df1c-ba56-4b74-a8b5-e09273c7fe57",
+      "name": "CRM2_Enrich · Compute SHA-256 Content Hash",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2090,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 4"
+      }
+    },
+    {
+      "id": "ad0c3339-bf72-40b6-ac6e-9782f16a967c",
+      "name": "CRM2_Enrich · Check Vector Store Dedup",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2090,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 5"
+      }
+    },
+    {
+      "id": "e3451c60-c765-4997-a332-e7011123152e",
+      "name": "CRM2_Enrich · Split Semantic Chunks (512 tok)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2090,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 6"
+      }
+    },
+    {
+      "id": "470304e2-6ec9-40a4-ab5e-8d3eeec418d8",
+      "name": "CRM2_Enrich · Extract Metadata & Entities",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2330,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 7"
+      }
+    },
+    {
+      "id": "d76f3914-76d4-4e9b-a57c-bff7489c1719",
+      "name": "CRM2_Enrich · Generate Dense Embeddings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2330,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 8"
+      }
+    },
+    {
+      "id": "3214e951-251b-4059-a1cc-e41dc3dc137a",
+      "name": "CRM2_Enrich · Generate Sparse BM25 Vectors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2330,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 9"
+      }
+    },
+    {
+      "id": "23e25fd6-0f46-404d-a6b6-0d517ee7d6bd",
+      "name": "CRM2_Enrich · Upsert Hybrid Chunks to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2570,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 10"
+      }
+    },
+    {
+      "id": "7390920b-f749-4443-ac4b-a54d6eb47faa",
+      "name": "CRM2_Enrich · Query Top-K Hybrid Matches",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2570,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 11"
+      }
+    },
+    {
+      "id": "326c8971-148d-4976-a971-dacce5da17b4",
+      "name": "CRM2_Enrich · Cross-Encoder Rerank Top 10",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2570,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 12"
+      }
+    },
+    {
+      "id": "9e2d1a31-35a8-463d-a352-1599de2758e3",
+      "name": "CRM2_Enrich · Filter Below 0.78 Similarity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2810,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 13"
+      }
+    },
+    {
+      "id": "c06c0617-13be-44c5-aa2d-fe356090fb9a",
+      "name": "CRM2_Enrich · Build Numbered Citation Map",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2810,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 14"
+      }
+    },
+    {
+      "id": "2be7f728-0c73-43fd-a6e2-6cb250751b7a",
+      "name": "CRM2_Enrich · Verify Source URL Reachability",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2810,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 15"
+      }
+    },
+    {
+      "id": "f00c9474-47f9-4a34-ae31-7b4e91a4df98",
+      "name": "CRM2_Enrich · Compress Context Window",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3050,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 16"
+      }
+    },
+    {
+      "id": "45735a8e-3925-493e-a47b-fe8e59a8f166",
+      "name": "CRM2_Enrich · Log Retrieval Recall Metrics",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3050,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 17"
+      }
+    },
+    {
+      "id": "3b52889d-6315-49a2-a64a-9e76e9a91f1b",
+      "name": "CRM2_Enrich · Attach Grounded RAG Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3050,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 18"
+      }
+    },
+    {
+      "id": "5a49e66a-5c96-4370-aac7-49f8a7d0c6a9",
+      "name": "CRM2_Enrich · Finalize Hybrid RAG Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3290,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Account Intelligence & Vector RAG Enrichment — Step 19"
+      }
+    },
+    {
+      "id": "09ea087d-a246-473d-a022-24b6b255a634",
+      "name": "Stage 3: MCP CRM & Clearbit/Apollo Tool Cluster",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3620,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 3: MCP CRM & Clearbit/Apollo Tool Cluster\nExecutes MCP tools to verify email deliverability, tech stack, funding round, and decision-maker org chart.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 6
+      }
+    },
+    {
+      "id": "c8e424f9-11ee-4364-a784-a9f47275343b",
+      "name": "CRM3_Tools · Discover /.well-known/mcp.json",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3700,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 1"
+      }
+    },
+    {
+      "id": "a1290fc0-3b0b-48d5-a009-ef78eeea5019",
+      "name": "CRM3_Tools · Parse Tool Schemas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3700,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 2"
+      }
+    },
+    {
+      "id": "f55f26ba-14eb-4ba6-a040-0758550785a2",
+      "name": "CRM3_Tools · Validate Agent Policy Preset",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3700,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 3"
+      }
+    },
+    {
+      "id": "cc9484d8-c399-4343-a2e7-fb96ac2ae6ec",
+      "name": "CRM3_Tools · Split Tool Calls Batch",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3940,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 4"
+      }
+    },
+    {
+      "id": "5729af17-9d52-442f-a01d-c0d0674207ed",
+      "name": "CRM3_Tools · Execute Search Tool Call",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3940,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 5"
+      }
+    },
+    {
+      "id": "02af3f0c-2df8-4426-a054-e25b65a6e086",
+      "name": "CRM3_Tools · Execute Database Query Tool",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3940,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 6"
+      }
+    },
+    {
+      "id": "b49cc3a5-bcef-4e6e-a241-a204c6217126",
+      "name": "CRM3_Tools · Execute External API Tool",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4180,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 7"
+      }
+    },
+    {
+      "id": "1f099eda-9879-4119-abf7-70b5702d8e9a",
+      "name": "CRM3_Tools · Verify Citation Wrapper Hash",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4180,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 8"
+      }
+    },
+    {
+      "id": "5b29db79-5625-447a-ada0-4e1fdd9762b9",
+      "name": "CRM3_Tools · Aggregate Tool Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4180,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 9"
+      }
+    },
+    {
+      "id": "4422dafd-ca03-485f-a644-97c9db3034b1",
+      "name": "CRM3_Tools · Filter Empty Tool Responses",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4420,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 10"
+      }
+    },
+    {
+      "id": "01b56b1f-722a-45fb-af9f-324c378388b8",
+      "name": "CRM3_Tools · Score Evidence Quality",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4420,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 11"
+      }
+    },
+    {
+      "id": "7f6c85bc-008a-4729-a6ae-1f1e56f79bac",
+      "name": "CRM3_Tools · Check Rate & RPM Headers",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4420,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 12"
+      }
+    },
+    {
+      "id": "f44baf5b-80fa-4c2b-adac-3a2ad4a0b2d8",
+      "name": "CRM3_Tools · Format Tool Context Block",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4660,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 13"
+      }
+    },
+    {
+      "id": "6e37f746-75c9-4cb1-a8d4-9d095d33ceb6",
+      "name": "CRM3_Tools · Cache Tool Response in Redis",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4660,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 14"
+      }
+    },
+    {
+      "id": "260f4765-6330-473f-aa66-91a6381dc0f9",
+      "name": "CRM3_Tools · Emit SSE Agent Trace Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4660,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 15"
+      }
+    },
+    {
+      "id": "027e796d-cf7d-44d9-aea2-923ff15da168",
+      "name": "CRM3_Tools · Check Tool Error Flags",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4900,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 16"
+      }
+    },
+    {
+      "id": "a40e2d7e-94ad-4261-ad5e-2f426bf05085",
+      "name": "CRM3_Tools · Fallback Secondary Tool",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4900,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 17"
+      }
+    },
+    {
+      "id": "d8b77c8b-6404-4968-a3d6-31266ff05d14",
+      "name": "CRM3_Tools · Merge Final Tool Context",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4900,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 18"
+      }
+    },
+    {
+      "id": "328b56ea-9ffd-47bc-a657-357da4c4ae09",
+      "name": "CRM3_Tools · Finalize MCP Stage Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5140,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: MCP CRM & Clearbit/Apollo Tool Cluster — Step 19"
+      }
+    },
+    {
+      "id": "665844ba-dfd7-425f-a90f-eeaa4385a3bc",
+      "name": "Stage 4: Multi-LLM BANT Scoring & Hyper-Personalization Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5470,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 4: Multi-LLM BANT Scoring & Hyper-Personalization Agent\nScores Budget, Authority, Need, and Timing (0-100) and drafts bespoke multi-touch outreach sequences.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 3
+      }
+    },
+    {
+      "id": "d867f76f-9e38-4447-a583-d5d112c37195",
+      "name": "CRM4_BANT · Construct System & Context Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5550,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "4cfc2f9b-0a97-4e11-ae6e-29a584da6c15",
+      "name": "CRM4_BANT · Classify Complexity & Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        5790,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "92174361-bfdc-4ecf-a702-41ecf7e797cb",
+      "name": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        6030,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}"
+      }
+    },
+    {
+      "id": "170792f0-a7d8-4b35-ac00-2de350b06577",
+      "name": "CRM4_BANT · Fast Triage Agent (Local/Flash)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        6030,
+        660
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}"
+      }
+    },
+    {
+      "id": "c7b28ef9-7041-455f-a423-6cec1735fc46",
+      "name": "CRM4_BANT · Claude 3.7 Sonnet Reasoning",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        5790,
+        480
+      ],
+      "parameters": {
+        "model": "claude-3-7-sonnet-latest"
+      }
+    },
+    {
+      "id": "9239275f-a927-4da1-a315-079205c83240",
+      "name": "CRM4_BANT · OpenAI GPT-4o Fallback",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        6030,
+        480
+      ],
+      "parameters": {
+        "model": "gpt-4o"
+      }
+    },
+    {
+      "id": "df9fff65-358d-4d4c-aa3f-80a2609941ba",
+      "name": "CRM4_BANT · Colab/Ollama Reverse-Tunnel LLM",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        5790,
+        840
+      ],
+      "parameters": {
+        "model": "qwen3.8-27b",
+        "options": {
+          "baseURL": "={{ $env.OLLAMA_RELAY_BASE_URL }}/v1"
+        }
+      }
+    },
+    {
+      "id": "650a5ac0-7e1a-4d42-a2c8-efbd193a3868",
+      "name": "CRM4_BANT · Postgres Session Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        6270,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f89f7122-68f8-4c67-a7f4-2a7b3bb9dc65",
+      "name": "CRM4_BANT · Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        6270,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "fd30081c-02f7-4658-a849-3cefc12781fa",
+      "name": "CRM4_BANT · Strict Zod JSON Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        6510,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "b128211f-733a-4a1f-aa9c-fe932b70490c",
+      "name": "CRM4_BANT · Auto-Fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        6510,
+        660
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "bbe7258d-d92f-441a-a1e8-3e7a5a9777d7",
+      "name": "CRM4_BANT · Sandboxed JS Evaluator Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        6510,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "9725254d-bf7c-4db7-ab90-9ff3d5bd71da",
+      "name": "CRM4_BANT · Live Web Verification Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6750,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "7a88fd90-2e99-48ca-a5fb-4f77909a286c",
+      "name": "CRM4_BANT · WebMCP Nexus Manifest Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        6750,
+        660
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "2647be0b-5206-42c6-aad8-17f3a8e6aabf",
+      "name": "CRM4_BANT · Unify Agent Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6750,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "1281d2fa-72cb-4c22-a738-ccf0386ced6f",
+      "name": "CRM4_BANT · Compute Token Cost & Latency",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6990,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "19d75860-24fd-4d4b-a34b-8eff33d2199b",
+      "name": "CRM4_BANT · Citation & Grounding Validator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6990,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "dc84a03a-91d7-4326-a715-6123c78d0f5a",
+      "name": "CRM4_BANT · Normalize Verified Agent Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6990,
+        660
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "b473c8b1-4b36-4141-ad3a-2514760dce8d",
+      "name": "Stage 5: AE Deal Desk Approval & Override Gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        7320,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 5: AE Deal Desk Approval & Override Gate\nRoutes high-ACV enterprise leads to Account Executives in Slack/Telegram for 1-click approval before outreach.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 2
+      }
+    },
+    {
+      "id": "9d2d4060-821e-44d8-ae49-b173b92832c4",
+      "name": "CRM5_DealDesk · Compute Risk & Confidence Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7400,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 1"
+      }
+    },
+    {
+      "id": "81740963-8c02-498f-a711-a779e1296cb6",
+      "name": "CRM5_DealDesk · Confidence Below Auto-Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7400,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 2"
+      }
+    },
+    {
+      "id": "1d4b8d82-5cef-4d89-adba-9ba23a1a1dff",
+      "name": "CRM5_DealDesk · Generate Signed Magic Review URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7400,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 3"
+      }
+    },
+    {
+      "id": "0c9c1911-2b7a-4873-ab9b-429ef79efdcc",
+      "name": "CRM5_DealDesk · Dispatch Slack Interactive Block",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7640,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 4"
+      }
+    },
+    {
+      "id": "d72ad826-4ffa-4bab-a839-2ea681cb7c32",
+      "name": "CRM5_DealDesk · Dispatch Telegram Approval Card",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7640,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 5"
+      }
+    },
+    {
+      "id": "531e5a95-efc3-48bf-a232-079390f8c435",
+      "name": "CRM5_DealDesk · Send Email Summary Digest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7640,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 6"
+      }
+    },
+    {
+      "id": "dba2c95c-43c0-4e69-a0c1-e3ccd87a23ea",
+      "name": "CRM5_DealDesk · Write Pending Approval to DB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7880,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 7"
+      }
+    },
+    {
+      "id": "c2ab212d-6821-4756-a474-61206c6043d0",
+      "name": "CRM5_DealDesk · Wait for Human Webhook Callback",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        7880,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 8"
+      }
+    },
+    {
+      "id": "7dc6bfce-cd0f-4bc3-ac65-3a1ed059f602",
+      "name": "CRM5_DealDesk · Verify Reviewer Signature",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7880,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 9"
+      }
+    },
+    {
+      "id": "90fc58cc-39f3-48df-ae8d-00972a61cc04",
+      "name": "CRM5_DealDesk · Approval Decision Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        8120,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 10"
+      }
+    },
+    {
+      "id": "8d016c58-3a6e-4a54-ae6b-9597a19a924e",
+      "name": "CRM5_DealDesk · Apply Reviewer Edits & Notes",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8120,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 11"
+      }
+    },
+    {
+      "id": "9a7642f0-877c-43cf-ac82-3dd391ab0e1e",
+      "name": "CRM5_DealDesk · Log Audit Trail Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8120,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 12"
+      }
+    },
+    {
+      "id": "98c81af0-def9-471e-ab32-29d28eee8225",
+      "name": "CRM5_DealDesk · Notify Creator of Approval",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8360,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 13"
+      }
+    },
+    {
+      "id": "24d50d2b-62d7-4cbe-a345-6213abbb4a70",
+      "name": "CRM5_DealDesk · Handle Timeout Escalation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8360,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 14"
+      }
+    },
+    {
+      "id": "da05c7be-5c08-4cc0-a373-771f55bf60dc",
+      "name": "CRM5_DealDesk · Route Rejected Item to Revision",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8360,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 15"
+      }
+    },
+    {
+      "id": "4bbb83a2-a3ea-4109-a5b1-78cbc9743689",
+      "name": "CRM5_DealDesk · Update Approval SLA Telemetry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8600,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 16"
+      }
+    },
+    {
+      "id": "846fa47e-500e-4894-acc8-09945676ba96",
+      "name": "CRM5_DealDesk · Unlock Downstream Execution",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8600,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 17"
+      }
+    },
+    {
+      "id": "c842e52d-5d60-4bb8-a12c-3ec11d1ed4f5",
+      "name": "CRM5_DealDesk · Merge Auto + Human Approved",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        8600,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 18"
+      }
+    },
+    {
+      "id": "246f5fbf-5ee0-49e6-a4df-2fe1c4e7bd01",
+      "name": "CRM5_DealDesk · Finalize Governance Gate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8840,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: AE Deal Desk Approval & Override Gate — Step 19"
+      }
+    },
+    {
+      "id": "63cbbebd-580d-45bc-ad44-25ce03726a18",
+      "name": "Stage 6: Landing Page & Custom Microsite Publisher",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9170,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 6: Landing Page & Custom Microsite Publisher\nPublishes personalized prospect case-study microsites via DirectRelay Pro with custom OG cards.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 4
+      }
+    },
+    {
+      "id": "7dbe52a3-cbab-4d60-a43a-7dafb3cebd58",
+      "name": "CRM6_Microsite · Prepare Article & AEO Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9250,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 1"
+      }
+    },
+    {
+      "id": "612b8ad4-25fb-4413-a3cb-4ef9f9146949",
+      "name": "CRM6_Microsite · Generate 40-Word Direct Answer Box",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9250,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 2"
+      }
+    },
+    {
+      "id": "3e6ea328-b522-4660-a7db-855c08fed88f",
+      "name": "CRM6_Microsite · Build TechArticle + FAQPage JSON-LD",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9250,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 3"
+      }
+    },
+    {
+      "id": "24e3011d-c45e-49fc-aafa-3c26947c884a",
+      "name": "CRM6_Microsite · Validate Schema.org Graph Hygiene",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9490,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 4"
+      }
+    },
+    {
+      "id": "5927e1d6-2c3a-48e4-a8ff-a48b1109ce1b",
+      "name": "CRM6_Microsite · Run Semantic Internal Linker",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9490,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 5"
+      }
+    },
+    {
+      "id": "350b8a08-acef-403b-a8b3-4441272ee7e6",
+      "name": "CRM6_Microsite · Enforce AI Velocity & Word Cap",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9490,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 6"
+      }
+    },
+    {
+      "id": "b1cf4601-f40a-4b08-a5b4-dd59687a0373",
+      "name": "CRM6_Microsite · Generate 1200x630 OpenGraph Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9730,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 7"
+      }
+    },
+    {
+      "id": "40f795b5-732f-4aaa-a8d6-a439c3b49218",
+      "name": "CRM6_Microsite · Convert Inline Images to WebP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9730,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 8"
+      }
+    },
+    {
+      "id": "87f6742a-0d64-4c61-a41d-deae0b3896e8",
+      "name": "CRM6_Microsite · Sideload Media via DirectRelay API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        9730,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 9"
+      }
+    },
+    {
+      "id": "82c39599-eaf2-4e1d-ae69-39be34454869",
+      "name": "CRM6_Microsite · Convert Markdown to Gutenberg Blocks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9970,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 10"
+      }
+    },
+    {
+      "id": "2f15dc31-5d96-47ee-ad11-3a917dc621b1",
+      "name": "CRM6_Microsite · Atomic POST to DirectRelay /publish",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9970,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 11"
+      }
+    },
+    {
+      "id": "c1843c37-dfb9-407f-af59-d8ba65bee759",
+      "name": "CRM6_Microsite · Sync RankMath & Yoast Meta Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9970,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 12"
+      }
+    },
+    {
+      "id": "b4c39f2a-124f-4aa6-a272-bd62fe25968f",
+      "name": "CRM6_Microsite · Update /llms.txt & /llms-full.txt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10210,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 13"
+      }
+    },
+    {
+      "id": "d4396c29-f1ec-4c52-ac93-d1581c68babf",
+      "name": "CRM6_Microsite · Mint Google Indexing API RS256 JWT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10210,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 14"
+      }
+    },
+    {
+      "id": "38ba621c-8cad-464a-a530-f75c237d5cf5",
+      "name": "CRM6_Microsite · Submit URL to Google Indexing API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10210,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 15"
+      }
+    },
+    {
+      "id": "1063e2c2-ebf9-4a29-aebc-dfcf24504b9c",
+      "name": "CRM6_Microsite · Broadcast IndexNow Ping (Bing/Yandex)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10450,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 16"
+      }
+    },
+    {
+      "id": "db64e1af-2956-4ffd-ab23-83bb1e88e777",
+      "name": "CRM6_Microsite · Purge Cloudflare & LiteSpeed Cache",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10450,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 17"
+      }
+    },
+    {
+      "id": "38f6f1c7-903f-44d6-a331-90a1e61aa08c",
+      "name": "CRM6_Microsite · Verify Live HTTP 200 & JSON-LD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10450,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 18"
+      }
+    },
+    {
+      "id": "4af921c8-93b5-48fe-aedd-a1fdca998807",
+      "name": "CRM6_Microsite · Record Published URL & AEO Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10690,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Landing Page & Custom Microsite Publisher — Step 19"
+      }
+    },
+    {
+      "id": "28b54370-7c23-4e6e-ab51-aeea40425b1f",
+      "name": "Stage 7: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp)",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11020,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 7: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp)\nOrchestrates synchronized follow-ups across Instantly, LinkedIn, WhatsApp, and syncs deal stages to HubSpot.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 5
+      }
+    },
+    {
+      "id": "d22beb86-9aeb-4c3b-a7a8-de4f56d7f08d",
+      "name": "CRM7_Outreach · Load Canonical Published Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11100,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 1"
+      }
+    },
+    {
+      "id": "56c565f4-3f64-4583-ab3b-41228f8095ff",
+      "name": "CRM7_Outreach · Synthesize X/Twitter Thread (5 Posts)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11100,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 2"
+      }
+    },
+    {
+      "id": "3cb6d15f-55be-42d2-a4eb-0b7c008cbf32",
+      "name": "CRM7_Outreach · Synthesize LinkedIn Executive Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11100,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 3"
+      }
+    },
+    {
+      "id": "46b3d9c9-9ecb-4dba-a6fa-29402da4b9de",
+      "name": "CRM7_Outreach · Generate Instagram Carousel Slides",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11340,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 4"
+      }
+    },
+    {
+      "id": "1b87c6fa-9c42-44ea-a684-d45c71cd7626",
+      "name": "CRM7_Outreach · Generate Short-Form Video Script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11340,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 5"
+      }
+    },
+    {
+      "id": "fc274429-afcc-4f7e-ac66-89e91da8dd07",
+      "name": "CRM7_Outreach · Render Audio/Video via Creatomate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11340,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 6"
+      }
+    },
+    {
+      "id": "b1155943-3c60-4b62-a52d-d8d42d141add",
+      "name": "CRM7_Outreach · Publish Thread to X API v2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11580,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 7"
+      }
+    },
+    {
+      "id": "4378c691-196e-4aac-a3ec-8a77a4865fb1",
+      "name": "CRM7_Outreach · Publish Article to LinkedIn API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11580,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 8"
+      }
+    },
+    {
+      "id": "ef21e45e-44f4-455c-a938-60eb2d8a4710",
+      "name": "CRM7_Outreach · Publish Carousel to Instagram Graph",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11580,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 9"
+      }
+    },
+    {
+      "id": "34040afc-f64f-4680-aead-983c19230c60",
+      "name": "CRM7_Outreach · Publish Update to Facebook Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11820,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 10"
+      }
+    },
+    {
+      "id": "e4a5a1ef-7adc-4375-af8d-33054e65ffb8",
+      "name": "CRM7_Outreach · Broadcast to Telegram Channel",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11820,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 11"
+      }
+    },
+    {
+      "id": "7768e053-8251-47f9-a7e2-083e1d2368c0",
+      "name": "CRM7_Outreach · Post Embed to Discord Webhook",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11820,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 12"
+      }
+    },
+    {
+      "id": "1c3a4533-44e4-471b-abce-21fc86b172f9",
+      "name": "CRM7_Outreach · Syndicate Canonical to Medium/Dev.to",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12060,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 13"
+      }
+    },
+    {
+      "id": "e7d5a0ad-193a-42cf-affb-6f4fec787b4e",
+      "name": "CRM7_Outreach · Submit RSS Ping to Aggregators",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        12060,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 14"
+      }
+    },
+    {
+      "id": "8c4bbece-6a3d-4cb6-a300-1ac8927675e1",
+      "name": "CRM7_Outreach · Collect Live Post Permalinks",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12060,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 15"
+      }
+    },
+    {
+      "id": "56bf5a1c-74de-4c0f-a6f6-99cda5cf1ec7",
+      "name": "CRM7_Outreach · Append UTM Attribution Parameters",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12300,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 16"
+      }
+    },
+    {
+      "id": "760d0238-8712-4210-ad62-cc678eb270ba",
+      "name": "CRM7_Outreach · Log Social Reach to Google Sheets",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12300,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 17"
+      }
+    },
+    {
+      "id": "258a14fe-f1f3-4c28-a648-709a9b322511",
+      "name": "CRM7_Outreach · Update Campaign ROI Dashboard",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12300,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 18"
+      }
+    },
+    {
+      "id": "2d8932d2-6553-48ca-ac7b-a15482d7c922",
+      "name": "CRM7_Outreach · Finalize Omni-Channel Syndication",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12540,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Multi-Channel Sequence Dispatcher (Email, LinkedIn, WhatsApp) — Step 19"
+      }
+    },
+    {
+      "id": "9c854bf4-5e55-47dc-a1ee-d75318a05794",
+      "name": "Stage 8: Self-Healing Rate-Limit & Bounce DLQ Engine",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        12870,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 8: Self-Healing Rate-Limit & Bounce DLQ Engine\nHandles API quota limits, SMTP soft-bounces, and dead-letter recovery automatically.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 1
+      }
+    },
+    {
+      "id": "ead553e5-bb51-48f1-a63f-da818d1213a9",
+      "name": "CRM8_DLQ · Global Error Trigger Listener",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12950,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 1"
+      }
+    },
+    {
+      "id": "7b253c2e-6197-4899-a64c-4b09c8e2b21c",
+      "name": "CRM8_DLQ · Extract Failed Node & Stacktrace",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12950,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 2"
+      }
+    },
+    {
+      "id": "b15e2df1-e641-43e9-acf4-eec598acbb29",
+      "name": "CRM8_DLQ · Classify Error (Transient vs Fatal)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        12950,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 3"
+      }
+    },
+    {
+      "id": "ed1f648e-911d-4631-a5f0-1d83205ad545",
+      "name": "CRM8_DLQ · Check Retry Attempt Counter (< 3)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        13190,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 4"
+      }
+    },
+    {
+      "id": "ae53416c-c202-45ed-abe9-acd7bfdb4a3a",
+      "name": "CRM8_DLQ · Calculate Exponential Backoff Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        13190,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 5"
+      }
+    },
+    {
+      "id": "62f7b9e5-76f8-48aa-a46e-1c3e1fc31fb6",
+      "name": "CRM8_DLQ · Wait Before Auto-Retry",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        13190,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 6"
+      }
+    },
+    {
+      "id": "d73e0325-a8e3-473d-ad75-d79d4a8830e9",
+      "name": "CRM8_DLQ · Replay Failed Sub-Workflow Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13430,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 7"
+      }
+    },
+    {
+      "id": "b373e59d-6b52-4e89-a31a-365362badd18",
+      "name": "CRM8_DLQ · Format Dead-Letter Queue Record",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13430,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 8"
+      }
+    },
+    {
+      "id": "0e6098b2-a365-41a8-a755-38e5dbeab67a",
+      "name": "CRM8_DLQ · Encrypt Sensitive Payload Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13430,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 9"
+      }
+    },
+    {
+      "id": "144e99bb-3602-4559-a855-cc3b256a1cbc",
+      "name": "CRM8_DLQ · Insert into Supabase DLQ Table",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13670,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 10"
+      }
+    },
+    {
+      "id": "03b8a649-7984-40a5-a47d-b8caa87f7f90",
+      "name": "CRM8_DLQ · Backup DLQ JSON to Google Drive",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13670,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 11"
+      }
+    },
+    {
+      "id": "9ec0c9b3-ec6f-4454-ae6e-5345e6c10b37",
+      "name": "CRM8_DLQ · Send Pager/Telegram Critical Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13670,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 12"
+      }
+    },
+    {
+      "id": "d075ccdd-6ae3-4148-ab0e-c806fb63a9e6",
+      "name": "CRM8_DLQ · Post Incident Card to Slack #ops",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13910,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 13"
+      }
+    },
+    {
+      "id": "20d827c1-2132-4e27-a96d-0edfaceeb159",
+      "name": "CRM8_DLQ · Create Jira/Linear Bug Ticket",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13910,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 14"
+      }
+    },
+    {
+      "id": "82089f00-5b00-4748-a8ff-d4003019a76b",
+      "name": "CRM8_DLQ · Update System Uptime Status Metric",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13910,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 15"
+      }
+    },
+    {
+      "id": "e5a0d48b-bb45-48cd-a13f-5a73b06a0e90",
+      "name": "CRM8_DLQ · Generate One-Click Replay URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        14150,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 16"
+      }
+    },
+    {
+      "id": "3d5b383a-03eb-4fc0-a995-73ced1c6cb77",
+      "name": "CRM8_DLQ · Prune Expired DLQ Logs (> 30d)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        14150,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 17"
+      }
+    },
+    {
+      "id": "bd36a341-3ed5-4d0a-a645-f0b8b4e1df2d",
+      "name": "CRM8_DLQ · Acknowledge Error Handled",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        14150,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 18"
+      }
+    },
+    {
+      "id": "ee338b9a-26c2-4485-a559-99d906d79ecf",
+      "name": "CRM8_DLQ · Finalize Self-Healing Recovery",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        14390,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Rate-Limit & Bounce DLQ Engine — Step 19"
+      }
+    }
+  ],
+  "connections": {
+    "CRM1_Ingress · Inbound Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Unify Ingress Stream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Scheduled Fallback Trigger": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Unify Ingress Stream",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Unify Ingress Stream": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Verify HMAC-SHA256 Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Verify HMAC-SHA256 Signature": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Signature Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Signature Valid?": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Check Sliding-Window Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM1_Ingress · Respond 401 Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Check Sliding-Window Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Within Rate Quota?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Within Rate Quota?": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Sanitize & Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM1_Ingress · Respond 429 Rate Limited",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Sanitize & Normalize Payload": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Idempotency Hash Deduplicator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Idempotency Hash Deduplicator": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Strict JSON Schema Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Strict JSON Schema Validator": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Schema Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Schema Valid?": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Attach Trace ID & Telemetry Stamp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM1_Ingress · Respond 400 Bad Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Attach Trace ID & Telemetry Stamp": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Log Ingress Event to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Log Ingress Event to Supabase": {
+      "main": [
+        [
+          {
+            "node": "CRM1_Ingress · Emit Early 202 Accepted Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Fetch Source Document URL": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Extract Clean Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Extract Clean Markdown": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Strip Boilerplate & Nav Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Strip Boilerplate & Nav Tags": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Compute SHA-256 Content Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Compute SHA-256 Content Hash": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Check Vector Store Dedup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Check Vector Store Dedup": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Split Semantic Chunks (512 tok)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Split Semantic Chunks (512 tok)": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Extract Metadata & Entities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Extract Metadata & Entities": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Generate Dense Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Generate Dense Embeddings": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Generate Sparse BM25 Vectors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Generate Sparse BM25 Vectors": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Upsert Hybrid Chunks to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Upsert Hybrid Chunks to Supabase": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Query Top-K Hybrid Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Query Top-K Hybrid Matches": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Cross-Encoder Rerank Top 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Cross-Encoder Rerank Top 10": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Filter Below 0.78 Similarity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Filter Below 0.78 Similarity": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Build Numbered Citation Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Build Numbered Citation Map": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Verify Source URL Reachability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Verify Source URL Reachability": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Compress Context Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Compress Context Window": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Log Retrieval Recall Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Log Retrieval Recall Metrics": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Attach Grounded RAG Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Attach Grounded RAG Context": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Finalize Hybrid RAG Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM1_Ingress · Emit Early 202 Accepted Header": {
+      "main": [
+        [
+          {
+            "node": "CRM2_Enrich · Fetch Source Document URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Discover /.well-known/mcp.json": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Parse Tool Schemas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Parse Tool Schemas": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Validate Agent Policy Preset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Validate Agent Policy Preset": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Split Tool Calls Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Split Tool Calls Batch": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Execute Search Tool Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Execute Search Tool Call": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Execute Database Query Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Execute Database Query Tool": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Execute External API Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Execute External API Tool": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Verify Citation Wrapper Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Verify Citation Wrapper Hash": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Aggregate Tool Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Aggregate Tool Results": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Filter Empty Tool Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Filter Empty Tool Responses": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Score Evidence Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Score Evidence Quality": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Check Rate & RPM Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Check Rate & RPM Headers": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Format Tool Context Block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Format Tool Context Block": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Cache Tool Response in Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Cache Tool Response in Redis": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Emit SSE Agent Trace Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Emit SSE Agent Trace Event": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Check Tool Error Flags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Check Tool Error Flags": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Fallback Secondary Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Fallback Secondary Tool": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Merge Final Tool Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Merge Final Tool Context": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Finalize MCP Stage Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM2_Enrich · Finalize Hybrid RAG Output": {
+      "main": [
+        [
+          {
+            "node": "CRM3_Tools · Discover /.well-known/mcp.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Construct System & Context Prompt": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Classify Complexity & Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Classify Complexity & Intent": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM4_BANT · Fast Triage Agent (Local/Flash)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Claude 3.7 Sonnet Reasoning": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · OpenAI GPT-4o Fallback": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CRM4_BANT · Auto-Fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Colab/Ollama Reverse-Tunnel LLM": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CRM4_BANT · Fast Triage Agent (Local/Flash)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Postgres Session Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CRM4_BANT · Fast Triage Agent (Local/Flash)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Strict Zod JSON Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "CRM4_BANT · Auto-Fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Auto-Fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Sandboxed JS Evaluator Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Live Web Verification Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · WebMCP Nexus Manifest Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Primary Reasoning Agent (Claude/GPT)": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Unify Agent Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Fast Triage Agent (Local/Flash)": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Unify Agent Outputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Unify Agent Outputs": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Compute Token Cost & Latency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Compute Token Cost & Latency": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Citation & Grounding Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Citation & Grounding Validator": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Normalize Verified Agent Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CRM4_BANT · Construct System & Context Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM3_Tools · Finalize MCP Stage Payload": {
+      "main": [
+        [
+          {
+            "node": "CRM4_BANT · Construct System & Context Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Compute Risk & Confidence Score": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Confidence Below Auto-Threshold?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Confidence Below Auto-Threshold?": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Generate Signed Magic Review URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Generate Signed Magic Review URL": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Dispatch Slack Interactive Block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Dispatch Slack Interactive Block": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Dispatch Telegram Approval Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Dispatch Telegram Approval Card": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Send Email Summary Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Send Email Summary Digest": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Write Pending Approval to DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Write Pending Approval to DB": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Wait for Human Webhook Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Wait for Human Webhook Callback": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Verify Reviewer Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Verify Reviewer Signature": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Approval Decision Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Approval Decision Router": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Apply Reviewer Edits & Notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Apply Reviewer Edits & Notes": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Log Audit Trail Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Log Audit Trail Entry": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Notify Creator of Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Notify Creator of Approval": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Handle Timeout Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Handle Timeout Escalation": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Route Rejected Item to Revision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Route Rejected Item to Revision": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Update Approval SLA Telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Update Approval SLA Telemetry": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Unlock Downstream Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Unlock Downstream Execution": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Merge Auto + Human Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Merge Auto + Human Approved": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Finalize Governance Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM4_BANT · Normalize Verified Agent Payload": {
+      "main": [
+        [
+          {
+            "node": "CRM5_DealDesk · Compute Risk & Confidence Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Prepare Article & AEO Payload": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Generate 40-Word Direct Answer Box",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Generate 40-Word Direct Answer Box": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Build TechArticle + FAQPage JSON-LD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Build TechArticle + FAQPage JSON-LD": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Validate Schema.org Graph Hygiene",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Validate Schema.org Graph Hygiene": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Run Semantic Internal Linker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Run Semantic Internal Linker": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Enforce AI Velocity & Word Cap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Enforce AI Velocity & Word Cap": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Generate 1200x630 OpenGraph Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Generate 1200x630 OpenGraph Image": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Convert Inline Images to WebP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Convert Inline Images to WebP": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Sideload Media via DirectRelay API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Sideload Media via DirectRelay API": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Convert Markdown to Gutenberg Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Convert Markdown to Gutenberg Blocks": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Atomic POST to DirectRelay /publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Atomic POST to DirectRelay /publish": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Sync RankMath & Yoast Meta Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Sync RankMath & Yoast Meta Fields": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Update /llms.txt & /llms-full.txt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Update /llms.txt & /llms-full.txt": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Mint Google Indexing API RS256 JWT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Mint Google Indexing API RS256 JWT": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Submit URL to Google Indexing API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Submit URL to Google Indexing API": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Broadcast IndexNow Ping (Bing/Yandex)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Broadcast IndexNow Ping (Bing/Yandex)": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Purge Cloudflare & LiteSpeed Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Purge Cloudflare & LiteSpeed Cache": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Verify Live HTTP 200 & JSON-LD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Verify Live HTTP 200 & JSON-LD": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Record Published URL & AEO Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM5_DealDesk · Finalize Governance Gate": {
+      "main": [
+        [
+          {
+            "node": "CRM6_Microsite · Prepare Article & AEO Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Load Canonical Published Post": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Synthesize X/Twitter Thread (5 Posts)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Synthesize X/Twitter Thread (5 Posts)": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Synthesize LinkedIn Executive Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Synthesize LinkedIn Executive Post": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Generate Instagram Carousel Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Generate Instagram Carousel Slides": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Generate Short-Form Video Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Generate Short-Form Video Script": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Render Audio/Video via Creatomate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Render Audio/Video via Creatomate": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Publish Thread to X API v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Publish Thread to X API v2": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Publish Article to LinkedIn API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Publish Article to LinkedIn API": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Publish Carousel to Instagram Graph",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Publish Carousel to Instagram Graph": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Publish Update to Facebook Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Publish Update to Facebook Page": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Broadcast to Telegram Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Broadcast to Telegram Channel": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Post Embed to Discord Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Post Embed to Discord Webhook": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Syndicate Canonical to Medium/Dev.to",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Syndicate Canonical to Medium/Dev.to": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Submit RSS Ping to Aggregators",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Submit RSS Ping to Aggregators": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Collect Live Post Permalinks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Collect Live Post Permalinks": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Append UTM Attribution Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Append UTM Attribution Parameters": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Log Social Reach to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Log Social Reach to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Update Campaign ROI Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM7_Outreach · Update Campaign ROI Dashboard": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Finalize Omni-Channel Syndication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM6_Microsite · Record Published URL & AEO Score": {
+      "main": [
+        [
+          {
+            "node": "CRM7_Outreach · Load Canonical Published Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Global Error Trigger Listener": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Extract Failed Node & Stacktrace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Extract Failed Node & Stacktrace": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Classify Error (Transient vs Fatal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Classify Error (Transient vs Fatal)": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Check Retry Attempt Counter (< 3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Check Retry Attempt Counter (< 3)": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Calculate Exponential Backoff Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Calculate Exponential Backoff Wait": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Wait Before Auto-Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Wait Before Auto-Retry": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Replay Failed Sub-Workflow Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Replay Failed Sub-Workflow Payload": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Format Dead-Letter Queue Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Format Dead-Letter Queue Record": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Encrypt Sensitive Payload Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Encrypt Sensitive Payload Fields": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Insert into Supabase DLQ Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Insert into Supabase DLQ Table": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Backup DLQ JSON to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Backup DLQ JSON to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Send Pager/Telegram Critical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Send Pager/Telegram Critical Alert": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Post Incident Card to Slack #ops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Post Incident Card to Slack #ops": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Create Jira/Linear Bug Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Create Jira/Linear Bug Ticket": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Update System Uptime Status Metric",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Update System Uptime Status Metric": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Generate One-Click Replay URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Generate One-Click Replay URL": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Prune Expired DLQ Logs (> 30d)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Prune Expired DLQ Logs (> 30d)": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Acknowledge Error Handled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM8_DLQ · Acknowledge Error Handled": {
+      "main": [
+        [
+          {
+            "node": "CRM8_DLQ · Finalize Self-Healing Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "Enterprise"
+    },
+    {
+      "name": "CRM"
+    },
+    {
+      "name": "Lead-Gen"
+    },
+    {
+      "name": "BANT"
+    },
+    {
+      "name": "Multi-Agent"
+    },
+    {
+      "name": "MCP"
+    },
+    {
+      "name": "156-Nodes"
+    }
+  ],
+  "meta": {
+    "curatedBy": "Wiki of Automation (wikiofautomation.com)",
+    "compiler": "n8n-forge v2.0",
+    "securityVerified": true,
+    "nodeCount": 157
+  },
+  "pinData": {}
+}

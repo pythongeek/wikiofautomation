@@ -108,6 +108,16 @@ const freeWorkflowList = n8nCatalog.free_workflows.slice(0, 24);
               class="group bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,245,0,0.15)] flex flex-col justify-between no-underline"
             >
               <div>
+                {item.data.hero_image && (
+                  <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-[#050508] border border-white/10 mb-3.5 group-hover:border-[#00e3fd]/40 transition-colors">
+                    <img
+                      src={item.data.hero_image}
+                      alt={item.data.title}
+                      loading="lazy"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                )}
                 <div class="flex items-center justify-between mb-3">
                   <div class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg">
                     {item.data.icon ?? '⚡'}
@@ -216,7 +226,7 @@ const freeWorkflowList = n8nCatalog.free_workflows.slice(0, 24);
                 {wf.freshness === 'verified_current' ? '✓ Verified Current' : 'Legacy Compatible'}
               </span>
               <a
-                href={`/store/checkout?item=${encodeURIComponent(wf.slug)}&title=${encodeURIComponent(wf.title)}&price=${wf.price_usd}`}
+                href={`/store/payment?item=${encodeURIComponent(wf.slug)}&title=${encodeURIComponent(wf.title)}&price=${wf.price_usd}&nodes=${wf.total_nodes}`}
                 class="px-3 py-1.5 rounded-lg bg-[#00e3fd] text-[#050508] font-bold no-underline hover:opacity-90"
               >
                 Buy Blueprint →

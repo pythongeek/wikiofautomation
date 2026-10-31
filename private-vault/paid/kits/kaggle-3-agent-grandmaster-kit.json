@@ -1,0 +1,9 @@
+{
+  "agents": [
+    "HypothesisPlanner",
+    "FeatureEngineerGPU",
+    "HillClimbingEnsembler"
+  ],
+  "product": "3-Agent Autonomous Kaggle Competition Starter Kit",
+  "version": "2.0.0"
+}

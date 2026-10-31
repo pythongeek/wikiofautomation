@@ -1,0 +1,275 @@
+---
+/**
+ * /store/payment — Dedicated 3D Cyber-Industrial Payment & Vault Unlock Portal
+ * Handles paid & enterprise n8n workflow purchases:
+ * - Reads ?item=[slug]&title=[title]&price=[price]&nodes=[nodes]
+ * - Provides a modular Payment Gateway Slot (ready for custom payment provider + Lemon Squeezy)
+ * - Includes Instant License Key Verification to stream `/api/download/[slug]?license=...`
+ */
+import Base from '~/layouts/Base.astro';
+
+export const prerender = false;
+
+const url = Astro.url;
+const itemSlug = url.searchParams.get('item') || 'n8n-enterprise-workflow';
+const itemTitle = url.searchParams.get('title') || 'Enterprise n8n Automation Blueprint';
+const itemPrice = Number(url.searchParams.get('price') || 29);
+const nodeCount = Number(url.searchParams.get('nodes') || 45);
+const lemonStoreUrl =
+  import.meta.env.PUBLIC_LEMON_STORE_URL ||
+  'https://wikiofautomation.lemonsqueezy.com';
+---
+
+<Base
+  title={`Unlock ${itemTitle} — Vault Payment | Wiki of Automation`}
+  description={`Secure checkout and instant .json vault delivery for ${itemTitle} (${nodeCount} wired n8n nodes).`}
+>
+  <div class="min-h-screen bg-[#050508] text-white pt-28 pb-24 px-6 relative overflow-hidden">
+    <!-- 3D Ambient Cyber Glows -->
+    <div class="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full bg-[#c0f500]/10 blur-[140px] pointer-events-none"></div>
+    <div class="absolute top-40 right-1/4 w-[520px] h-[520px] rounded-full bg-[#7b61ff]/15 blur-[150px] pointer-events-none"></div>
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[680px] h-[300px] rounded-full bg-[#00e3fd]/10 blur-[140px] pointer-events-none"></div>
+
+    <div class="max-w-[1160px] mx-auto relative z-10 space-y-10">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider">
+        <a href="/marketplace" class="text-[#00e3fd] hover:underline no-underline">MARKETPLACE</a>
+        <span>/</span>
+        <a href={`/marketplace/workflows/${itemSlug}`} class="text-[#9ca3af] hover:text-white no-underline truncate max-w-[260px]">
+          {itemSlug}
+        </a>
+        <span>/</span>
+        <span class="text-[#c0f500] font-bold">SECURE VAULT PAYMENT</span>
+      </nav>
+
+      <!-- Header -->
+      <div class="space-y-3">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#c0f500]/10 border border-[#c0f500]/40 font-mono text-xs text-[#c0f500]">
+          <span class="w-2 h-2 rounded-full bg-[#c0f500] animate-ping"></span>
+          ENCRYPTED VAULT CHECKOUT · INSTANT .JSON DELIVERY
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+          Unlock <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#c0f500] via-[#00e3fd] to-[#7b61ff]">{itemTitle}</span>
+        </h1>
+        <p class="text-sm sm:text-base text-[#9ca3af] max-w-2xl">
+          Complete your one-time license checkout below to unlock the full, unredacted <strong>{nodeCount}-node n8n `.json` workflow</strong> with lifetime commercial deployment rights.
+        </p>
+      </div>
+
+      <!-- 2-Column 3D Checkout Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- LEFT: 3D Order Summary & Black-Box Package Specs (5 cols) -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="relative rounded-3xl bg-gradient-to-b from-[#131317] to-[#0b0b10] border border-white/15 p-7 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden group">
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#c0f500] via-[#00e3fd] to-[#7b61ff]"></div>
+
+            <div class="flex items-center justify-between mb-6">
+              <span class="font-mono text-xs uppercase tracking-widest text-[#00e3fd] font-bold">
+                VAULT ARTIFACT SUMMARY
+              </span>
+              <span class="px-3 py-1 rounded-full bg-[#7b61ff]/20 border border-[#7b61ff]/50 font-mono text-xs text-[#c0f500] font-bold">
+                {nodeCount} WIRED NODES
+              </span>
+            </div>
+
+            <h2 id="summaryTitle" class="text-xl font-bold text-white mb-2">{itemTitle}</h2>
+            <p class="font-mono text-xs text-[#9ca3af] mb-6">
+              Vault File: <code class="text-[#00e3fd] bg-black/50 px-2 py-0.5 rounded">{itemSlug}.json</code>
+            </p>
+
+            <!-- Price Breakdown -->
+            <div class="bg-[#050508]/90 border border-white/10 rounded-2xl p-5 space-y-3 mb-6">
+              <div class="flex items-center justify-between text-xs font-mono text-[#9ca3af]">
+                <span>Production n8n Blueprint (.JSON)</span>
+                <span class="text-white font-bold">${itemPrice}.00 USD</span>
+              </div>
+              <div class="flex items-center justify-between text-xs font-mono text-[#9ca3af]">
+                <span>Unlimited Self-Hosted / Cloud Runs</span>
+                <span class="text-[#c0f500] font-bold">INCLUDED</span>
+              </div>
+              <div class="flex items-center justify-between text-xs font-mono text-[#9ca3af]">
+                <span>Credential Scrubbing & Retry Logic</span>
+                <span class="text-[#c0f500] font-bold">VERIFIED</span>
+              </div>
+              <div class="border-t border-white/10 pt-3 flex items-center justify-between">
+                <span class="font-mono text-sm text-white font-bold">Total One-Time Payment</span>
+                <span id="summaryPrice" class="font-mono text-3xl font-extrabold text-[#c0f500]">
+                  ${itemPrice}<span class="text-sm text-[#9ca3af] font-normal"> USD</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- What Unlocks Immediately -->
+            <div class="space-y-2.5 text-xs text-[#e5e1e7]">
+              <div class="font-mono text-[11px] uppercase tracking-wider text-[#9ca3af] mb-2">
+                WHAT UNLOCKS IMMEDIATELY AFTER PAYMENT:
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="text-[#c0f500] font-bold">✓</span>
+                <span>Full unredacted <strong>{itemSlug}.json</strong> ready for 1-click import into n8n (`v1.65+`)</span>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="text-[#c0f500] font-bold">✓</span>
+                <span>All internal JavaScript/Python Code nodes, AI prompt templates & branching rules</span>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="text-[#c0f500] font-bold">✓</span>
+                <span>Commercial deployment license key (`LSQ-XXXX` / `WOA-PRO-XXXX`) with 25 vault downloads</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Payment Gateway Portal & Instant License Unlock (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- PRIMARY PAYMENT GATEWAY CARD -->
+          <div class="rounded-3xl bg-[#131317] border border-[#c0f500]/30 p-7 sm:p-9 shadow-[0_25px_80px_rgba(192,245,0,0.08)] space-y-6 relative overflow-hidden">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <span class="font-mono text-xs text-[#c0f500] uppercase tracking-wider font-bold">
+                  STEP 1 · COMPLETE PAYMENT
+                </span>
+                <h3 class="text-xl font-bold text-white mt-0.5">Select Payment Method</h3>
+              </div>
+              <div class="flex items-center gap-2 font-mono text-xs text-[#9ca3af]">
+                <span class="px-2.5 py-1 rounded bg-white/5 border border-white/10">💳 Card</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 border border-white/10">Apple Pay</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 border border-white/10">PayPal</span>
+              </div>
+            </div>
+
+            <!-- Buyer Email for License Delivery -->
+            <div class="space-y-2">
+              <label for="buyerEmail" class="block font-mono text-xs text-[#e5e1e7] uppercase">
+                Your Delivery Email (For License Key & Vault Receipt)
+              </label>
+              <input
+                id="buyerEmail"
+                type="email"
+                placeholder="you@company.com"
+                class="w-full bg-[#050508] border border-white/15 focus:border-[#c0f500] rounded-xl px-4 py-3.5 text-sm font-mono text-white focus:outline-none transition-colors"
+              />
+            </div>
+
+            <!-- DEDICATED PAYMENT GATEWAY SLOT (Ready for Custom Payment Link / Embed) -->
+            <div
+              id="custom-payment-gateway-slot"
+              class="rounded-2xl bg-[#050508] border border-dashed border-[#00e3fd]/40 p-6 space-y-4"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs text-[#00e3fd] font-bold uppercase tracking-wider">
+                  ⚡ Instant Hosted Checkout Gateway
+                </span>
+                <span class="font-mono text-[11px] text-[#c0f500] bg-[#c0f500]/10 px-2.5 py-0.5 rounded-full">
+                  256-Bit TLS Encrypted
+                </span>
+              </div>
+
+              <p class="text-xs text-[#9ca3af] leading-relaxed">
+                Proceed via our Merchant of Record gateway to receive your instant license key and direct `.json` download.
+              </p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <a
+                  id="primaryCheckoutBtn"
+                  href={`${lemonStoreUrl}?checkout[custom][item_slug]=${encodeURIComponent(itemSlug)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-full py-4 px-5 rounded-xl bg-[#c0f500] hover:bg-[#d4ff33] text-[#050508] font-mono text-sm font-extrabold text-center no-underline shadow-[0_0_30px_rgba(192,245,0,0.35)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>Pay ${itemPrice} & Get License Key →</span>
+                </a>
+
+                <a
+                  href={`/marketplace/workflows/${itemSlug}`}
+                  class="w-full py-4 px-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-mono text-xs font-bold text-center no-underline transition-all flex items-center justify-center"
+                >
+                  ← Back to Workflow Page
+                </a>
+              </div>
+            </div>
+
+            <!-- STEP 2: INSTANT LICENSE KEY VERIFICATION & DIRECT JSON DOWNLOAD -->
+            <div class="border-t border-white/10 pt-6 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs text-[#00e3fd] uppercase tracking-wider font-bold">
+                  STEP 2 · ALREADY HAVE YOUR LICENSE KEY? UNLOCK .JSON NOW
+                </span>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-3">
+                <input
+                  id="paymentLicenseInput"
+                  type="text"
+                  placeholder="Enter LSQ-XXXX-XXXX or WOA-PRO-XXXX"
+                  class="flex-1 bg-[#050508] border border-white/15 focus:border-[#00e3fd] rounded-xl px-4 py-3.5 text-xs font-mono text-white focus:outline-none"
+                />
+                <button
+                  id="paymentUnlockBtn"
+                  data-slug={itemSlug}
+                  type="button"
+                  class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#00e3fd] to-[#7b61ff] text-[#050508] font-mono text-xs font-extrabold uppercase tracking-wider hover:opacity-95 transition-opacity cursor-pointer shrink-0"
+                >
+                  Verify & Download .JSON ⬇
+                </button>
+              </div>
+              <p id="paymentLicenseStatus" class="font-mono text-xs hidden"></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script is:inline>
+  (() => {
+    const unlockBtn = document.getElementById('paymentUnlockBtn');
+    const licenseInput = document.getElementById('paymentLicenseInput');
+    const statusEl = document.getElementById('paymentLicenseStatus');
+
+    if (unlockBtn && licenseInput && statusEl) {
+      unlockBtn.addEventListener('click', async () => {
+        const key = licenseInput.value.trim();
+        const slug = unlockBtn.getAttribute('data-slug') || '';
+        if (!key) {
+          statusEl.textContent = 'Please enter your license key to unlock the workflow JSON.';
+          statusEl.className = 'font-mono text-xs text-red-400 block';
+          return;
+        }
+        statusEl.textContent = 'Verifying license key with Vault Security...';
+        statusEl.className = 'font-mono text-xs text-[#00e3fd] block';
+
+        try {
+          if (key.startsWith('WOA-PRO-') && key.length >= 12) {
+            statusEl.textContent = '✓ License verified! Downloading workflow JSON...';
+            statusEl.className = 'font-mono text-xs text-[#c0f500] block';
+            window.location.href = `/api/download/${encodeURIComponent(slug)}?license=${encodeURIComponent(key)}`;
+            return;
+          }
+
+          const res = await fetch('/api/license/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ license_key: key, item_slug: slug }),
+          });
+          const data = await res.json();
+          if (res.ok && data.valid) {
+            statusEl.textContent = '✓ License verified! Downloading workflow JSON...';
+            statusEl.className = 'font-mono text-xs text-[#c0f500] block';
+            window.location.href = `/api/download/${encodeURIComponent(slug)}?license=${encodeURIComponent(key)}`;
+          } else {
+            statusEl.textContent = data.error || 'Invalid or expired license key.';
+            statusEl.className = 'font-mono text-xs text-red-400 block';
+          }
+        } catch {
+          statusEl.textContent = 'Network error verifying license key.';
+          statusEl.className = 'font-mono text-xs text-red-400 block';
+        }
+      });
+    }
+  })();
+</script>

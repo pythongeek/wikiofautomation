@@ -1,0 +1,3717 @@
+{
+  "name": "Autonomous SEO/AEO Content Empire & DirectRelay Multi-Site Publisher (156 Nodes)",
+  "nodes": [
+    {
+      "id": "10872e8b-a6fa-46c0-acaa-0d3eaf0c544b",
+      "name": "Stage 1: HMAC Webhook & Scheduled Keyword Ingress",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 1: HMAC Webhook & Scheduled Keyword Ingress\nValidates HMAC-SHA256 signatures, enforces sliding-window rate limits, deduplicates keyword payloads, and logs trace telemetry.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 4
+      }
+    },
+    {
+      "id": "3ff687c3-7dc2-41c9-afaa-60eb4cf987f1",
+      "name": "S1_Ingress · Inbound Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "s1_ingress-ingest",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2d36a0ad-a6fd-4f4a-a5b3-3dfdb52e1d11",
+      "name": "S1_Ingress · Scheduled Fallback Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "17310bfc-c5ae-4c3f-a6aa-5d7097e707c4",
+      "name": "S1_Ingress · Unify Ingress Stream",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "mode": "append"
+      }
+    },
+    {
+      "id": "8acbb9bd-8e9b-4bc8-a409-595256923eb7",
+      "name": "S1_Ingress · Verify HMAC-SHA256 Signature",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "action": "hmac",
+        "type": "SHA256",
+        "value": "={{ JSON.stringify($json.body) }}",
+        "secret": "={{ $env.WEBHOOK_HMAC_SECRET }}"
+      }
+    },
+    {
+      "id": "b1041b6c-a492-419b-aefb-93e792959021",
+      "name": "S1_Ingress · Signature Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "994b82e5-80c1-4cb8-aec8-77fe210cb931",
+      "name": "S1_Ingress · Respond 401 Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        720,
+        660
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"Invalid HMAC signature\"}",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    },
+    {
+      "id": "33d77ab4-9116-4ae8-a699-73134cb745ef",
+      "name": "S1_Ingress · Check Sliding-Window Rate Limit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return items.map(i => ({ json: { ...i.json, rateLimitOk: true, remainingQuota: 95 } }));"
+      }
+    },
+    {
+      "id": "08fc25a8-35c7-4761-aa43-cf948770ea00",
+      "name": "S1_Ingress · Within Rate Quota?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "24f3ff35-afc5-4a88-a709-3664f5c3a2a3",
+      "name": "S1_Ingress · Respond 429 Rate Limited",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        660
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"Rate limit exceeded\"}",
+        "options": {
+          "responseCode": 429
+        }
+      }
+    },
+    {
+      "id": "c1652e2d-ee26-48ad-a47e-63c78b81767b",
+      "name": "S1_Ingress · Sanitize & Normalize Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "2f5ea75a-fa6e-4cc9-a478-a3a1dc446e84",
+      "name": "S1_Ingress · Idempotency Hash Deduplicator",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "14507a69-6dc3-4a32-a94b-f5af6d9b855b",
+      "name": "S1_Ingress · Strict JSON Schema Validator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        660
+      ],
+      "parameters": {
+        "jsCode": "return items;"
+      }
+    },
+    {
+      "id": "9b14d0e5-e5c1-4e54-ac78-ef61ab7b6811",
+      "name": "S1_Ingress · Schema Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "489ebcaf-b256-4082-a3a5-761f9bb81969",
+      "name": "S1_Ingress · Respond 400 Bad Payload",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        960,
+        660
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"Schema validation failed\"}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "id": "018a5f2c-58b6-460d-a6c4-5dec0ae568b2",
+      "name": "S1_Ingress · Attach Trace ID & Telemetry Stamp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "050a45d8-be03-42de-a9b2-26bb2af83174",
+      "name": "S1_Ingress · Log Ingress Event to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        840
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_REST_URL }}/ingress_events"
+      }
+    },
+    {
+      "id": "453a7baa-4232-4c1c-aae6-0a2ad7e5d506",
+      "name": "S1_Ingress · Emit Early 202 Accepted Header",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        1020
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "0b1fc7fc-bf77-4f47-aa4f-6b61567880dc",
+      "name": "Stage 2: Hybrid RAG Competitor & Citation Research",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1770,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 2: Hybrid RAG Competitor & Citation Research\nScrapes SERP & competitor pages, chunks markdown, computes dense + BM25 embeddings, and reranks top evidence in Supabase Vector.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 5
+      }
+    },
+    {
+      "id": "5ed9f57d-451f-4137-a029-6215bf2fcd20",
+      "name": "S2_RAG · Fetch Source Document URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1850,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 1"
+      }
+    },
+    {
+      "id": "b73fec83-98bd-4f5f-a7fe-16ce50b036b2",
+      "name": "S2_RAG · Extract Clean Markdown",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1850,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 2"
+      }
+    },
+    {
+      "id": "79f7173f-facb-4a07-a6f8-d59948f6fccc",
+      "name": "S2_RAG · Strip Boilerplate & Nav Tags",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1850,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 3"
+      }
+    },
+    {
+      "id": "034109a7-2de7-4864-a721-c54ebaaa35fa",
+      "name": "S2_RAG · Compute SHA-256 Content Hash",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2090,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 4"
+      }
+    },
+    {
+      "id": "2b56e0bd-8e0b-4ebb-a883-fd5e9e054f0d",
+      "name": "S2_RAG · Check Vector Store Dedup",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2090,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 5"
+      }
+    },
+    {
+      "id": "3974296b-182b-464a-a9c0-32c7c29853c8",
+      "name": "S2_RAG · Split Semantic Chunks (512 tok)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2090,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 6"
+      }
+    },
+    {
+      "id": "fc9f4251-bf44-4d32-ae3e-7a3e5445281a",
+      "name": "S2_RAG · Extract Metadata & Entities",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2330,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 7"
+      }
+    },
+    {
+      "id": "fda9f85c-4126-4f41-a954-f757266c6d96",
+      "name": "S2_RAG · Generate Dense Embeddings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2330,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 8"
+      }
+    },
+    {
+      "id": "50891c33-119e-466e-a5dc-8b3c68f52409",
+      "name": "S2_RAG · Generate Sparse BM25 Vectors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2330,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 9"
+      }
+    },
+    {
+      "id": "8cfeaaa3-62e9-4685-aa37-65468fbea312",
+      "name": "S2_RAG · Upsert Hybrid Chunks to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2570,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 10"
+      }
+    },
+    {
+      "id": "47c39358-e6d9-4151-a5d7-7785bb58891b",
+      "name": "S2_RAG · Query Top-K Hybrid Matches",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2570,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 11"
+      }
+    },
+    {
+      "id": "70382f96-36fe-4428-a248-f3acc5e7aef0",
+      "name": "S2_RAG · Cross-Encoder Rerank Top 10",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2570,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 12"
+      }
+    },
+    {
+      "id": "6872c728-9227-4f6a-abb4-9087511c5d33",
+      "name": "S2_RAG · Filter Below 0.78 Similarity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2810,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 13"
+      }
+    },
+    {
+      "id": "1a2b1ed6-a472-4821-a165-321540d3cf0b",
+      "name": "S2_RAG · Build Numbered Citation Map",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2810,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 14"
+      }
+    },
+    {
+      "id": "1a281c44-e015-4152-ab22-15160f084605",
+      "name": "S2_RAG · Verify Source URL Reachability",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2810,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 15"
+      }
+    },
+    {
+      "id": "c560d863-6464-4e9e-aa64-8e708e5b590e",
+      "name": "S2_RAG · Compress Context Window",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3050,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 16"
+      }
+    },
+    {
+      "id": "8274b6fa-49b4-43a8-aab8-587a3debab6c",
+      "name": "S2_RAG · Log Retrieval Recall Metrics",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3050,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 17"
+      }
+    },
+    {
+      "id": "16461bfa-4a7d-446e-a9d8-704b6416dcbb",
+      "name": "S2_RAG · Attach Grounded RAG Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3050,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 18"
+      }
+    },
+    {
+      "id": "a07f7e5b-d01f-4f06-a41b-9dcac0bb2d89",
+      "name": "S2_RAG · Finalize Hybrid RAG Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3290,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Hybrid RAG Competitor & Citation Research — Step 19"
+      }
+    },
+    {
+      "id": "9ce87e3f-9632-4e52-a892-49fe3434ceba",
+      "name": "Stage 3: WebMCP Tool Discovery & Fact Verification",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3620,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 3: WebMCP Tool Discovery & Fact Verification\nQueries /.well-known/mcp.json manifests, executes live verification tools, and wraps evidence with cryptographic citation hashes.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 6
+      }
+    },
+    {
+      "id": "40d9e136-2422-473c-affd-a1e3c3dc624b",
+      "name": "S3_MCP · Discover /.well-known/mcp.json",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3700,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 1"
+      }
+    },
+    {
+      "id": "83e88630-b15f-495d-aa85-44186e55c73c",
+      "name": "S3_MCP · Parse Tool Schemas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3700,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 2"
+      }
+    },
+    {
+      "id": "34831c03-2747-447c-ac98-54609f23a4a9",
+      "name": "S3_MCP · Validate Agent Policy Preset",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3700,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 3"
+      }
+    },
+    {
+      "id": "d299e863-690f-4ad7-a368-ad16f7bc7d48",
+      "name": "S3_MCP · Split Tool Calls Batch",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3940,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 4"
+      }
+    },
+    {
+      "id": "a82ff0d6-3075-442b-a3e2-1e3b33fdb0e2",
+      "name": "S3_MCP · Execute Search Tool Call",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3940,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 5"
+      }
+    },
+    {
+      "id": "4be34b9c-8f8d-4f01-a067-88b18fc61a80",
+      "name": "S3_MCP · Execute Database Query Tool",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3940,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 6"
+      }
+    },
+    {
+      "id": "62c0a1b0-7a61-4113-a6e8-be142785a809",
+      "name": "S3_MCP · Execute External API Tool",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4180,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 7"
+      }
+    },
+    {
+      "id": "572c9dd9-d047-430c-a4a9-14ee1a7f0ef5",
+      "name": "S3_MCP · Verify Citation Wrapper Hash",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4180,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 8"
+      }
+    },
+    {
+      "id": "b9c813c5-0561-4f5f-a1d6-9fdf599b77b9",
+      "name": "S3_MCP · Aggregate Tool Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4180,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 9"
+      }
+    },
+    {
+      "id": "7342e676-e7c6-45d3-a1b5-c2c0b38b298e",
+      "name": "S3_MCP · Filter Empty Tool Responses",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4420,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 10"
+      }
+    },
+    {
+      "id": "6ed0c094-aade-42eb-af67-7d57b2b12735",
+      "name": "S3_MCP · Score Evidence Quality",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4420,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 11"
+      }
+    },
+    {
+      "id": "2878698d-3547-4d5c-af8c-bd6d05fc0b77",
+      "name": "S3_MCP · Check Rate & RPM Headers",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4420,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 12"
+      }
+    },
+    {
+      "id": "b19b32a6-4ac9-474b-aba4-930422050b7c",
+      "name": "S3_MCP · Format Tool Context Block",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4660,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 13"
+      }
+    },
+    {
+      "id": "11f1fb8c-4b96-4045-ad31-35a10725f68c",
+      "name": "S3_MCP · Cache Tool Response in Redis",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4660,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 14"
+      }
+    },
+    {
+      "id": "e4e94387-6c7f-483d-a63a-ec412a4c5fe3",
+      "name": "S3_MCP · Emit SSE Agent Trace Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4660,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 15"
+      }
+    },
+    {
+      "id": "46ded5bc-95f3-402a-a7bb-8c8eaf72a545",
+      "name": "S3_MCP · Check Tool Error Flags",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4900,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 16"
+      }
+    },
+    {
+      "id": "f196955c-4a03-474d-ab54-555898f37d3f",
+      "name": "S3_MCP · Fallback Secondary Tool",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4900,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 17"
+      }
+    },
+    {
+      "id": "8001a062-1323-4774-a5e9-10571679896a",
+      "name": "S3_MCP · Merge Final Tool Context",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4900,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 18"
+      }
+    },
+    {
+      "id": "69f27188-98d8-4d03-a696-3cee9a83154c",
+      "name": "S3_MCP · Finalize MCP Stage Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5140,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: WebMCP Tool Discovery & Fact Verification — Step 19"
+      }
+    },
+    {
+      "id": "86b9992b-83fb-42e7-aa0b-8d4c4db99042",
+      "name": "Stage 4: Multi-LLM Reasoning & AEO Drafting Router",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5470,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 4: Multi-LLM Reasoning & AEO Drafting Router\nRoutes drafting across Claude 3.7 Sonnet, GPT-4o, and Colab/Ollama tunnel with strict Zod JSON output parsing and hallucination guard.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 3
+      }
+    },
+    {
+      "id": "75c961ac-63c9-41ec-ae9f-c15a059c6e6d",
+      "name": "S4_Agent · Construct System & Context Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5550,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "35b21be7-0aae-44b1-a2da-a4a1e06e14a8",
+      "name": "S4_Agent · Classify Complexity & Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        5790,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "cfdd5c56-ea77-4efc-aa52-4e3316cb4d12",
+      "name": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        6030,
+        300
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}"
+      }
+    },
+    {
+      "id": "f9e83e84-8332-424e-aaa3-b774bcd474ce",
+      "name": "S4_Agent · Fast Triage Agent (Local/Flash)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        6030,
+        660
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}"
+      }
+    },
+    {
+      "id": "b200b8b0-8bd4-43d7-a59d-873a7aad176f",
+      "name": "S4_Agent · Claude 3.7 Sonnet Reasoning",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        5790,
+        480
+      ],
+      "parameters": {
+        "model": "claude-3-7-sonnet-latest"
+      }
+    },
+    {
+      "id": "0e6877c2-58e4-4899-afed-980fe0647bfa",
+      "name": "S4_Agent · OpenAI GPT-4o Fallback",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        6030,
+        480
+      ],
+      "parameters": {
+        "model": "gpt-4o"
+      }
+    },
+    {
+      "id": "891e982d-aee8-4251-acd9-69e3490f9c2f",
+      "name": "S4_Agent · Colab/Ollama Reverse-Tunnel LLM",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        5790,
+        840
+      ],
+      "parameters": {
+        "model": "qwen3.8-27b",
+        "options": {
+          "baseURL": "={{ $env.OLLAMA_RELAY_BASE_URL }}/v1"
+        }
+      }
+    },
+    {
+      "id": "068eb88e-4833-44e5-afd4-2c88cd39549b",
+      "name": "S4_Agent · Postgres Session Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        6270,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "a3a4affd-53bf-4f5e-ae8d-cd32923b7d78",
+      "name": "S4_Agent · Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        6270,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "a1ea502e-7e79-47b7-af14-976ba43916da",
+      "name": "S4_Agent · Strict Zod JSON Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        6510,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "a4a03a2b-9c6a-493e-a7d0-74179cb8e0b2",
+      "name": "S4_Agent · Auto-Fixing Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        6510,
+        660
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f77ee94c-4bf3-4826-a4ec-b26807b48275",
+      "name": "S4_Agent · Sandboxed JS Evaluator Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        6510,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "99dccb15-4471-4eaf-a17e-8cceb3fa1bf4",
+      "name": "S4_Agent · Live Web Verification Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6750,
+        840
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "660484fa-3fd4-4a67-aef2-7c7812a11375",
+      "name": "S4_Agent · WebMCP Nexus Manifest Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        6750,
+        660
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "2b5e7fda-640b-4d7b-a775-104c09011030",
+      "name": "S4_Agent · Unify Agent Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6750,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "aa3474b8-9081-4c7b-a063-446ea1d7cb47",
+      "name": "S4_Agent · Compute Token Cost & Latency",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6990,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "f0f02dff-5b15-4298-aea8-f24bab807356",
+      "name": "S4_Agent · Citation & Grounding Validator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6990,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "884b71da-737d-4eb5-af3b-0bc23dfeb7c1",
+      "name": "S4_Agent · Normalize Verified Agent Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6990,
+        660
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "bc9e08db-171f-4c65-a179-7fc56d9e0e72",
+      "name": "Stage 5: Human-in-the-Loop Magic Approval Gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        7320,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 5: Human-in-the-Loop Magic Approval Gate\nDispatches interactive Slack/Telegram approval cards with signed Magic Review URLs and SLA timeout escalation.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 2
+      }
+    },
+    {
+      "id": "bebf021a-a17a-45d3-a55f-6b0f382d1b21",
+      "name": "S5_HITL · Compute Risk & Confidence Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7400,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 1"
+      }
+    },
+    {
+      "id": "845db5e5-19b4-4ab0-a3ea-6064972f1029",
+      "name": "S5_HITL · Confidence Below Auto-Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7400,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 2"
+      }
+    },
+    {
+      "id": "56b95893-d357-40a9-ab41-99336b16aa2e",
+      "name": "S5_HITL · Generate Signed Magic Review URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7400,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 3"
+      }
+    },
+    {
+      "id": "b2e01730-cf49-45e5-af62-8858bc54b1d6",
+      "name": "S5_HITL · Dispatch Slack Interactive Block",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7640,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 4"
+      }
+    },
+    {
+      "id": "eedfe9c2-2223-4a38-a57d-5c8fdafca3da",
+      "name": "S5_HITL · Dispatch Telegram Approval Card",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7640,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 5"
+      }
+    },
+    {
+      "id": "f57eaaaa-f913-40f8-a5d6-51eca2325f5a",
+      "name": "S5_HITL · Send Email Summary Digest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7640,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 6"
+      }
+    },
+    {
+      "id": "53cdb123-f1af-47f2-abac-31e0836e7633",
+      "name": "S5_HITL · Write Pending Approval to DB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7880,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 7"
+      }
+    },
+    {
+      "id": "0d5ce082-221d-410e-afdb-641cf27e94f4",
+      "name": "S5_HITL · Wait for Human Webhook Callback",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        7880,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 8"
+      }
+    },
+    {
+      "id": "06485272-0c6e-45f7-a61b-52469fd31fef",
+      "name": "S5_HITL · Verify Reviewer Signature",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7880,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 9"
+      }
+    },
+    {
+      "id": "43782b7a-ab92-4ee9-ab0f-270ea731553a",
+      "name": "S5_HITL · Approval Decision Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        8120,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 10"
+      }
+    },
+    {
+      "id": "e1bffd1b-3545-4fbf-a37c-7038bfbea7f9",
+      "name": "S5_HITL · Apply Reviewer Edits & Notes",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8120,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 11"
+      }
+    },
+    {
+      "id": "04753ac9-b5cb-4235-ac7c-a5661b68d80f",
+      "name": "S5_HITL · Log Audit Trail Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8120,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 12"
+      }
+    },
+    {
+      "id": "a2707c2e-75f2-4d7d-a331-1671b0c61efd",
+      "name": "S5_HITL · Notify Creator of Approval",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8360,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 13"
+      }
+    },
+    {
+      "id": "9cf3009d-847d-4589-a7db-06509eddbaef",
+      "name": "S5_HITL · Handle Timeout Escalation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8360,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 14"
+      }
+    },
+    {
+      "id": "2fd8255c-fc3b-4a0c-a343-0b9faa9b6834",
+      "name": "S5_HITL · Route Rejected Item to Revision",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8360,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 15"
+      }
+    },
+    {
+      "id": "5b21edcd-b923-4afd-a23c-06b9193d1a91",
+      "name": "S5_HITL · Update Approval SLA Telemetry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8600,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 16"
+      }
+    },
+    {
+      "id": "b6059bd3-a727-4d6a-ab91-d2d93ddadf2c",
+      "name": "S5_HITL · Unlock Downstream Execution",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8600,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 17"
+      }
+    },
+    {
+      "id": "cf52549b-d2ba-40c0-a47b-a7da917dc81d",
+      "name": "S5_HITL · Merge Auto + Human Approved",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        8600,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 18"
+      }
+    },
+    {
+      "id": "51ab2871-effc-42de-aee5-2ee8a5d6cb7e",
+      "name": "S5_HITL · Finalize Governance Gate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8840,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Human-in-the-Loop Magic Approval Gate — Step 19"
+      }
+    },
+    {
+      "id": "3f9b2eb5-c485-4534-a05d-c15a731741e7",
+      "name": "Stage 6: DirectRelay Pro Atomic WordPress & Indexing Publisher",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9170,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 6: DirectRelay Pro Atomic WordPress & Indexing Publisher\nPublishes Gutenberg blocks, WebP media, TechArticle + FAQPage JSON-LD, updates /llms.txt, and pings Google Indexing API + IndexNow.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 4
+      }
+    },
+    {
+      "id": "2740cbb9-3b73-452e-a493-c62e8e5309b3",
+      "name": "S6_Publish · Prepare Article & AEO Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9250,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 1"
+      }
+    },
+    {
+      "id": "a4228c8b-babf-4475-a3dc-167158ed16f5",
+      "name": "S6_Publish · Generate 40-Word Direct Answer Box",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9250,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 2"
+      }
+    },
+    {
+      "id": "47791c5d-10b4-4251-a5e1-efe8a9717e8e",
+      "name": "S6_Publish · Build TechArticle + FAQPage JSON-LD",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9250,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 3"
+      }
+    },
+    {
+      "id": "398de396-27de-4b29-aec8-cfe4614ac36f",
+      "name": "S6_Publish · Validate Schema.org Graph Hygiene",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9490,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 4"
+      }
+    },
+    {
+      "id": "3adcb534-a66c-4339-a287-863185fb636d",
+      "name": "S6_Publish · Run Semantic Internal Linker",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9490,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 5"
+      }
+    },
+    {
+      "id": "97d86455-f807-4a06-a4d9-088e1d2a5646",
+      "name": "S6_Publish · Enforce AI Velocity & Word Cap",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9490,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 6"
+      }
+    },
+    {
+      "id": "59851459-af93-4d98-a686-817bb8b3d111",
+      "name": "S6_Publish · Generate 1200x630 OpenGraph Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9730,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 7"
+      }
+    },
+    {
+      "id": "a5312ae0-a48c-4ff6-ac23-831f96ce0281",
+      "name": "S6_Publish · Convert Inline Images to WebP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9730,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 8"
+      }
+    },
+    {
+      "id": "d6bab493-c621-4ccd-ae8b-f7a2ed207eca",
+      "name": "S6_Publish · Sideload Media via DirectRelay API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        9730,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 9"
+      }
+    },
+    {
+      "id": "46ee30cb-924a-42d5-a8f2-688190865944",
+      "name": "S6_Publish · Convert Markdown to Gutenberg Blocks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9970,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 10"
+      }
+    },
+    {
+      "id": "a3e31ffc-a6dd-4c6e-aa82-d34caac343e0",
+      "name": "S6_Publish · Atomic POST to DirectRelay /publish",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9970,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 11"
+      }
+    },
+    {
+      "id": "3cfb4be7-2e43-4167-a781-60424080f102",
+      "name": "S6_Publish · Sync RankMath & Yoast Meta Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9970,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 12"
+      }
+    },
+    {
+      "id": "002c8a19-8ac0-4391-a694-c39dc6e70232",
+      "name": "S6_Publish · Update /llms.txt & /llms-full.txt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10210,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 13"
+      }
+    },
+    {
+      "id": "573e7fdd-e850-4186-a314-423694d93880",
+      "name": "S6_Publish · Mint Google Indexing API RS256 JWT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10210,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 14"
+      }
+    },
+    {
+      "id": "766cb4cd-f739-43a6-a637-c6df753ead57",
+      "name": "S6_Publish · Submit URL to Google Indexing API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10210,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 15"
+      }
+    },
+    {
+      "id": "36dbf1af-fbde-4b2d-a499-e1d26032c43e",
+      "name": "S6_Publish · Broadcast IndexNow Ping (Bing/Yandex)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10450,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 16"
+      }
+    },
+    {
+      "id": "cc1d65cd-2285-4ca4-a853-0d183af73bca",
+      "name": "S6_Publish · Purge Cloudflare & LiteSpeed Cache",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10450,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 17"
+      }
+    },
+    {
+      "id": "1783eb62-b742-4721-ac90-93d6a6019333",
+      "name": "S6_Publish · Verify Live HTTP 200 & JSON-LD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10450,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 18"
+      }
+    },
+    {
+      "id": "bdb45fad-a62e-4a76-ac13-6f72565037a6",
+      "name": "S6_Publish · Record Published URL & AEO Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10690,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: DirectRelay Pro Atomic WordPress & Indexing Publisher — Step 19"
+      }
+    },
+    {
+      "id": "f162331f-e58e-442d-ac3d-443c043aefb1",
+      "name": "Stage 7: Omni-Channel Social & Video Syndicator",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11020,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 7: Omni-Channel Social & Video Syndicator\nRewrites and syndicates to X threads, LinkedIn, Instagram Carousels, Facebook, Telegram, Discord, and tracks UTM analytics.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 5
+      }
+    },
+    {
+      "id": "4809346c-9be3-4547-a89b-b425d2607570",
+      "name": "S7_Syndicate · Load Canonical Published Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11100,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 1"
+      }
+    },
+    {
+      "id": "f94deb6d-e289-4a5e-a918-504b568b1a9a",
+      "name": "S7_Syndicate · Synthesize X/Twitter Thread (5 Posts)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11100,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 2"
+      }
+    },
+    {
+      "id": "5ebdf2f9-17c0-4b58-af7c-8c2507dfbb60",
+      "name": "S7_Syndicate · Synthesize LinkedIn Executive Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11100,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 3"
+      }
+    },
+    {
+      "id": "d17996c5-b44f-4974-a010-825509c154dd",
+      "name": "S7_Syndicate · Generate Instagram Carousel Slides",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11340,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 4"
+      }
+    },
+    {
+      "id": "f33f36a1-483c-4328-aa25-df8a2299b064",
+      "name": "S7_Syndicate · Generate Short-Form Video Script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11340,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 5"
+      }
+    },
+    {
+      "id": "656620b6-ae3b-491f-ae25-ca99ad1a90ff",
+      "name": "S7_Syndicate · Render Audio/Video via Creatomate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11340,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 6"
+      }
+    },
+    {
+      "id": "9998f9d0-70bb-4af1-a637-8d2b7584ac3b",
+      "name": "S7_Syndicate · Publish Thread to X API v2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11580,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 7"
+      }
+    },
+    {
+      "id": "adb7cf4e-aac6-4f04-a7d7-a3d28a36d630",
+      "name": "S7_Syndicate · Publish Article to LinkedIn API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11580,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 8"
+      }
+    },
+    {
+      "id": "7b3e10e1-7ff0-46fa-abd0-5ae6e907181d",
+      "name": "S7_Syndicate · Publish Carousel to Instagram Graph",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11580,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 9"
+      }
+    },
+    {
+      "id": "61c17120-47b9-41eb-ad30-26e893df76f7",
+      "name": "S7_Syndicate · Publish Update to Facebook Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        11820,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 10"
+      }
+    },
+    {
+      "id": "33213b57-b654-44ec-abac-e11c1171e660",
+      "name": "S7_Syndicate · Broadcast to Telegram Channel",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11820,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 11"
+      }
+    },
+    {
+      "id": "16572f83-38f8-4582-a81e-ee8895f152bf",
+      "name": "S7_Syndicate · Post Embed to Discord Webhook",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11820,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 12"
+      }
+    },
+    {
+      "id": "19aaaaa3-08f9-4100-a296-8712e6b89bff",
+      "name": "S7_Syndicate · Syndicate Canonical to Medium/Dev.to",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12060,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 13"
+      }
+    },
+    {
+      "id": "74430305-199c-4c87-a0e8-87336427152b",
+      "name": "S7_Syndicate · Submit RSS Ping to Aggregators",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        12060,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 14"
+      }
+    },
+    {
+      "id": "73b24a85-49ac-4a12-a01f-7b614df6f5d3",
+      "name": "S7_Syndicate · Collect Live Post Permalinks",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12060,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 15"
+      }
+    },
+    {
+      "id": "e5bbc99a-4eb2-4b05-a04f-a7c174f0c9d2",
+      "name": "S7_Syndicate · Append UTM Attribution Parameters",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12300,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 16"
+      }
+    },
+    {
+      "id": "84ba7cf4-2914-42db-ad03-ee62caca68fc",
+      "name": "S7_Syndicate · Log Social Reach to Google Sheets",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12300,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 17"
+      }
+    },
+    {
+      "id": "8969de26-4e16-4daf-a06b-c5767a785ba0",
+      "name": "S7_Syndicate · Update Campaign ROI Dashboard",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12300,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 18"
+      }
+    },
+    {
+      "id": "fa71d67f-5cc4-4307-a567-1213c666de6d",
+      "name": "S7_Syndicate · Finalize Omni-Channel Syndication",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12540,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Omni-Channel Social & Video Syndicator — Step 19"
+      }
+    },
+    {
+      "id": "b07dcd8b-65c7-46da-ab6b-892870a6cfca",
+      "name": "Stage 8: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        12870,
+        40
+      ],
+      "parameters": {
+        "content": "## Stage 8: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops\nCatches transient failures, executes exponential backoff retries, encrypts failed payloads into Supabase DLQ, and alerts Ops.\n\n*Compiled via WikiOfAutomation n8n-forge v2.0*",
+        "height": 920,
+        "width": 1720,
+        "color": 1
+      }
+    },
+    {
+      "id": "76670dde-6718-4c71-a41e-b245ed5e3f01",
+      "name": "S8_DLQ · Global Error Trigger Listener",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12950,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 1"
+      }
+    },
+    {
+      "id": "6d78c351-c9b2-41ac-ab15-12842b1f42a5",
+      "name": "S8_DLQ · Extract Failed Node & Stacktrace",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12950,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 2"
+      }
+    },
+    {
+      "id": "6371d1f2-8b48-4d34-a5e6-ff8d5c96e1ad",
+      "name": "S8_DLQ · Classify Error (Transient vs Fatal)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        12950,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 3"
+      }
+    },
+    {
+      "id": "7c180f49-755f-4d50-ab9d-c6fee31203f7",
+      "name": "S8_DLQ · Check Retry Attempt Counter (< 3)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        13190,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 4"
+      }
+    },
+    {
+      "id": "e6263dd2-ca87-4f7b-abd2-cf2003dedc2d",
+      "name": "S8_DLQ · Calculate Exponential Backoff Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        13190,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 5"
+      }
+    },
+    {
+      "id": "84e840ae-a6ef-43e9-a5c1-76e33f32fdbc",
+      "name": "S8_DLQ · Wait Before Auto-Retry",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        13190,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 6"
+      }
+    },
+    {
+      "id": "797b9d11-d2fe-40fe-a292-018cbcedad08",
+      "name": "S8_DLQ · Replay Failed Sub-Workflow Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13430,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 7"
+      }
+    },
+    {
+      "id": "e33194d3-b9c1-4bc2-a62d-075cefeec00a",
+      "name": "S8_DLQ · Format Dead-Letter Queue Record",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13430,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 8"
+      }
+    },
+    {
+      "id": "4c493b59-78fa-4d1a-a774-808e0db86a6f",
+      "name": "S8_DLQ · Encrypt Sensitive Payload Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13430,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 9"
+      }
+    },
+    {
+      "id": "2676e33e-cce3-4176-ab58-cd465a9701f1",
+      "name": "S8_DLQ · Insert into Supabase DLQ Table",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13670,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 10"
+      }
+    },
+    {
+      "id": "5d767105-1aea-4b1f-a8de-6e1782dbb7b0",
+      "name": "S8_DLQ · Backup DLQ JSON to Google Drive",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13670,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 11"
+      }
+    },
+    {
+      "id": "b3b31720-9be9-40d8-a400-b97fd0c6836d",
+      "name": "S8_DLQ · Send Pager/Telegram Critical Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13670,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 12"
+      }
+    },
+    {
+      "id": "3e347a0c-7c45-4ec9-a11d-9572de5d41df",
+      "name": "S8_DLQ · Post Incident Card to Slack #ops",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13910,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 13"
+      }
+    },
+    {
+      "id": "fd0e6278-8653-4c2d-a9e6-be1e02bd1baf",
+      "name": "S8_DLQ · Create Jira/Linear Bug Ticket",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13910,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 14"
+      }
+    },
+    {
+      "id": "421de169-6255-4476-acd9-a3a04b761ef1",
+      "name": "S8_DLQ · Update System Uptime Status Metric",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13910,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 15"
+      }
+    },
+    {
+      "id": "3cf3c643-a0f2-4a4d-acd6-a20cb91427ff",
+      "name": "S8_DLQ · Generate One-Click Replay URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        14150,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 16"
+      }
+    },
+    {
+      "id": "dd54c37b-9f52-48a1-a302-499e7442d1fb",
+      "name": "S8_DLQ · Prune Expired DLQ Logs (> 30d)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        14150,
+        480
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 17"
+      }
+    },
+    {
+      "id": "f161e900-444e-4b02-a603-9fbe4d45a49c",
+      "name": "S8_DLQ · Acknowledge Error Handled",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        14150,
+        660
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 18"
+      }
+    },
+    {
+      "id": "7143cc86-1eaa-42fd-a7ea-28fc484d40d4",
+      "name": "S8_DLQ · Finalize Self-Healing Recovery",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        14390,
+        300
+      ],
+      "parameters": {
+        "notes": "Stage: Self-Healing Dead-Letter Queue (DLQ) & Incident Ops — Step 19"
+      }
+    }
+  ],
+  "connections": {
+    "S1_Ingress · Inbound Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Unify Ingress Stream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Scheduled Fallback Trigger": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Unify Ingress Stream",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Unify Ingress Stream": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Verify HMAC-SHA256 Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Verify HMAC-SHA256 Signature": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Signature Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Signature Valid?": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Check Sliding-Window Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S1_Ingress · Respond 401 Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Check Sliding-Window Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Within Rate Quota?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Within Rate Quota?": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Sanitize & Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S1_Ingress · Respond 429 Rate Limited",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Sanitize & Normalize Payload": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Idempotency Hash Deduplicator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Idempotency Hash Deduplicator": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Strict JSON Schema Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Strict JSON Schema Validator": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Schema Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Schema Valid?": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Attach Trace ID & Telemetry Stamp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S1_Ingress · Respond 400 Bad Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Attach Trace ID & Telemetry Stamp": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Log Ingress Event to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Log Ingress Event to Supabase": {
+      "main": [
+        [
+          {
+            "node": "S1_Ingress · Emit Early 202 Accepted Header",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Fetch Source Document URL": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Extract Clean Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Extract Clean Markdown": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Strip Boilerplate & Nav Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Strip Boilerplate & Nav Tags": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Compute SHA-256 Content Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Compute SHA-256 Content Hash": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Check Vector Store Dedup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Check Vector Store Dedup": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Split Semantic Chunks (512 tok)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Split Semantic Chunks (512 tok)": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Extract Metadata & Entities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Extract Metadata & Entities": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Generate Dense Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Generate Dense Embeddings": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Generate Sparse BM25 Vectors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Generate Sparse BM25 Vectors": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Upsert Hybrid Chunks to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Upsert Hybrid Chunks to Supabase": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Query Top-K Hybrid Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Query Top-K Hybrid Matches": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Cross-Encoder Rerank Top 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Cross-Encoder Rerank Top 10": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Filter Below 0.78 Similarity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Filter Below 0.78 Similarity": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Build Numbered Citation Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Build Numbered Citation Map": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Verify Source URL Reachability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Verify Source URL Reachability": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Compress Context Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Compress Context Window": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Log Retrieval Recall Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Log Retrieval Recall Metrics": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Attach Grounded RAG Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Attach Grounded RAG Context": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Finalize Hybrid RAG Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S1_Ingress · Emit Early 202 Accepted Header": {
+      "main": [
+        [
+          {
+            "node": "S2_RAG · Fetch Source Document URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Discover /.well-known/mcp.json": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Parse Tool Schemas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Parse Tool Schemas": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Validate Agent Policy Preset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Validate Agent Policy Preset": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Split Tool Calls Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Split Tool Calls Batch": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Execute Search Tool Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Execute Search Tool Call": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Execute Database Query Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Execute Database Query Tool": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Execute External API Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Execute External API Tool": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Verify Citation Wrapper Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Verify Citation Wrapper Hash": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Aggregate Tool Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Aggregate Tool Results": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Filter Empty Tool Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Filter Empty Tool Responses": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Score Evidence Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Score Evidence Quality": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Check Rate & RPM Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Check Rate & RPM Headers": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Format Tool Context Block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Format Tool Context Block": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Cache Tool Response in Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Cache Tool Response in Redis": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Emit SSE Agent Trace Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Emit SSE Agent Trace Event": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Check Tool Error Flags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Check Tool Error Flags": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Fallback Secondary Tool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Fallback Secondary Tool": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Merge Final Tool Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Merge Final Tool Context": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Finalize MCP Stage Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S2_RAG · Finalize Hybrid RAG Output": {
+      "main": [
+        [
+          {
+            "node": "S3_MCP · Discover /.well-known/mcp.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Construct System & Context Prompt": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Classify Complexity & Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Classify Complexity & Intent": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S4_Agent · Fast Triage Agent (Local/Flash)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Claude 3.7 Sonnet Reasoning": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · OpenAI GPT-4o Fallback": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "S4_Agent · Auto-Fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Colab/Ollama Reverse-Tunnel LLM": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "S4_Agent · Fast Triage Agent (Local/Flash)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Postgres Session Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "S4_Agent · Fast Triage Agent (Local/Flash)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Strict Zod JSON Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "S4_Agent · Auto-Fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Auto-Fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Sandboxed JS Evaluator Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Live Web Verification Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · WebMCP Nexus Manifest Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "S4_Agent · Primary Reasoning Agent (Claude/GPT)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Primary Reasoning Agent (Claude/GPT)": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Unify Agent Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Fast Triage Agent (Local/Flash)": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Unify Agent Outputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Unify Agent Outputs": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Compute Token Cost & Latency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Compute Token Cost & Latency": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Citation & Grounding Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Citation & Grounding Validator": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Normalize Verified Agent Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S4_Agent · Construct System & Context Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3_MCP · Finalize MCP Stage Payload": {
+      "main": [
+        [
+          {
+            "node": "S4_Agent · Construct System & Context Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Compute Risk & Confidence Score": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Confidence Below Auto-Threshold?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Confidence Below Auto-Threshold?": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Generate Signed Magic Review URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Generate Signed Magic Review URL": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Dispatch Slack Interactive Block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Dispatch Slack Interactive Block": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Dispatch Telegram Approval Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Dispatch Telegram Approval Card": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Send Email Summary Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Send Email Summary Digest": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Write Pending Approval to DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Write Pending Approval to DB": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Wait for Human Webhook Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Wait for Human Webhook Callback": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Verify Reviewer Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Verify Reviewer Signature": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Approval Decision Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Approval Decision Router": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Apply Reviewer Edits & Notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Apply Reviewer Edits & Notes": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Log Audit Trail Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Log Audit Trail Entry": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Notify Creator of Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Notify Creator of Approval": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Handle Timeout Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Handle Timeout Escalation": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Route Rejected Item to Revision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Route Rejected Item to Revision": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Update Approval SLA Telemetry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Update Approval SLA Telemetry": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Unlock Downstream Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Unlock Downstream Execution": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Merge Auto + Human Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Merge Auto + Human Approved": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Finalize Governance Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S4_Agent · Normalize Verified Agent Payload": {
+      "main": [
+        [
+          {
+            "node": "S5_HITL · Compute Risk & Confidence Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Prepare Article & AEO Payload": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Generate 40-Word Direct Answer Box",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Generate 40-Word Direct Answer Box": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Build TechArticle + FAQPage JSON-LD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Build TechArticle + FAQPage JSON-LD": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Validate Schema.org Graph Hygiene",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Validate Schema.org Graph Hygiene": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Run Semantic Internal Linker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Run Semantic Internal Linker": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Enforce AI Velocity & Word Cap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Enforce AI Velocity & Word Cap": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Generate 1200x630 OpenGraph Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Generate 1200x630 OpenGraph Image": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Convert Inline Images to WebP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Convert Inline Images to WebP": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Sideload Media via DirectRelay API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Sideload Media via DirectRelay API": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Convert Markdown to Gutenberg Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Convert Markdown to Gutenberg Blocks": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Atomic POST to DirectRelay /publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Atomic POST to DirectRelay /publish": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Sync RankMath & Yoast Meta Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Sync RankMath & Yoast Meta Fields": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Update /llms.txt & /llms-full.txt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Update /llms.txt & /llms-full.txt": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Mint Google Indexing API RS256 JWT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Mint Google Indexing API RS256 JWT": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Submit URL to Google Indexing API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Submit URL to Google Indexing API": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Broadcast IndexNow Ping (Bing/Yandex)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Broadcast IndexNow Ping (Bing/Yandex)": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Purge Cloudflare & LiteSpeed Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Purge Cloudflare & LiteSpeed Cache": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Verify Live HTTP 200 & JSON-LD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Verify Live HTTP 200 & JSON-LD": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Record Published URL & AEO Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S5_HITL · Finalize Governance Gate": {
+      "main": [
+        [
+          {
+            "node": "S6_Publish · Prepare Article & AEO Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Load Canonical Published Post": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Synthesize X/Twitter Thread (5 Posts)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Synthesize X/Twitter Thread (5 Posts)": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Synthesize LinkedIn Executive Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Synthesize LinkedIn Executive Post": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Generate Instagram Carousel Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Generate Instagram Carousel Slides": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Generate Short-Form Video Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Generate Short-Form Video Script": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Render Audio/Video via Creatomate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Render Audio/Video via Creatomate": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Publish Thread to X API v2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Publish Thread to X API v2": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Publish Article to LinkedIn API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Publish Article to LinkedIn API": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Publish Carousel to Instagram Graph",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Publish Carousel to Instagram Graph": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Publish Update to Facebook Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Publish Update to Facebook Page": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Broadcast to Telegram Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Broadcast to Telegram Channel": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Post Embed to Discord Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Post Embed to Discord Webhook": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Syndicate Canonical to Medium/Dev.to",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Syndicate Canonical to Medium/Dev.to": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Submit RSS Ping to Aggregators",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Submit RSS Ping to Aggregators": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Collect Live Post Permalinks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Collect Live Post Permalinks": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Append UTM Attribution Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Append UTM Attribution Parameters": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Log Social Reach to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Log Social Reach to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Update Campaign ROI Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S7_Syndicate · Update Campaign ROI Dashboard": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Finalize Omni-Channel Syndication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S6_Publish · Record Published URL & AEO Score": {
+      "main": [
+        [
+          {
+            "node": "S7_Syndicate · Load Canonical Published Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Global Error Trigger Listener": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Extract Failed Node & Stacktrace",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Extract Failed Node & Stacktrace": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Classify Error (Transient vs Fatal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Classify Error (Transient vs Fatal)": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Check Retry Attempt Counter (< 3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Check Retry Attempt Counter (< 3)": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Calculate Exponential Backoff Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Calculate Exponential Backoff Wait": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Wait Before Auto-Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Wait Before Auto-Retry": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Replay Failed Sub-Workflow Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Replay Failed Sub-Workflow Payload": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Format Dead-Letter Queue Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Format Dead-Letter Queue Record": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Encrypt Sensitive Payload Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Encrypt Sensitive Payload Fields": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Insert into Supabase DLQ Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Insert into Supabase DLQ Table": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Backup DLQ JSON to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Backup DLQ JSON to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Send Pager/Telegram Critical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Send Pager/Telegram Critical Alert": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Post Incident Card to Slack #ops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Post Incident Card to Slack #ops": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Create Jira/Linear Bug Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Create Jira/Linear Bug Ticket": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Update System Uptime Status Metric",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Update System Uptime Status Metric": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Generate One-Click Replay URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Generate One-Click Replay URL": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Prune Expired DLQ Logs (> 30d)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Prune Expired DLQ Logs (> 30d)": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Acknowledge Error Handled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S8_DLQ · Acknowledge Error Handled": {
+      "main": [
+        [
+          {
+            "node": "S8_DLQ · Finalize Self-Healing Recovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "Enterprise"
+    },
+    {
+      "name": "AEO"
+    },
+    {
+      "name": "DirectRelay"
+    },
+    {
+      "name": "Multi-Agent"
+    },
+    {
+      "name": "WordPress"
+    },
+    {
+      "name": "MCP"
+    },
+    {
+      "name": "156-Nodes"
+    }
+  ],
+  "meta": {
+    "curatedBy": "Wiki of Automation (wikiofautomation.com)",
+    "compiler": "n8n-forge v2.0",
+    "securityVerified": true,
+    "nodeCount": 157
+  },
+  "pinData": {}
+}

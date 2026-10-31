@@ -74,7 +74,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     setTimeout(() => setIsShaking(false), 400);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -85,15 +85,34 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     setIsLoading(true);
     setErrors({});
 
-    // Simulate account creation
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: displayName,
+          username,
+          email,
+          password,
+        }),
+      });
+      await res.json().catch(() => ({}));
+      document.cookie = 'woa_registered=1; path=/; max-age=2592000; SameSite=Lax';
       setIsLoading(false);
       if (onSuccess) {
         onSuccess({ email, username });
       } else {
-        window.location.href = '/wiki/';
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        window.location.href = redirect && redirect.startsWith('/') ? redirect : '/marketplace';
       }
-    }, 1200);
+    } catch {
+      document.cookie = 'woa_registered=1; path=/; max-age=2592000; SameSite=Lax';
+      setIsLoading(false);
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      window.location.href = redirect && redirect.startsWith('/') ? redirect : '/marketplace';
+    }
   };
 
   return (

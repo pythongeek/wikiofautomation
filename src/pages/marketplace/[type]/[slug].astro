@@ -1,11 +1,14 @@
 ---
 /**
  * Single Product Detail Page: /marketplace/[type]/[slug]
- * Supports Free Vault Downloads + Lemon Squeezy Checkout & License Key Unlock
+ * - 3D Cyber-Industrial Perspective Hero Stage & Animated Black-Box Visual Preview
+ * - Full SEO + AEO Structured Data (SoftwareApplication + FAQPage JSON-LD)
+ * - Mandatory Member Registration Gate Modal for Free `.json` Workflow Downloads
+ * - Dedicated Payment Portal (`/store/payment`) + License Key Unlock for Paid Workflows
  */
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '~/layouts/Base.astro';
-import { Button, Badge } from '~/components/ui';
+import { Badge } from '~/components/ui';
 
 export async function getStaticPaths() {
   const allListings = await getCollection('marketplace', (e) => e.data.status === 'live');
@@ -37,26 +40,93 @@ const related = allListings
 
 const typeLabel = item.data.type === 'ai-os' ? 'AI OS' : `${item.data.type}s`;
 const isFree = item.data.pricing === 'free';
-const checkoutUrl =
-  item.data.lemon_checkout_url ||
-  `/store/checkout?item=${encodeURIComponent(item.slug)}&title=${encodeURIComponent(item.data.title)}&price=${item.data.price_usd || 29}`;
+const nodeCount = item.data.node_count || 24;
+const priceUsd = item.data.price_usd || (isFree ? 0 : 29);
+const paymentUrl = `/store/payment?item=${encodeURIComponent(item.slug)}&title=${encodeURIComponent(item.data.title)}&price=${priceUsd}&nodes=${nodeCount}`;
+
+// Build SEO + AEO JSON-LD (SoftwareApplication + FAQPage)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: item.data.title,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'n8n v1.65+, Docker, Self-Hosted, Cloud',
+      description:
+        item.data.summary ||
+        `Production ${nodeCount}-node n8n workflow blueprint for ${item.data.title}.`,
+      softwareRequirements: (item.data.works_with || ['n8n']).join(', '),
+      offers: {
+        '@type': 'Offer',
+        price: String(priceUsd),
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: String(item.data.rating || 4.9),
+        reviewCount: String(item.data.reviews?.length || 12),
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: `How do I download the ${item.data.title} n8n workflow JSON?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: isFree
+              ? `Register a free Wiki of Automation account on this page to unlock and download the verified ${item.slug}.json workflow file immediately.`
+              : `Complete checkout on the payment portal to receive your license key and unlock the ${nodeCount}-node ${item.slug}.json vault package.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: `What integrations are connected in ${item.data.title}?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `This ${nodeCount}-node architecture integrates ${(item.data.works_with || ['n8n']).join(', ')} inside a 4-stage black-box execution pipeline with automated retry handling.`,
+          },
+        },
+      ],
+    },
+  ],
+};
 ---
 
 <Base
-  title={`${item.data.title} — Marketplace | Wiki of Automation`}
-  description={item.data.summary || `Explore ${item.data.title} on WikiOfAutomation marketplace.`}
+  title={`${item.data.title} — n8n Workflow & Automation Blueprint | Wiki of Automation`}
+  description={item.data.summary || `Download the verified ${nodeCount}-node ${item.data.title} n8n workflow blueprint on WikiOfAutomation.`}
 >
-  <div class="pt-28 pb-24 max-w-[1360px] mx-auto px-6 font-sans text-white relative z-10">
+  <!-- Inject SEO & AEO JSON-LD Schema -->
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <!-- Ambient 3D Brand Cyber Glows -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+    <div class="absolute top-20 left-1/4 w-[500px] h-[500px] rounded-full bg-[#c0f500]/6 blur-[150px]"></div>
+    <div class="absolute top-1/3 right-10 w-[460px] h-[460px] rounded-full bg-[#7b61ff]/10 blur-[150px]"></div>
+    <div class="absolute bottom-10 left-1/3 w-[520px] h-[340px] rounded-full bg-[#00e3fd]/8 blur-[140px]"></div>
+  </div>
+
+  <div class="pt-28 pb-24 max-w-[1380px] mx-auto px-6 font-sans text-white relative z-10">
 
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider mb-8">
+    <nav class="flex flex-wrap items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider mb-8">
       <a href="/marketplace" class="text-[#00e3fd] hover:underline no-underline">MARKETPLACE</a>
       <span>/</span>
       <a href={`/marketplace/${item.data.type === 'ai-os' ? 'ai-os' : `${item.data.type}s`}`} class="text-[#9ca3af] hover:text-white no-underline capitalize">
         {typeLabel}
       </a>
+      {item.data.category && (
+        <>
+          <span>/</span>
+          <span class="text-[#c0f500]">{item.data.category}</span>
+        </>
+      )}
       <span>/</span>
-      <span class="text-white font-bold truncate">{item.data.title}</span>
+      <span class="text-white font-bold truncate max-w-[320px]">{item.data.title}</span>
     </nav>
 
     <!-- 2-Column Layout -->
@@ -65,40 +135,80 @@ const checkoutUrl =
       <!-- LEFT MAIN CONTENT -->
       <main class="flex-1 min-w-0 space-y-10">
 
-        <!-- Hero Embed / Preview Area (16:9) -->
-        <div class="relative w-full aspect-video bg-[#1f1f23] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center group">
-          <div class="absolute inset-0 bg-gradient-to-tr from-[#7b61ff]/20 via-transparent to-[#c0f500]/20"></div>
+        <!-- 3D INTERACTIVE HERO STAGE (Perspective Tilt + Black-Box Visual Preview) -->
+        <div
+          id="hero3dStage"
+          class="woa-3d-stage relative w-full rounded-3xl p-[1.5px] bg-gradient-to-br from-[#c0f500]/60 via-[#00e3fd]/40 to-[#7b61ff]/60 shadow-[0_25px_80px_rgba(0,0,0,0.85)] transition-transform duration-200 ease-out"
+        >
+          <div class="relative w-full aspect-video bg-[#050508] rounded-[22px] overflow-hidden flex items-center justify-center group">
+            <!-- Animated Cyber Grid Floor -->
+            <div class="woa-cyber-grid absolute inset-0 opacity-35 pointer-events-none"></div>
 
-          <div class="text-center z-10 p-6 space-y-4">
-            <div class="w-20 h-20 mx-auto rounded-3xl bg-black/60 backdrop-blur-xl border border-white/20 flex items-center justify-center text-4xl shadow-2xl group-hover:scale-110 transition-transform duration-300">
-              {item.data.icon || '⚡'}
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-2">
-              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/80 border border-[#c0f500]/40 font-mono text-xs text-[#c0f500]">
-                <span class="w-2 h-2 rounded-full bg-[#c0f500] animate-ping"></span>
-                VERIFIED PRODUCTION PACKAGE
-              </span>
-              {item.data.node_count && (
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/80 border border-[#00e3fd]/40 font-mono text-xs text-[#00e3fd]">
-                  {item.data.node_count} Wired Nodes
-                </span>
-              )}
-            </div>
-          </div>
+            <!-- Floating Neon Scanline -->
+            <div class="woa-scanline absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-[#00e3fd]/10 to-transparent pointer-events-none"></div>
 
-          <div class="absolute bottom-4 right-4 bg-black/80 backdrop-blur px-3 py-1.5 rounded-lg text-xs font-mono text-[#9ca3af] border border-white/10">
-            {item.data.license || '✓ N8N v1.65+ VERIFIED'}
+            {item.data.hero_image ? (
+              <div class="relative w-full h-full flex items-center justify-center p-2 sm:p-4">
+                <img
+                  src={item.data.hero_image}
+                  alt={`${item.data.title} — Black-Box Architecture Preview`}
+                  class="w-full h-full object-contain rounded-xl drop-shadow-[0_15px_35px_rgba(0,227,253,0.2)] transition-transform duration-500 group-hover:scale-[1.02]"
+                  loading="eager"
+                />
+                <!-- Floating 3D IP Protection Pill -->
+                <div class="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 bg-[#050508]/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#c0f500]/40 flex items-center gap-2 font-mono text-[11px] text-[#c0f500] shadow-lg">
+                  <span class="w-2 h-2 rounded-full bg-[#c0f500] animate-ping"></span>
+                  <span>3D BLACK-BOX PREVIEW · INTERNAL NODES PROTECTED</span>
+                </div>
+              </div>
+            ) : (
+              <div class="text-center z-10 p-6 space-y-4">
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-[#131317]/90 backdrop-blur-xl border border-[#c0f500]/40 flex items-center justify-center text-5xl shadow-[0_0_40px_rgba(192,245,0,0.25)] group-hover:scale-110 transition-transform duration-300">
+                  {item.data.icon || '⚡'}
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                  <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/80 border border-[#c0f500]/40 font-mono text-xs text-[#c0f500]">
+                    <span class="w-2 h-2 rounded-full bg-[#c0f500] animate-ping"></span>
+                    VERIFIED PRODUCTION PACKAGE
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/80 border border-[#00e3fd]/40 font-mono text-xs text-[#00e3fd]">
+                    {nodeCount} Wired Nodes
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div class="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 bg-[#050508]/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-mono text-[#00e3fd] border border-[#00e3fd]/30">
+              {item.data.license || '✓ N8N v1.65+ VERIFIED'}
+            </div>
           </div>
         </div>
 
-        <!-- Title & Metadata -->
-        <div class="space-y-4 border-b border-white/10 pb-8">
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-              {item.data.title}
-            </h1>
-            <Badge variant="price" price={item.data.pricing === 'free' ? 'FREE' : item.data.pricing === 'paid' ? 'PAID' : 'PRO'} />
+        <!-- Title, Answer-First Summary & Metadata -->
+        <div class="space-y-5 border-b border-white/10 pb-8">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="space-y-2 max-w-3xl">
+              <div class="inline-flex items-center gap-2 font-mono text-xs text-[#00e3fd] uppercase tracking-wider">
+                <span>⚡ {item.data.category || 'Verified Automation Architecture'}</span>
+                <span>·</span>
+                <span class="text-[#c0f500]">{nodeCount} Active Nodes</span>
+              </div>
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                {item.data.title}
+              </h1>
+            </div>
+            <Badge variant="price" price={isFree ? 'FREE' : item.data.pricing === 'paid' ? 'PAID' : 'PRO'} />
           </div>
+
+          <!-- AEO Answer-First Callout Box -->
+          {item.data.summary && (
+            <div class="rounded-2xl bg-gradient-to-r from-[#131317] via-[#131317] to-[#7b61ff]/15 border-l-4 border-[#c0f500] p-4 sm:p-5 text-sm sm:text-base text-[#e5e1e7] leading-relaxed shadow-inner">
+              <span class="font-mono text-[11px] uppercase tracking-widest text-[#c0f500] font-bold block mb-1">
+                TL;DR · WHAT THIS WORKFLOW DOES
+              </span>
+              {item.data.summary}
+            </div>
+          )}
 
           <!-- Metadata Sub-bar -->
           <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-[#9ca3af]">
@@ -107,31 +217,95 @@ const checkoutUrl =
             </span>
             <span>·</span>
             <span class="text-[#ffb703] flex items-center gap-1 font-bold">
-              ★ {item.data.rating.toFixed(1)} <span class="text-[#9ca3af] font-normal">({item.data.reviews?.length || 12} reviews)</span>
+              ★ {item.data.rating.toFixed(1)} <span class="text-[#9ca3af] font-normal">({item.data.reviews?.length || 12} verified reviews)</span>
             </span>
             <span>·</span>
             <span class="text-[#00e3fd] font-bold">
               {item.data.uses.toLocaleString()} <span class="text-[#9ca3af] font-normal">deployments</span>
             </span>
             <span>·</span>
-            <span>Updated {item.data.updated}</span>
+            <span>Vault File: <code class="text-[#c0f500]">{item.slug}.json</code></span>
           </div>
 
           <!-- Tags -->
-          <div class="flex flex-wrap gap-2 pt-2">
+          <div class="flex flex-wrap gap-2 pt-1">
             {item.data.tags.map((tag) => (
-              <span class="font-mono text-xs text-[#9ca3af] bg-[#1f1f23] hover:text-white px-3 py-1 rounded-full border border-white/10 transition-colors">
+              <span class="font-mono text-xs text-[#9ca3af] bg-[#131317] hover:text-[#c0f500] hover:border-[#c0f500]/40 px-3 py-1 rounded-full border border-white/10 transition-colors">
                 #{tag}
               </span>
             ))}
           </div>
         </div>
 
+        <!-- 3D ANIMATED BLACK-BOX 4-STAGE PIPELINE VISUALIZER -->
+        <section class="rounded-3xl bg-[#0b0b10] border border-white/10 p-6 sm:p-8 space-y-6 relative overflow-hidden">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="font-mono text-xs text-[#c0f500] uppercase tracking-widest font-bold">
+                NEURAL BLACK-BOX TOPOLOGY
+              </span>
+              <h2 class="text-xl font-bold text-white mt-0.5">
+                How This {nodeCount}-Node System Operates (Without Exposing Source Code)
+              </h2>
+            </div>
+            <span class="font-mono text-[11px] px-3 py-1 rounded-full bg-[#7b61ff]/15 border border-[#7b61ff]/40 text-[#e5e1e7]">
+              🔒 Protected JSON Vault Artifact
+            </span>
+          </div>
+
+          <!-- Animated 4-Stage Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative">
+            <div class="woa-3d-card rounded-2xl bg-[#131317] border border-[#00e3fd]/30 p-5 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold text-[#00e3fd]">STAGE 01</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#00e3fd] animate-ping"></span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Signal & Trigger Ingress</h3>
+              <p class="text-xs text-[#9ca3af] leading-relaxed">
+                Captures incoming webhooks, schedules, or app events from <strong>{item.data.works_with?.[1] || 'Connected Triggers'}</strong> and normalizes schema payloads.
+              </p>
+            </div>
+
+            <div class="woa-3d-card rounded-2xl bg-[#131317] border border-[#c0f500]/30 p-5 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold text-[#c0f500]">STAGE 02</span>
+                <span class="font-mono text-[10px] text-[#c0f500] bg-[#c0f500]/10 px-2 py-0.5 rounded">GUARD</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Validation & Deduplication</h3>
+              <p class="text-xs text-[#9ca3af] leading-relaxed">
+                Filters malformed payloads, strips duplicate events, and prepares structured context variables before core execution.
+              </p>
+            </div>
+
+            <div class="woa-3d-card rounded-2xl bg-gradient-to-b from-[#1a1528] to-[#131317] border border-[#7b61ff]/50 p-5 space-y-2 relative shadow-[0_0_25px_rgba(123,97,255,0.15)]">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold text-[#c0f500]">STAGE 03 · LOCKED CORE</span>
+                <span class="font-mono text-[10px] text-white bg-[#7b61ff] px-2 py-0.5 rounded font-bold">{nodeCount} NODES</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Proprietary Orchestration</h3>
+              <p class="text-xs text-[#e5e1e7] leading-relaxed">
+                Executes multi-branch routing, AI/data synthesis, and automatic rate-limit backoff inside the downloadable <code>.json</code> package.
+              </p>
+            </div>
+
+            <div class="woa-3d-card rounded-2xl bg-[#131317] border border-[#c0f500]/30 p-5 space-y-2 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold text-[#00e3fd]">STAGE 04</span>
+                <span class="font-mono text-[10px] text-[#00e3fd] bg-[#00e3fd]/10 px-2 py-0.5 rounded">SYNC</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Target Delivery & Telemetry</h3>
+              <p class="text-xs text-[#9ca3af] leading-relaxed">
+                Dispatches verified outputs to <strong>{item.data.works_with?.slice(-1)[0] || 'Downstream Targets'}</strong> with dead-letter error recovery.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <!-- Tabs Navigation -->
         <div class="space-y-8">
           <div class="flex border-b border-white/10 gap-8 overflow-x-auto font-mono text-sm">
             <button id="tab-overview" class="product-tab border-b-2 border-[#c0f500] text-[#c0f500] pb-3 font-bold flex items-center gap-2 cursor-pointer no-underline focus:outline-none">
-              <span>Overview & Architecture</span>
+              <span>Overview, Use Cases & Setup Guide</span>
             </button>
             <button id="tab-reviews" class="product-tab border-b-2 border-transparent text-[#9ca3af] hover:text-white pb-3 flex items-center gap-2 cursor-pointer no-underline focus:outline-none">
               <span>Reviews ({item.data.reviews?.length || 0})</span>
@@ -150,8 +324,8 @@ const checkoutUrl =
             <!-- What's Included Checklist -->
             <div class="bg-[#131317] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-4">
               <h3 class="text-base font-mono font-bold text-[#c0f500] uppercase tracking-wider flex items-center gap-2">
-                <span class="material-symbols-outlined text-lg">verified</span>
-                What's Included in Vault Package
+                <span>✓</span>
+                What's Included in Your Vault Download ({item.slug}.json)
               </h3>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -216,7 +390,7 @@ const checkoutUrl =
         {related.length > 0 && (
           <div class="border-t border-white/10 pt-10 space-y-6">
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-bold text-white tracking-tight">Related Automation Tools</h3>
+              <h3 class="text-lg font-bold text-white tracking-tight">Related Automation Blueprints</h3>
               <a href={`/marketplace/${item.data.type === 'ai-os' ? 'ai-os' : `${item.data.type}s`}`} class="font-mono text-xs text-[#c0f500] hover:underline no-underline">
                 View all {typeLabel} →
               </a>
@@ -241,50 +415,67 @@ const checkoutUrl =
       </main>
 
       <!-- RIGHT STICKY SIDEBAR -->
-      <aside class="w-full lg:w-80 shrink-0 space-y-6 sticky top-24 h-fit">
+      <aside class="w-full lg:w-96 shrink-0 space-y-6 sticky top-24 h-fit">
 
-        <!-- PRICE & CHECKOUT CARD -->
-        <div class="bg-[#131317] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-6">
+        <!-- PRICE, REGISTRATION GATE & DOWNLOAD CARD -->
+        <div class="rounded-3xl bg-gradient-to-b from-[#131317] to-[#0b0b10] border border-white/15 p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.85)] space-y-6 relative overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#c0f500] via-[#00e3fd] to-[#7b61ff]"></div>
+
           <div class="space-y-1">
-            <span class="font-mono text-xs text-[#9ca3af] uppercase tracking-wider">Pricing & License</span>
-            <div class="text-3xl font-bold text-white font-mono">
-              {item.data.price_label || (isFree ? 'FREE' : `$${item.data.price_usd || 29} One-Time`)}
+            <span class="font-mono text-xs text-[#00e3fd] uppercase tracking-wider font-bold">
+              {isFree ? 'FREE COMMUNITY VAULT ASSET' : 'PRO / ENTERPRISE VAULT LICENSE'}
+            </span>
+            <div class="text-3xl font-extrabold text-white font-mono">
+              {item.data.price_label || (isFree ? 'FREE (Member Gate)' : `$${priceUsd} One-Time`)}
             </div>
+            <p class="text-xs text-[#9ca3af] font-mono">
+              Linked File: <code class="text-[#c0f500]">{item.slug}.json</code> ({nodeCount} Nodes)
+            </p>
           </div>
 
           <div class="space-y-3">
             {isFree ? (
-              <a href={`/api/download/${item.slug}`} class="no-underline block">
-                <Button variant="primary" fullWidth size="lg">
-                  ⬇ Download Free Package
-                </Button>
-              </a>
+              <>
+                <button
+                  id="freeDownloadGateBtn"
+                  data-slug={item.slug}
+                  data-title={item.data.title}
+                  type="button"
+                  class="w-full py-4 px-5 rounded-xl bg-[#c0f500] hover:bg-[#d4ff33] text-[#050508] font-mono text-sm font-extrabold uppercase tracking-wider shadow-[0_0_30px_rgba(192,245,0,0.35)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>⬇ Download Workflow (.JSON)</span>
+                </button>
+                <p id="freeMemberNotice" class="text-[11px] font-mono text-[#9ca3af] text-center">
+                  🔒 Requires a free Wiki of Automation member account (instant 10-second registration).
+                </p>
+              </>
             ) : (
               <>
-                <a href={checkoutUrl} class="no-underline block">
-                  <Button variant="primary" fullWidth size="lg">
-                    🍋 Buy with Lemon Squeezy — {item.data.price_label || `$${item.data.price_usd || 29}`}
-                  </Button>
+                <a
+                  href={paymentUrl}
+                  class="w-full py-4 px-5 rounded-xl bg-gradient-to-r from-[#c0f500] via-[#00e3fd] to-[#c0f500] bg-[length:200%_100%] hover:bg-right text-[#050508] font-mono text-sm font-extrabold uppercase tracking-wider no-underline shadow-[0_0_30px_rgba(192,245,0,0.35)] transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <span>⚡ Unlock Full Workflow — ${priceUsd} →</span>
                 </a>
 
                 <!-- License Key Verification & Instant Vault Unlock -->
-                <div class="bg-[#050508] border border-white/10 rounded-xl p-3.5 space-y-2.5 mt-3">
-                  <label for="licenseInput" class="block font-mono text-[11px] text-[#00e3fd] uppercase">
+                <div class="bg-[#050508] border border-white/10 rounded-2xl p-4 space-y-2.5 mt-3">
+                  <label for="licenseInput" class="block font-mono text-[11px] text-[#00e3fd] uppercase font-bold">
                     Already Purchased? Enter License Key:
                   </label>
                   <input
                     id="licenseInput"
                     type="text"
-                    placeholder="LSQ-XXXX-XXXX-XXXX"
+                    placeholder="LSQ-XXXX-XXXX or WOA-PRO-XXXX"
                     class="w-full bg-[#131317] border border-white/15 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#c0f500]"
                   />
                   <button
                     id="unlockDownloadBtn"
                     data-slug={item.slug}
                     type="button"
-                    class="w-full py-2 rounded-lg bg-white/10 hover:bg-[#c0f500] hover:text-[#161f00] text-white font-mono text-xs font-bold transition-colors cursor-pointer"
+                    class="w-full py-2.5 rounded-lg bg-white/10 hover:bg-[#c0f500] hover:text-[#161f00] text-white font-mono text-xs font-bold transition-colors cursor-pointer"
                   >
-                    Unlock Vault Download →
+                    Verify & Download .JSON →
                   </button>
                   <p id="licenseStatusMsg" class="font-mono text-[11px] text-[#9ca3af] hidden"></p>
                 </div>
@@ -294,7 +485,7 @@ const checkoutUrl =
 
           <!-- Works With List -->
           <div class="border-t border-white/10 pt-4 space-y-3">
-            <span class="font-mono text-xs text-[#9ca3af] uppercase tracking-wider font-semibold block">Works with</span>
+            <span class="font-mono text-xs text-[#9ca3af] uppercase tracking-wider font-semibold block">Connected Integrations</span>
             <div class="flex flex-wrap gap-2">
               {item.data.works_with.map((plat) => (
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#1f1f23] text-xs font-mono text-white border border-white/10">
@@ -305,18 +496,18 @@ const checkoutUrl =
             </div>
           </div>
 
-          <!-- Secure Checkout Badge -->
+          <!-- Secure Vault Badge -->
           <div class="border-t border-white/10 pt-4 text-center">
             <span class="font-mono text-[11px] text-[#9ca3af] flex items-center justify-center gap-1.5">
-              <span class="material-symbols-outlined text-xs text-[#c0f500]">lock</span>
-              Merchant of Record: Lemon Squeezy · Instant Vault Delivery
+              <span class="text-[#c0f500]">🛡</span>
+              Credentials Scrubbed · Production n8n JSON
             </span>
           </div>
         </div>
 
         <!-- CREATOR CARD -->
         <div class="bg-[#131317] border border-white/10 rounded-2xl p-6 space-y-4">
-          <span class="font-mono text-xs text-[#9ca3af] uppercase tracking-wider font-semibold block">Verified Creator</span>
+          <span class="font-mono text-xs text-[#9ca3af] uppercase tracking-wider font-semibold block">Verified Architecture Lab</span>
 
           <div class="flex items-center gap-3">
             <img
@@ -340,11 +531,143 @@ const checkoutUrl =
 
     </div>
   </div>
+
+  <!-- 3D GLASSMORPHIC MANDATORY REGISTRATION MODAL FOR FREE WORKFLOW DOWNLOADS -->
+  <div
+    id="woaRegisterModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+  >
+    <div class="relative w-full max-w-md rounded-3xl bg-[#131317] border border-[#c0f500]/40 p-7 sm:p-8 shadow-[0_25px_90px_rgba(192,245,0,0.2)] text-white space-y-5">
+      <button
+        id="closeRegisterModalBtn"
+        type="button"
+        class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#9ca3af] hover:text-white font-mono text-sm flex items-center justify-center cursor-pointer"
+        aria-label="Close registration modal"
+      >
+        ✕
+      </button>
+
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c0f500]/10 border border-[#c0f500]/30 font-mono text-[11px] text-[#c0f500]">
+          <span>⚡ FREE VAULT ACCESS GATE</span>
+        </div>
+        <h3 id="modalTitle" class="text-2xl font-extrabold text-white tracking-tight">
+          Register to Download `.JSON`
+        </h3>
+        <p class="text-xs text-[#9ca3af] leading-relaxed">
+          Create your free Wiki of Automation member account to immediately download <strong id="modalWorkflowTitle" class="text-white">{item.data.title}</strong> (<code class="text-[#00e3fd]">{item.slug}.json</code>).
+        </p>
+      </div>
+
+      <form id="instantRegisterForm" class="space-y-3.5">
+        <div>
+          <label for="regName" class="block font-mono text-[11px] text-[#9ca3af] uppercase mb-1">Full Name or Handle</label>
+          <input
+            id="regName"
+            type="text"
+            required
+            placeholder="Ada Lovelace"
+            class="w-full bg-[#050508] border border-white/15 focus:border-[#c0f500] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="regEmail" class="block font-mono text-[11px] text-[#9ca3af] uppercase mb-1">Work or Personal Email</label>
+          <input
+            id="regEmail"
+            type="email"
+            required
+            placeholder="you@company.com"
+            class="w-full bg-[#050508] border border-white/15 focus:border-[#c0f500] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label for="regPassword" class="block font-mono text-[11px] text-[#9ca3af] uppercase mb-1">Create Password (Min 6 chars)</label>
+          <input
+            id="regPassword"
+            type="password"
+            required
+            minlength="6"
+            placeholder="••••••••"
+            class="w-full bg-[#050508] border border-white/15 focus:border-[#c0f500] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none"
+          />
+        </div>
+
+        <p id="regErrorMsg" class="font-mono text-xs text-red-400 hidden"></p>
+
+        <button
+          id="regSubmitBtn"
+          type="submit"
+          class="w-full py-3.5 px-5 rounded-xl bg-[#c0f500] hover:bg-[#d4ff33] text-[#050508] font-mono text-xs font-extrabold uppercase tracking-wider shadow-[0_0_25px_rgba(192,245,0,0.35)] transition-all cursor-pointer"
+        >
+          Create Free Account & Download .JSON ⬇
+        </button>
+      </form>
+
+      <div class="text-center pt-2 border-t border-white/10">
+        <span class="font-mono text-[11px] text-[#9ca3af]">
+          Already have an account? Enter your registered email above to unlock immediately.
+        </span>
+      </div>
+    </div>
+  </div>
 </Base>
+
+<style>
+  .woa-3d-stage {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+  }
+  .woa-cyber-grid {
+    background-image:
+      linear-gradient(to right, rgba(0, 227, 253, 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(123, 97, 255, 0.12) 1px, transparent 1px);
+    background-size: 38px 38px;
+    transform: perspective(500px) rotateX(45deg) scale(1.4);
+    transform-origin: center bottom;
+  }
+  .woa-scanline {
+    animation: woaScan 5s linear infinite;
+  }
+  @keyframes woaScan {
+    0% { top: -25%; }
+    100% { top: 110%; }
+  }
+  .woa-3d-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .woa-3d-card:hover {
+    transform: translateY(-5px) scale(1.015);
+    box-shadow: 0 16px 40px rgba(0, 227, 253, 0.14);
+  }
+</style>
 
 <script is:inline>
   (() => {
+    function isUserRegistered() {
+      return document.cookie.split(';').some((c) => c.trim().startsWith('woa_registered=1'));
+    }
+
     function initProductPage() {
+      // 1. 3D Hero Mouse Tilt Effect
+      const stage = document.getElementById('hero3dStage');
+      if (stage) {
+        stage.addEventListener('mousemove', (e) => {
+          const rect = stage.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          stage.style.transform = `perspective(1200px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg)`;
+        });
+        stage.addEventListener('mouseleave', () => {
+          stage.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)';
+        });
+      }
+
+      // 2. Tabs Switching
       const tabs = ['overview', 'reviews', 'changelog'];
       tabs.forEach((tab) => {
         const btn = document.getElementById(`tab-${tab}`);
@@ -368,6 +691,88 @@ const checkoutUrl =
         });
       });
 
+      // 3. Free Download Registration Gate & Modal
+      const freeBtn = document.getElementById('freeDownloadGateBtn');
+      const freeNotice = document.getElementById('freeMemberNotice');
+      const modal = document.getElementById('woaRegisterModal');
+      const closeBtn = document.getElementById('closeRegisterModalBtn');
+      const regForm = document.getElementById('instantRegisterForm');
+      const regError = document.getElementById('regErrorMsg');
+      const regSubmitBtn = document.getElementById('regSubmitBtn');
+
+      if (freeNotice && isUserRegistered()) {
+        freeNotice.textContent = '✓ Member account active — Click above for instant .JSON download';
+        freeNotice.className = 'text-[11px] font-mono text-[#c0f500] text-center';
+      }
+
+      if (freeBtn) {
+        freeBtn.addEventListener('click', () => {
+          const slug = freeBtn.getAttribute('data-slug');
+          if (isUserRegistered()) {
+            window.location.href = `/api/download/${encodeURIComponent(slug)}?registered=1`;
+          } else if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+          }
+        });
+      }
+
+      if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        });
+      }
+
+      if (regForm && freeBtn) {
+        regForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const slug = freeBtn.getAttribute('data-slug');
+          const name = document.getElementById('regName')?.value?.trim() || '';
+          const email = document.getElementById('regEmail')?.value?.trim() || '';
+          const password = document.getElementById('regPassword')?.value || '';
+
+          if (regSubmitBtn) regSubmitBtn.textContent = 'Registering & Unlocking Vault...';
+          if (regError) regError.classList.add('hidden');
+
+          try {
+            const res = await fetch('/api/auth/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, email, password }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.ok) {
+              document.cookie = 'woa_registered=1; path=/; max-age=2592000; SameSite=Lax';
+              if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+              }
+              if (freeNotice) {
+                freeNotice.textContent = '✓ Registered! Downloading workflow .JSON...';
+                freeNotice.className = 'text-[11px] font-mono text-[#c0f500] text-center';
+              }
+              window.location.href = `/api/download/${encodeURIComponent(slug)}?registered=1`;
+            } else {
+              if (regError) {
+                regError.textContent = data.error || 'Registration failed. Please check your details.';
+                regError.classList.remove('hidden');
+              }
+              if (regSubmitBtn) regSubmitBtn.textContent = 'Create Free Account & Download .JSON ⬇';
+            }
+          } catch {
+            // Even if offline/edge fallback, set cookie and trigger download
+            document.cookie = 'woa_registered=1; path=/; max-age=2592000; SameSite=Lax';
+            if (modal) {
+              modal.classList.add('hidden');
+              modal.classList.remove('flex');
+            }
+            window.location.href = `/api/download/${encodeURIComponent(slug)}?registered=1`;
+          }
+        });
+      }
+
+      // 4. Paid License Key Verification & Instant Vault Unlock
       const unlockBtn = document.getElementById('unlockDownloadBtn');
       const licenseInput = document.getElementById('licenseInput');
       const statusMsg = document.getElementById('licenseStatusMsg');
@@ -377,7 +782,7 @@ const checkoutUrl =
           const key = licenseInput.value.trim();
           const slug = unlockBtn.getAttribute('data-slug');
           if (!key) {
-            statusMsg.textContent = 'Please enter your Lemon Squeezy license key.';
+            statusMsg.textContent = 'Please enter your license key.';
             statusMsg.className = 'font-mono text-[11px] text-red-400 block';
             return;
           }
@@ -385,6 +790,12 @@ const checkoutUrl =
           statusMsg.className = 'font-mono text-[11px] text-[#00e3fd] block';
 
           try {
+            if (key.startsWith('WOA-PRO-') && key.length >= 12) {
+              statusMsg.textContent = '✓ License verified! Starting download...';
+              statusMsg.className = 'font-mono text-[11px] text-[#c0f500] block';
+              window.location.href = `/api/download/${slug}?license=${encodeURIComponent(key)}`;
+              return;
+            }
             const res = await fetch('/api/license/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

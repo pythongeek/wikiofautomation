@@ -1,0 +1,2527 @@
+{
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "curatedBy": "Wiki of Automation (wikiofautomation.com)",
+    "securityVerified": true
+  },
+  "nodes": [
+    {
+      "id": "0de72f0f-b1d2-47e2-9121-7c5ad9bb782f",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -1560,
+        -500
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9db6fe34-6d37-472c-af4e-acc81640cc98",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1300,
+        540
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5f082361-efb3-4385-90d0-248a018f83e3",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -1320,
+        -500
+      ],
+      "webhookId": "3da8fcc6-1270-44a9-ab96-1043c053371a",
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "807f7bbd-f4c0-48bf-b46b-dd43ea6462f0",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "onError": "continueRegularOutput",
+      "position": [
+        20,
+        -640
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "896ecb02-212f-4741-bc43-f17e5d8454b9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        -780
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0adc3d08-29bc-40f4-b2fc-ccb59313cef5",
+      "name": "Text Classifier",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "position": [
+        -1100,
+        -500
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "c980811e-e6f2-4306-af9d-db3dbe31f516",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -1060,
+        -280
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7b4b66df-a51b-48cc-b175-c94ca80f2cd1",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -360,
+        -600
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "34d473e6-528c-4489-8f53-d3192379cee6",
+      "name": "If2",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -360,
+        -400
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d12a1106-23b1-47f0-bb64-a6a6d7b48d36",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -780
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "892468c6-6b2c-4b08-a797-6fd80a90b578",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1620,
+        -640
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ed16a1f0-9114-41a1-a9d3-64f549c4fd82",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -780,
+        -780
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37200ac6-1df8-4f5d-9907-c14f04966b0c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2140,
+        -600
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "17f0444c-ee85-45e2-a8a7-ed45532c9c14",
+      "name": "Google Drive1",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -860,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "251c918e-d86e-46d8-864b-16d307d139ec",
+      "name": "Google Drive2",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -860,
+        540
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "972db37a-9fd1-47f6-af08-7f07f3ed318f",
+      "name": "Google Drive3",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -460,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "adb37b79-efef-4056-8022-34cfa56065ee",
+      "name": "Google Drive4",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -460,
+        540
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "e850a716-626c-40c0-b05f-d0dfdb972095",
+      "name": "Google Drive5",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -860,
+        740
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "7b71d7d4-c89a-4ca5-a66b-9d58f2da35d4",
+      "name": "Google Drive6",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -460,
+        740
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "f69eac3c-2f2c-4d94-be0e-f03a08e98de8",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2120,
+        320
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d6adf2a-f1a9-40b3-830c-1cf1802ec148",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1580,
+        2380
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1dca6be6-ff43-4202-bdc1-a1d5ba710b2c",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2040,
+        2100
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1bc1fee2-c256-4d52-8e2a-1981c0ea3bea",
+      "name": "Google Drive10",
+      "type": "n8n-nodes-base.googleDrive",
+      "onError": "continueRegularOutput",
+      "position": [
+        20,
+        -260
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "a9978123-27d7-4eb6-854c-615abfe0d659",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        20,
+        -460
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "743f8cec-68fb-4551-a099-5b47e3e1659b",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -340,
+        -200
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7f31723e-b3df-4c4b-881f-54c79fb4ec75",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        1980
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e334e896-445f-4935-a406-938be95e8f4c",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1180,
+        960
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3df75ffc-0260-48df-9f75-fdab6a0f7acf",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -800,
+        1140
+      ],
+      "webhookId": "193de4a8-9f53-4e02-af09-7995a85949ee",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c6b51764-f974-49dc-900d-916b1669d199",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        240
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8646969-429a-4ada-898b-41e654d5f594",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        1980
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dbd671e1-7573-4792-9290-520376c6cd18",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        240
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3fbf02dc-8972-4ee6-b477-c376b4fd9cbc",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1740,
+        960
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a29f83da-362d-4dad-bb2b-b4e8538586a9",
+      "name": "Daily Sales",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -700,
+        -600
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "01de6a56-b390-49a1-9d4e-6c69f32349ba",
+      "name": "Address",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -700,
+        -400
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8c689eb1-54f0-49fe-a25e-9f76775066f0",
+      "name": "customer_info",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -700,
+        -200
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "73615032-a6f3-4164-a50d-6d128ec64a35",
+      "name": "Drive Folders URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1080,
+        540
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d3636f90-a927-465f-86fc-dfa9bf7acfc8",
+      "name": "Drive Folders URL1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        40,
+        2380
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4582656d-856e-4c41-8c50-b3a3f20791db",
+      "name": "Daily Sales Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        500,
+        2260
+      ],
+      "parameters": {},
+      "typeVersion": 3,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "d4719c21-129a-43cb-81b5-0addba3ffaa9",
+      "name": "Address Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        500,
+        2080
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "b0bca736-a81e-48a0-a70f-f9265f2652ff",
+      "name": "customer_info folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        500,
+        2440
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "fd96e282-c444-4839-af97-a8ad8da029e7",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        980,
+        2300
+      ],
+      "parameters": {},
+      "typeVersion": 3.1
+    },
+    {
+      "id": "6196ff53-3e8f-4913-a316-395dce695e07",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2060,
+        3100
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43151fa5-2b97-49f8-ab0e-96e79cd55f3d",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3240,
+        1960
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa7ee570-4f05-41af-90eb-01168d505c3e",
+      "name": "Master",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        500,
+        2620
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "b2a32c8b-dcd4-4736-9f28-1c4f72c7c75b",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1280,
+        2320
+      ],
+      "webhookId": "bb8b60c1-6869-4fc8-994c-9b8b60aeb1aa",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ca561379-c751-467f-a5a7-20faf2acc5ed",
+      "name": "Google Sheets2",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -780,
+        3060
+      ],
+      "parameters": {},
+      "typeVersion": 4.5
+    },
+    {
+      "id": "0fe2bb72-5c7d-4845-9f36-8651a149baa0",
+      "name": "Google Sheets6",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -780,
+        3360
+      ],
+      "parameters": {},
+      "typeVersion": 4.5
+    },
+    {
+      "id": "fee9ece9-d592-4ff1-9628-0bc56a87fd5d",
+      "name": "Edit Fields5",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -960,
+        3180
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b5c2cd9b-bd1b-43ee-a4db-fd388348d333",
+      "name": "Edit Fields6",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -580,
+        3060
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "08ef4a14-8fe5-4ea9-b24d-536bd61b6d7c",
+      "name": "Edit Fields7",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -560,
+        3360
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f9d277df-1ad5-47a0-93b7-6804dcf4b50e",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        3120
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "3753303a-f909-4da6-a94b-5f1d3c2a2ad3",
+      "name": "Code4",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -400,
+        3060
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "7f4a40c7-d7fe-4ad4-8d90-216282866f81",
+      "name": "Code5",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -380,
+        3360
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "637b90a5-91e5-498b-adc6-0c3b4f33f91b",
+      "name": "Merge2",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -120,
+        3200
+      ],
+      "parameters": {},
+      "typeVersion": 3.1
+    },
+    {
+      "id": "907185c4-dd32-4a17-a725-5889fec2de7b",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        80,
+        3200
+      ],
+      "webhookId": "daf842b4-7a45-42ea-a57a-0d541ba6835f",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "93da686d-9c01-48bb-aec0-3b5d5489960f",
+      "name": "OpenAI Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -280,
+        2240
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d2d670d5-3fc8-4319-b281-5800d16e4b93",
+      "name": "OpenAI Chat Model4",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -1140,
+        2640
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4fe03f21-9099-4b21-aab9-8e7106e61d4e",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        760,
+        3200
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "52ac95d1-740a-4c5c-a1d5-5a75c2df3277",
+      "name": "Google Drive7",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        940,
+        3200
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "1786391d-f802-4cbc-bb2d-0b67bc875eb7",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1140,
+        3200
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "57edf053-1c88-4329-a821-3f07cc12e3b7",
+      "name": "If3",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        260,
+        3200
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "747f15b5-ee4e-426b-8c2e-e9c45aa15411",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        3320
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "c0ec68b3-02a8-489a-84cf-d65eb1b0aa46",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1080,
+        3780
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "144eedc9-3636-445e-8f5a-5cfddf0085f8",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -660,
+        3760
+      ],
+      "parameters": {},
+      "typeVersion": 4.5
+    },
+    {
+      "id": "9dcdfa19-0653-450f-a77c-cc43a8d8a529",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -440,
+        3760
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fc97a7dd-9d91-44fc-af85-d8baa5d4ecd4",
+      "name": "Code6",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -240,
+        3760
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "6f2333ac-3184-4026-a8a6-292c80cbad31",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2060,
+        3740
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "19f79ef2-5f7c-4bba-9d38-94f3b1b46ebb",
+      "name": "Convert to File1",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -20,
+        3760
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "64eff3a5-d12f-4599-900b-f187902f5b5b",
+      "name": "Google Drive8",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        160,
+        3760
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "ada42b2e-3185-4215-b8b3-d9ff4c303f4c",
+      "name": "Edit Fields10",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        360,
+        3760
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3c7fce05-d120-4557-9545-b5e50bb762cc",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -1460,
+        3780
+      ],
+      "parameters": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "17179c9e-175c-4619-8fd7-ca4f7db14608",
+      "name": "If5",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -860,
+        3780
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "395e894a-fe4d-499f-b7fd-fa03ca40a7c0",
+      "name": "Google Sheets3",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -840,
+        4040
+      ],
+      "parameters": {},
+      "typeVersion": 4.5
+    },
+    {
+      "id": "0fd2cb1a-715d-412d-9d5e-b4ab5d53cc41",
+      "name": "Edit Fields12",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -640,
+        4040
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b03508ec-10a9-4c7c-89dd-3ba2dddaff06",
+      "name": "Code8",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -420,
+        4040
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "b0023cce-aff3-44d4-b083-5be65bddfe26",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2140,
+        900
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1e163bc-7cc9-4536-8e87-363e47b51940",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3240,
+        4300
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e7327c7-9039-4d38-ae72-c2d9df35f4a4",
+      "name": "Sticky Note18",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2140,
+        -880
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff247bd2-5cf9-4693-80b5-bbd825019db9",
+      "name": "Sticky Note19",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3400,
+        -860
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "61e35438-9059-476f-a202-b19a107618c6",
+      "name": "Sticky Note20",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4240,
+        -1000
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7966ca43-2406-4e47-a51b-9435920a82ab",
+      "name": "Sticky Note21",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1480,
+        3680
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac03feae-c85c-4aec-a40f-c2a92acbbf6b",
+      "name": "Sticky Note22",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -700,
+        1880
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f482ff97-4432-48cc-b104-25b0fb8c5ea5",
+      "name": "Sticky Note23",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        3580
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70df5c63-bdfe-4f12-acb9-914605432103",
+      "name": "Sticky Note24",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        3020
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ce51d79-11d6-4463-8ecd-63f67dfe297b",
+      "name": "Sticky Note25",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        4020
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a809bb6f-96c5-4428-a56a-df274c5e01e6",
+      "name": "Sticky Note26",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        380,
+        2900
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7b01216f-f720-47c1-8eac-c051aaadbea8",
+      "name": "Sticky Note27",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        3560
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69e5cebd-ed2f-4938-af7a-7008aa3edb08",
+      "name": "Operation Classifier",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "position": [
+        -1260,
+        2380
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6ff07bb8-f32f-468c-834a-6148df6ed871",
+      "name": "JSON PARSER (Join)",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        -640,
+        2000
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2c0ebd8f-42ca-4b38-9fb2-18cc66226369",
+      "name": "Sticky Note28",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        2140
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3aebcee1-ddc3-45d7-b7de-1ba3c4818597",
+      "name": "OpenAI Chat Model7",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -900,
+        1400
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4991e2c1-f1dc-4a18-8a33-9d9f3c65b314",
+      "name": "Google Sheets8",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        -140,
+        1360
+      ],
+      "parameters": {},
+      "typeVersion": 4.5
+    },
+    {
+      "id": "19a4eff9-5541-47b0-9192-c24ab295c68b",
+      "name": "Call n8n Workflow Tool1",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -440,
+        1420
+      ],
+      "parameters": {},
+      "typeVersion": 2.2
+    },
+    {
+      "id": "814c1646-287d-49d9-90ec-b7a98bb8609e",
+      "name": "Simple Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -640,
+        1400
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "66d43d96-db19-4d21-bf1c-fe80ed4a737b",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "position": [
+        -300,
+        1500
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a9d19075-e124-4897-b427-81a13044f72b",
+      "name": "MIS Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -600,
+        1140
+      ],
+      "parameters": {},
+      "typeVersion": 1.9
+    },
+    {
+      "id": "79734a98-3277-4040-ac58-7f9d2d8e13cb",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        1780,
+        340
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "355b563c-032c-444c-a395-eab79907f8b4",
+      "name": "Sticky Note29",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        200
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b522f8f1-7dad-455d-b01b-f00ba7690780",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1540,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "fdc2b4ab-0d7b-4512-9ac2-b66a3d66a2ec",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1820,
+        560
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4f5aab64-6d87-47af-8c07-183f59a370dc",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1960,
+        720
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "24ae13bd-d9c6-4570-ad45-a27b2471dd0e",
+      "name": "Knowledge_base",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1220,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "5b91eafa-20fa-44ee-bbc5-80a937e60e47",
+      "name": "Download files",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1380,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "89c6a1bb-dee6-441c-9dee-89def66d5d94",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        960,
+        -680
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0ac0e0a9-55f1-4cf3-8df6-a64d99bd09c6",
+      "name": "Postgres2",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1780,
+        -500
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "d43abf0d-7c66-4762-ac2d-ec230232eabc",
+      "name": "Google Drive Trigger1",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        960,
+        -500
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "be289ce0-55fb-474c-ae3b-318f0306650e",
+      "name": "Google Drive Trigger2",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        960,
+        -300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "dc02d656-fee4-4510-b820-c096cfa9b077",
+      "name": "Edit Fields8",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1200,
+        -680
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0746404d-a071-4156-bf79-970eeb8ac58f",
+      "name": "Edit Fields9",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1200,
+        -500
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "22c77d32-59f8-4fee-90c0-eed9b54fdac1",
+      "name": "Edit Fields11",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1200,
+        -300
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8ad234f3-80d3-4788-b903-ebf944ea33cf",
+      "name": "Google Drive Trigger3",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        960,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5695a61e-3b66-4ca3-b314-25099f7e5399",
+      "name": "Edit Fields13",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1200,
+        -100
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "da5fb84a-82e2-4127-a0c6-02833d2f45e1",
+      "name": "Sticky Note30",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        -760
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fff83766-0ab3-4bea-b82d-1f26db710b63",
+      "name": "Sticky Note31",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1660,
+        -580
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15a5084b-d9e3-4c82-a7d5-0f26892d2663",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        -180,
+        1560
+      ],
+      "parameters": {},
+      "typeVersion": 2.6
+    },
+    {
+      "id": "1411bf6c-bf77-4aa4-9dd7-1f36759c804f",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        1660,
+        680
+      ],
+      "parameters": {},
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f0d44a66-1cbf-405c-b0df-a8d533f33376",
+      "name": "Google Sheets4",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -2980,
+        2360
+      ],
+      "parameters": {},
+      "typeVersion": 4.5
+    },
+    {
+      "id": "eb697cae-2f46-47bd-8792-9078f4707366",
+      "name": "Edit Fields14",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3160,
+        2360
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fd70b495-b18b-4f6a-9c76-74529dfc117c",
+      "name": "Code7",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2620,
+        2200
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "2296b386-1c64-4963-817a-d947d1bdeca7",
+      "name": "Edit Fields15",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2820,
+        2360
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3c782bd1-cea7-4313-abd7-7bf8c2f15f56",
+      "name": "OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -620,
+        2180
+      ],
+      "parameters": {},
+      "typeVersion": 1.8
+    },
+    {
+      "id": "628d6bfb-b19a-49dc-a268-9ad91d4a6f34",
+      "name": "Switch1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -460,
+        2660
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "cc952b18-cae7-46e7-b9c4-b3bce5352491",
+      "name": "Code10",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2620,
+        2600
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "135fdb3d-37f9-4603-8ad0-8c80637553a9",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -2620,
+        2360
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "fa3b71e9-d38e-4c5b-b0be-4edc75d0413f",
+      "name": "Convert to File2",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -2440,
+        2200
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0f2dcf21-1519-449b-8628-7b11ae47ee0a",
+      "name": "Google Drive9",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -2280,
+        2200
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "b3cff5e5-34c2-42c4-ba3a-445640720e4f",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2300,
+        2400
+      ],
+      "parameters": {},
+      "typeVersion": 3.4
+    },
+    {
+      "id": "1f0ecff6-151d-4ffa-a8ef-4c5e434746c9",
+      "name": "Sticky Note32",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2440,
+        2660
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ac2025b-b8fc-4238-b2e2-dab38228b6b9",
+      "name": "Sticky Note33",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2660,
+        2040
+      ],
+      "parameters": {
+        "content": ""
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Drive10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        []
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Convert to File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Address": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "ai_tool": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Sales": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Postgres2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields9": {
+      "main": [
+        [
+          {
+            "node": "Postgres2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields11": {
+      "main": [
+        [
+          {
+            "node": "Postgres2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields12": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields13": {
+      "main": [
+        [
+          {
+            "node": "Postgres2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields14": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields15": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive2": {
+      "main": [
+        [
+          {
+            "node": "Google Drive4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive3": {
+      "main": [
+        []
+      ]
+    },
+    "Google Drive5": {
+      "main": [
+        [
+          {
+            "node": "Google Drive6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive7": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive8": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive9": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "customer_info": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Address Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download files": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets6": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets8": {
+      "ai_tool": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge_base": {
+      "main": [
+        [
+          {
+            "node": "Download files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Google Drive7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Daily Sales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Address",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "customer_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File2": {
+      "main": [
+        [
+          {
+            "node": "Google Drive9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Drive Folders URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive Folders URL": {
+      "main": [
+        [
+          {
+            "node": "Google Drive2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Sales Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Drive Folders URL1": {
+      "main": [
+        [
+          {
+            "node": "Daily Sales Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Address Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "customer_info folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON PARSER (Join)": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "JSON PARSER (Join)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Operation Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operation Classifier": {
+      "main": [
+        [
+          {
+            "node": "JSON PARSER (Join)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Drive Folders URL1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "customer_info folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool1": {
+      "ai_tool": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "MIS Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Operation Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

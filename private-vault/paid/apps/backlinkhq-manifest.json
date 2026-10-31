@@ -1,0 +1,6 @@
+{
+  "runtime": "Cloudflare Workers + D1 + Ollama",
+  "tools_count": 16,
+  "product": "BacklinkHQ Autonomous SEO Suite",
+  "version": "1.0.0"
+}

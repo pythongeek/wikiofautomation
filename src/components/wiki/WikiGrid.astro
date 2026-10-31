@@ -26,7 +26,7 @@ const top: Wiki[] = all
   ) : (
     <div class="wiki-grid">
       {top.map(entry => (
-        <a class="wiki-card" href={`/wiki/${entry.data.category}/${entry.slug}`}>
+        <a class="wiki-card" href={`/wiki/${entry.data.category}/${entry.id}`}>
           <div class="eyebrow">{entry.data.category.toUpperCase()}</div>
           <h4>{entry.data.title}</h4>
           <p>{entry.data.summary ?? entry.body?.slice(0, 200) ?? ''}</p>

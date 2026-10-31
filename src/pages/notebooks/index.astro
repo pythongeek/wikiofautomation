@@ -95,7 +95,7 @@ const jsonLd = {
               )}
             </div>
 
-            <a href={`/notebooks/${nb.slug}`} class="no-underline group">
+            <a href={`/notebooks/${nb.id}`} class="no-underline group">
               <h2 class="text-xl sm:text-2xl font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
                 {nb.data.title}
               </h2>
@@ -121,7 +121,7 @@ const jsonLd = {
           <div class="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
             <div class="flex flex-wrap items-center gap-2">
               <a
-                href={`/notebooks/${nb.slug}`}
+                href={`/notebooks/${nb.id}`}
                 class="px-4 py-2 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold hover:shadow-[0_0_15px_rgba(192,245,0,0.4)] no-underline transition-all"
               >
                 View Run Guide & Code →
@@ -167,7 +167,7 @@ const jsonLd = {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {marketplaceKits.map((kit) => (
           <a
-            href={`/marketplace/notebook-kits/${kit.slug}`}
+            href={`/marketplace/notebook-kits/${kit.id}`}
             class="bg-[#0B0B10]/90 border border-white/10 hover:border-[#00e3fd] rounded-xl p-6 no-underline transition-all group flex flex-col justify-between"
           >
             <div>

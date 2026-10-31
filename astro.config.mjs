@@ -5,26 +5,16 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import pagefind from 'astro-pagefind';
 
-const SITE = 'https://wikiofautomation.com';
+import react from '@astrojs/react';
 
-// docs-researched options (2026-07-15, Astro 5.x):
-//   output: default ('static') — pages prerender by default; individual pages
-//             opt into SSR with `export const prerender = false`.
-//   adapter: node, mode 'standalone' — Hostinger Node Web App runs `node
-//             ./dist/server/entry.mjs` directly.
-//   i18n: defaultLocale en, locales en/bn/hi per master plan §2.6 (multi-language differentiation).
-//   integrations: mdx for wiki entries, sitemap for SEO, astro-pagefind for search.
-//   prefetch: hover — instant navigation between wiki entries.
-//   vite ssr.noExternal: better-sqlite3, sqlite-vec — they're native modules; don't try to externalize.
+const SITE = 'https://wikiofautomation.com';
 
 export default defineConfig({
   site: SITE,
+  output: 'static',
   adapter: node({ mode: 'standalone' }),
   prefetch: { defaultStrategy: 'hover' },
   trailingSlash: 'ignore',
-  // T009 — custom Node admin has its own middleware (src/middleware/index.ts).
-  // Disable Astro's built-in origin check so /api/admin/* form posts work the
-  // same way the Astro pages do (audit log + session cookie handle auth).
   security: {
     checkOrigin: false,
   },
@@ -34,6 +24,7 @@ export default defineConfig({
     routing: { prefixDefaultLocale: false },
   },
   integrations: [
+    react(),
     mdx(),
     sitemap({
       i18n: {

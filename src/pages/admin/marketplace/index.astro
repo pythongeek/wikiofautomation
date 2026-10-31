@@ -116,7 +116,7 @@ const otherDb = filter !== 'pending' ? dbListings : [];
             <tbody>
               {vaultListings.map(entry => (
                 <tr class="border-t border-[#2D2D44]">
-                  <td class="px-4 py-3 font-mono text-xs text-[#3DE0FF]">{entry.slug}</td>
+                  <td class="px-4 py-3 font-mono text-xs text-[#3DE0FF]">{entry.id}</td>
                   <td class="px-4 py-3">{entry.data.title}</td>
                   <td class="px-4 py-3 text-gray-400">{entry.data.type}{entry.data.pricing && entry.data.pricing !== 'free' ? ` · ${entry.data.pricing}` : ''}</td>
                 </tr>

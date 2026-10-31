@@ -185,7 +185,7 @@ for (const c of Object.keys(byCategory)) {
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {entries.map(entry => (
                   <a
-                    href={`/wiki/${entry.data.category}/${entry.slug}`}
+                    href={`/wiki/${entry.data.category}/${entry.id}`}
                     data-title={entry.data.title.toLowerCase()}
                     data-[#131317]={(entry.data.summary || '').toLowerCase()}
                     class="wiki-entry-card group bg-[#0D0D14] border border-white/5 hover:border-[#c0f500] rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,245,0,0.15)] flex flex-col justify-between"

@@ -29,30 +29,30 @@ export const GET: APIRoute = async () => {
     '',
     '## Ready Kaggle & Colab Notebooks (/notebooks)',
     ...notebooks.map(
-      (n) => `- [${n.data.title}](https://wikiofautomation.com/notebooks/${n.slug}): ${n.data.summary}`,
+      (n) => `- [${n.data.title}](https://wikiofautomation.com/notebooks/${n.id}): ${n.data.summary}`,
     ),
     '',
     '## Local AI Free Methods (/local-ai)',
     ...localAi.map(
-      (g) => `- [${g.data.title}](https://wikiofautomation.com/local-ai/${g.slug}): ${g.data.summary}`,
+      (g) => `- [${g.data.title}](https://wikiofautomation.com/local-ai/${g.id}): ${g.data.summary}`,
     ),
     '',
     '## Trained & Fine-Tuned Models (/models/finetuned)',
     ...finetuned.map(
       (m) =>
-        `- [${m.data.title}](https://wikiofautomation.com/models/finetuned/${m.slug}): ${m.data.summary} (${m.data.benchmark_delta})`,
+        `- [${m.data.title}](https://wikiofautomation.com/models/finetuned/${m.id}): ${m.data.summary} (${m.data.benchmark_delta})`,
     ),
     '',
     '## Encyclopedia Entries (/wiki)',
     ...wiki.map(
       (w) =>
-        `- [${w.data.title}](https://wikiofautomation.com/wiki/${w.data.category}/${w.slug}): ${w.data.summary}`,
+        `- [${w.data.title}](https://wikiofautomation.com/wiki/${w.data.category}/${w.id}): ${w.data.summary}`,
     ),
     '',
     '## Free Community Marketplace Tools (/marketplace)',
     ...mkt.map((item) => {
       const typeParam = item.data.type === 'ai-os' ? 'ai-os' : `${item.data.type}s`;
-      return `- [${item.data.title}](https://wikiofautomation.com/marketplace/${typeParam}/${item.slug}): ${item.data.summary || ''}`;
+      return `- [${item.data.title}](https://wikiofautomation.com/marketplace/${typeParam}/${item.id}): ${item.data.summary || ''}`;
     }),
     '',
   ];

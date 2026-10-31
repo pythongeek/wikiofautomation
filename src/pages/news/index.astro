@@ -10,7 +10,7 @@ export const prerender = true;
 
 const newsEntries = await getCollection('news');
 const formattedArticles = newsEntries.map((e) => ({
-  slug: e.slug,
+  slug: e.id,
   title: e.data.title,
   category: e.data.category || 'LAUNCH',
   kind: e.data.kind,

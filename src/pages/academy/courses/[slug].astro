@@ -9,7 +9,7 @@ import { CourseDetail } from '~/components/academy/CourseDetail';
 export async function getStaticPaths() {
   const allCourses = await getCollection('academy');
   return allCourses.map((item) => ({
-    params: { slug: item.slug },
+    params: { slug: item.id },
     props: { item },
   }));
 }

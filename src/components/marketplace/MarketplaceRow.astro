@@ -60,7 +60,7 @@ const itemsToRender = top.length > 0 ? top.map(item => ({
   rating: item.data.rating.toFixed(1),
   uses: item.data.uses >= 1000 ? `${(item.data.uses / 1000).toFixed(1)}k` : `${item.data.uses}`,
   icon: item.data.type === 'agent' ? 'smart_toy' : item.data.type === 'workflow' ? 'hub' : 'memory',
-  slug: item.slug,
+  slug: item.id,
   summary: item.data.summary || ''
 })) : defaultItems;
 
@@ -116,7 +116,7 @@ const tabs = ['ALL', 'Agents', 'Workflows', 'AI OS', 'Apps'];
               </span>
               <span class="text-[#4B5563] text-xs font-mono">{item.uses} uses</span>
             </div>
-            <a href={`/marketplace/${item.slug}`} class="bg-[#c0f500] text-[#050508] rounded-full px-3 py-1 text-xs font-medium font-sans flex items-center gap-1 group-hover:shadow-[0_0_15px_rgba(192,245,0,0.4)] transition-all no-underline">
+            <a href={`/marketplace/${item.type === 'ai-os' ? 'ai-os' : `${item.type}s`}/${item.slug}`} class="bg-[#c0f500] text-[#050508] rounded-full px-3 py-1 text-xs font-medium font-sans flex items-center gap-1 group-hover:shadow-[0_0_15px_rgba(192,245,0,0.4)] transition-all no-underline">
               Try <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
           </div>

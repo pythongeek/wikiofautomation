@@ -37,7 +37,7 @@ const data = entry.data;
       <h1 class="text-3xl font-bold mt-1 mb-6">Edit: {data.title}</h1>
 
       <form method="POST" action="/api/admin/news/save" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <input type="hidden" name="originalSlug" value={entry.slug} />
+        <input type="hidden" name="originalSlug" value={entry.id} />
 
         <div class="lg:col-span-2 bg-[#1A1A2E] border border-[#2D2D44] rounded-lg p-5">
           <label for="body" class="block text-sm font-medium mb-2">Markdown Body</label>
@@ -54,7 +54,7 @@ const data = entry.data;
               class="w-full bg-[#0B0B10] border border-[#2D2D44] rounded px-3 py-2 mb-3 focus:border-[#5B4CFF]" />
 
             <label class="block text-sm font-medium mb-1">Slug</label>
-            <input type="text" name="slug" value={entry.slug}
+            <input type="text" name="slug" value={entry.id}
               class="w-full bg-[#0B0B10] border border-[#2D2D44] rounded px-3 py-2 mb-3 font-mono text-sm focus:border-[#5B4CFF]" />
 
             <label class="block text-sm font-medium mb-1">Excerpt</label>

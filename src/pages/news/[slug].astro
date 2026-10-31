@@ -13,7 +13,7 @@ export async function getStaticPaths() {
     const next = index < allNews.length - 1 ? allNews[index + 1] : undefined;
 
     return {
-      params: { slug: item.slug },
+      params: { slug: item.id },
       props: { item, allNews, prev, next },
     };
   });
@@ -30,11 +30,11 @@ const { item, allNews, prev, next } = Astro.props;
 const { Content } = await render(item);
 
 const related_news = allNews
-  .filter((n) => n.slug !== item.slug)
+  .filter((n) => n.id !== item.id)
   .slice(0, 3)
   .map((n) => ({
     title: n.data.title,
-    slug: n.slug,
+    slug: n.id,
     read_time: n.data.read_time || '4 min read',
   }));
 ---
@@ -59,8 +59,8 @@ const related_news = allNews
       toc={item.data.toc || []}
       related_wiki={item.data.related_wiki || []}
       related_news={related_news}
-      prev_post={prev ? { title: prev.data.title, slug: prev.slug } : undefined}
-      next_post={next ? { title: next.data.title, slug: next.slug } : undefined}
+      prev_post={prev ? { title: prev.data.title, slug: prev.id } : undefined}
+      next_post={next ? { title: next.data.title, slug: next.id } : undefined}
     >
       <Content />
     </NewsDetail>

@@ -40,9 +40,9 @@ export const GET: APIRoute = async ({ request }) => {
     const newsArticles = await getCollection('news').catch(() => []);
 
     const allCollectionDocs = [
-      ...wikiEntries.map(e => ({ type: 'wiki', title: e.data.title, content: e.body || '', slug: e.slug, url: `/wiki/${e.data.category || 'frameworks'}/${e.slug}` })),
-      ...marketplaceItems.map(m => ({ type: 'marketplace', title: m.data.title, content: m.body || m.data.summary || '', slug: m.slug, url: `/marketplace/${m.data.type || 'agents'}/${m.slug}` })),
-      ...newsArticles.map(n => ({ type: 'news', title: n.data.title, content: n.body || n.data.excerpt || '', slug: n.slug, url: `/news/${n.slug}` })),
+      ...wikiEntries.map(e => ({ type: 'wiki', title: e.data.title, content: e.body || '', slug: e.id, url: `/wiki/${e.data.category || 'frameworks'}/${e.id}` })),
+      ...marketplaceItems.map(m => ({ type: 'marketplace', title: m.data.title, content: m.body || m.data.summary || '', slug: m.id, url: `/marketplace/${m.data.type || 'agents'}/${m.id}` })),
+      ...newsArticles.map(n => ({ type: 'news', title: n.data.title, content: n.body || n.data.excerpt || '', slug: n.id, url: `/news/${n.id}` })),
     ];
 
     for (const doc of allCollectionDocs) {

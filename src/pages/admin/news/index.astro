@@ -47,13 +47,13 @@ news.sort((a, b) => (b.data.published || '').localeCompare(a.data.published || '
           <tbody>
             {news.map(entry => (
               <tr class="border-t border-[#2D2D44] hover:bg-[#2D2D44]/40">
-                <td class="px-4 py-3 font-mono text-xs text-[#3DE0FF]">{entry.slug}</td>
+                <td class="px-4 py-3 font-mono text-xs text-[#3DE0FF]">{entry.id}</td>
                 <td class="px-4 py-3 font-medium">{entry.data.title}</td>
                 <td class="px-4 py-3 text-xs text-gray-500">{entry.data.published || '—'}</td>
                 <td class="px-4 py-3 text-right">
-                  <a href={`/admin/news/${entry.slug}`} class="text-[#C6FF3D] hover:underline text-sm">Edit</a>
+                  <a href={`/admin/news/${entry.id}`} class="text-[#C6FF3D] hover:underline text-sm">Edit</a>
                   <span class="mx-2 text-gray-600">·</span>
-                  <a href={`/news#${entry.slug}`} target="_blank" class="text-[#5B4CFF] hover:underline text-sm">View</a>
+                  <a href={`/news#${entry.id}`} target="_blank" class="text-[#5B4CFF] hover:underline text-sm">View</a>
                 </td>
               </tr>
             ))}

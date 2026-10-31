@@ -8,7 +8,7 @@ import Base from '~/layouts/Base.astro';
 export async function getStaticPaths() {
   const models = await getCollection('finetuned-models');
   return models.map((model) => ({
-    params: { slug: model.slug },
+    params: { slug: model.id },
     props: { model },
   }));
 }
@@ -81,7 +81,7 @@ const { Content } = await render(model);
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#050508] border border-[#c0f500]/30 rounded-2xl p-4">
         <div class="font-mono text-xs">
           <span class="text-[#9ca3af] block mb-1">QUICK DEPLOY COMMAND (OLLAMA / LLAMA.CPP):</span>
-          <code class="text-[#c0f500] text-sm font-bold">{model.data.ollama_run_cmd || `ollama run ${model.slug}`}</code>
+          <code class="text-[#c0f500] text-sm font-bold">{model.data.ollama_run_cmd || `ollama run ${model.id}`}</code>
         </div>
         <div class="flex flex-wrap items-center gap-3 shrink-0">
           {model.data.hf_repo && (

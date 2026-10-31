@@ -45,7 +45,7 @@ const postsToRender = top.length > 0 ? top.map(p => ({
   time: relTime(p.data.published),
   title: p.data.title,
   excerpt: p.data.excerpt || '',
-  url: `/news/${p.slug}`
+  url: `/news/${p.id}`
 })) : defaultPosts;
 ---
 

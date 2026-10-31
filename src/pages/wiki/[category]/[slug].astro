@@ -2,20 +2,20 @@
 /**
  * /wiki/[category]/[slug] — single wiki entry detail page with Cyber-Industrial styling
  */
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '~/layouts/Base.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('wiki');
   return entries.map((entry: CollectionEntry<'wiki'>) => ({
-    params: { category: entry.data.category, slug: entry.slug },
+    params: { category: entry.data.category, slug: entry.id },
     props: { entry },
   }));
 }
 
 interface Props { entry: CollectionEntry<'wiki'>; }
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 
 const ib = entry.data.infobox ?? {};
 const ibRows = Object.entries(ib).filter(([, v]) => v !== undefined && v !== '');

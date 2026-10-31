@@ -1,20 +1,21 @@
-// Content Collections — Zod schemas for typed content
-// Expanded for 2026–2046 Relevance Architecture:
+// Content Collections — Astro 7 Content Layer Config (`src/content.config.ts`)
 // - wiki: agents, frameworks, protocols, models, companies, concepts
 // - marketplace: agent, workflow, enterprise-workflow, plugin, notebook-kit, turnkey-game, ai-os, app, prompt
 // - notebooks: Kaggle & Colab ready notebooks + training-data pipelines
-// - local_ai: Local AI free methods, runtimes, quantization & hardware guides
-// - finetuned_models: Specialized & fine-tuned models by vertical use case
+// - local-ai: Local AI free methods, runtimes, quantization & hardware guides
+// - finetuned-models: Specialized & fine-tuned models by vertical use case
 // - news: Daily automation & AI newsroom
 // - academy: Courses & tracks
 
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 // ─── Wiki entries ──────────────────────────────────────────────────────────
 const wikiCategories = ['agents', 'frameworks', 'protocols', 'models', 'companies', 'concepts'] as const;
 
 const wiki = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/wiki' }),
   schema: z.object({
     title: z.string(),
     bangla_title: z.string().optional(),
@@ -22,19 +23,19 @@ const wiki = defineCollection({
     tags: z.array(z.string()).default([]),
     created: z.string(),
     updated: z.string(),
-    summary: z.string().max(280).optional(),     // AEO: first-line-as-answer; ≤ 280 chars
+    summary: z.string().max(280).optional(),
     bangla_summary: z.string().optional(),
     sources: z.array(z.object({
       title: z.string(),
-      url: z.string().url(),
+      url: z.string(),
     })).default([]),
     infobox: z.object({
       kind: z.string().optional(),
       license: z.string().optional(),
       first_release: z.string().optional(),
       language: z.string().optional(),
-      repo: z.string().url().optional(),
-      site: z.string().url().optional(),
+      repo: z.string().optional(),
+      site: z.string().optional(),
     }).default({}),
   }),
 });
@@ -54,7 +55,7 @@ const marketplaceTypes = [
 const marketplacePricing = ['free', 'paid', 'freemium'] as const;
 
 const marketplace = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/marketplace' }),
   schema: z.object({
     title: z.string(),
     type: z.enum(marketplaceTypes),
@@ -63,8 +64,8 @@ const marketplace = defineCollection({
     price_usd: z.number().nonnegative().optional().default(0),
     lemon_variant_id: z.string().optional(),
     lemon_checkout_url: z.string().optional(),
-    vault_asset: z.string().optional(),          // relative path in /private-vault/
-    node_count: z.number().int().optional(),     // for n8n workflows & mega-workflows
+    vault_asset: z.string().optional(),
+    node_count: z.number().int().optional(),
     icon: z.string().optional(),
     uses: z.number().int().nonnegative().default(0),
     rating: z.number().min(0).max(5).default(4.9),
@@ -137,7 +138,7 @@ const notebookCategories = [
 ] as const;
 
 const notebooks = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/notebooks' }),
   schema: z.object({
     title: z.string(),
     category: z.enum(notebookCategories),
@@ -145,7 +146,7 @@ const notebooks = defineCollection({
     gpu_required: z.string().default('Free T4 (16GB VRAM)'),
     vram_gb: z.number().default(15),
     base_model: z.string(),
-    method: z.string(), // e.g. "llama.cpp + Cloudflare Tunnel", "Unsloth QLoRA", "Synthetic Distillation"
+    method: z.string(),
     pricing: z.enum(['free', 'paid']).default('free'),
     price_usd: z.number().default(0),
     colab_url: z.string().optional(),
@@ -162,12 +163,12 @@ const notebooks = defineCollection({
 
 // ─── Local AI Free Methods & Hardware Guides ───────────────────────────────
 const localAi = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/local-ai' }),
   schema: z.object({
     title: z.string(),
     category: z.enum(['runtime', 'quantization', 'hardware', 'free-tunnel', 'desktop-suite']).default('runtime'),
-    runtime: z.string(), // e.g. "Ollama", "llama.cpp", "vLLM", "Locally Uncensored"
-    hardware_target: z.string(), // e.g. "8GB–24GB Consumer GPU / Apple Silicon"
+    runtime: z.string(),
+    hardware_target: z.string(),
     vram_min_gb: z.number().default(8),
     quant_recommended: z.string().default('Q4_K_M'),
     tokens_per_sec: z.string().default('35–85 tok/s'),
@@ -181,7 +182,7 @@ const localAi = defineCollection({
 
 // ─── Trained & Fine-Tuned AI Models for Specific Use Cases ─────────────────
 const finetunedModels = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/finetuned-models' }),
   schema: z.object({
     title: z.string(),
     use_case: z.enum([
@@ -194,10 +195,10 @@ const finetunedModels = defineCollection({
     ]),
     base_model: z.string(),
     parameter_size: z.string(),
-    tuning_method: z.string(), // e.g. "Ortho-Projection Abliteration + QLoRA", "Unsloth QLoRA + GRPO"
+    tuning_method: z.string(),
     quant_formats: z.array(z.string()).default(['Q4_K_M', 'Q5_K_M', 'Q8_0', 'FP16']),
     vram_required_gb: z.number().default(16),
-    benchmark_delta: z.string(), // e.g. "+31.4% Strict JSON Schema Accuracy vs Base"
+    benchmark_delta: z.string(),
     ollama_run_cmd: z.string(),
     hf_repo: z.string().optional(),
     colab_notebook_slug: z.string().optional(),
@@ -212,14 +213,14 @@ const finetunedModels = defineCollection({
 const newsKinds = ['launch', 'deep-dive', 'benchmark', 'digest', 'industry', 'tool', 'opinion'] as const;
 
 const news = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/news' }),
   schema: z.object({
     title: z.string(),
     kind: z.enum(newsKinds),
     category: z.string().default('LAUNCH'),
     published: z.string(),
     excerpt: z.string().optional(),
-    sources: z.array(z.string().url()).default([]),
+    sources: z.array(z.string()).default([]),
     hero_image: z.string().optional(),
     author: z.string().default('Ada'),
     author_avatar: z.string().default('https://api.dicebear.com/7.x/bottts/svg?seed=ada'),
@@ -241,7 +242,7 @@ const news = defineCollection({
 });
 
 const academy = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/academy' }),
   schema: z.object({
     title: z.string(),
     instructor: z.string().default('Ada Lovelace'),
@@ -286,3 +287,4 @@ export const collections = {
   news,
   academy,
 };
+

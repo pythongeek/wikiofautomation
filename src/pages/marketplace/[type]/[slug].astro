@@ -18,7 +18,7 @@ export async function getStaticPaths() {
     return {
       params: {
         type: typeParam,
-        slug: item.slug,
+        slug: item.id,
       },
       props: { item, allListings },
     };
@@ -35,14 +35,14 @@ const { Content } = await render(item);
 
 // Related items in the same type/category
 const related = allListings
-  .filter((l) => l.slug !== item.slug && l.data.type === item.data.type)
+  .filter((l) => l.id !== item.id && l.data.type === item.data.type)
   .slice(0, 4);
 
 const typeLabel = item.data.type === 'ai-os' ? 'AI OS' : `${item.data.type}s`;
 const isFree = item.data.pricing === 'free';
 const nodeCount = item.data.node_count || 24;
 const priceUsd = item.data.price_usd || (isFree ? 0 : 29);
-const paymentUrl = `/store/payment?item=${encodeURIComponent(item.slug)}&title=${encodeURIComponent(item.data.title)}&price=${priceUsd}&nodes=${nodeCount}`;
+const paymentUrl = `/store/payment?item=${encodeURIComponent(item.id)}&title=${encodeURIComponent(item.data.title)}&price=${priceUsd}&nodes=${nodeCount}`;
 
 // Build SEO + AEO JSON-LD (SoftwareApplication + FAQPage)
 const jsonLd = {
@@ -78,8 +78,8 @@ const jsonLd = {
           acceptedAnswer: {
             '@type': 'Answer',
             text: isFree
-              ? `Register a free Wiki of Automation account on this page to unlock and download the verified ${item.slug}.json workflow file immediately.`
-              : `Complete checkout on the payment portal to receive your license key and unlock the ${nodeCount}-node ${item.slug}.json vault package.`,
+              ? `Register a free Wiki of Automation account on this page to unlock and download the verified ${item.id}.json workflow file immediately.`
+              : `Complete checkout on the payment portal to receive your license key and unlock the ${nodeCount}-node ${item.id}.json vault package.`,
           },
         },
         {
@@ -224,7 +224,7 @@ const jsonLd = {
               {item.data.uses.toLocaleString()} <span class="text-[#9ca3af] font-normal">deployments</span>
             </span>
             <span>·</span>
-            <span>Vault File: <code class="text-[#c0f500]">{item.slug}.json</code></span>
+            <span>Vault File: <code class="text-[#c0f500]">{item.id}.json</code></span>
           </div>
 
           <!-- Tags -->
@@ -325,7 +325,7 @@ const jsonLd = {
             <div class="bg-[#131317] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-4">
               <h3 class="text-base font-mono font-bold text-[#c0f500] uppercase tracking-wider flex items-center gap-2">
                 <span>✓</span>
-                What's Included in Your Vault Download ({item.slug}.json)
+                What's Included in Your Vault Download ({item.id}.json)
               </h3>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -398,7 +398,7 @@ const jsonLd = {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {related.map((rel) => (
-                <a href={`/marketplace/${rel.data.type === 'ai-os' ? 'ai-os' : `${rel.data.type}s`}/${rel.slug}`} class="no-underline block group">
+                <a href={`/marketplace/${rel.data.type === 'ai-os' ? 'ai-os' : `${rel.data.type}s`}/${rel.id}`} class="no-underline block group">
                   <div class="bg-[#131317] border border-white/10 group-hover:border-[#c0f500] p-5 rounded-2xl transition-all duration-300 group-hover:-translate-y-1">
                     <div class="flex items-center justify-between mb-2">
                       <span class="text-xl">{rel.data.icon || '⚡'}</span>
@@ -429,7 +429,7 @@ const jsonLd = {
               {item.data.price_label || (isFree ? 'FREE (Member Gate)' : `$${priceUsd} One-Time`)}
             </div>
             <p class="text-xs text-[#9ca3af] font-mono">
-              Linked File: <code class="text-[#c0f500]">{item.slug}.json</code> ({nodeCount} Nodes)
+              Linked File: <code class="text-[#c0f500]">{item.id}.json</code> ({nodeCount} Nodes)
             </p>
           </div>
 
@@ -438,7 +438,7 @@ const jsonLd = {
               <>
                 <button
                   id="freeDownloadGateBtn"
-                  data-slug={item.slug}
+                  data-slug={item.id}
                   data-title={item.data.title}
                   type="button"
                   class="w-full py-4 px-5 rounded-xl bg-[#c0f500] hover:bg-[#d4ff33] text-[#050508] font-mono text-sm font-extrabold uppercase tracking-wider shadow-[0_0_30px_rgba(192,245,0,0.35)] transition-all cursor-pointer flex items-center justify-center gap-2"
@@ -471,7 +471,7 @@ const jsonLd = {
                   />
                   <button
                     id="unlockDownloadBtn"
-                    data-slug={item.slug}
+                    data-slug={item.id}
                     type="button"
                     class="w-full py-2.5 rounded-lg bg-white/10 hover:bg-[#c0f500] hover:text-[#161f00] text-white font-mono text-xs font-bold transition-colors cursor-pointer"
                   >
@@ -558,7 +558,7 @@ const jsonLd = {
           Register to Download `.JSON`
         </h3>
         <p class="text-xs text-[#9ca3af] leading-relaxed">
-          Create your free Wiki of Automation member account to immediately download <strong id="modalWorkflowTitle" class="text-white">{item.data.title}</strong> (<code class="text-[#00e3fd]">{item.slug}.json</code>).
+          Create your free Wiki of Automation member account to immediately download <strong id="modalWorkflowTitle" class="text-white">{item.data.title}</strong> (<code class="text-[#00e3fd]">{item.id}.json</code>).
         </p>
       </div>
 

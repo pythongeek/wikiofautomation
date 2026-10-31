@@ -28,7 +28,7 @@ interface ResolvedAsset {
 async function resolveAsset(slug: string): Promise<ResolvedAsset | null> {
   // 1. Check marketplace content collection
   const mkt = await getCollection('marketplace');
-  const foundMkt = mkt.find((item) => item.slug === slug);
+  const foundMkt = mkt.find((item) => item.id === slug);
   if (foundMkt) {
     const isFree = foundMkt.data.pricing === 'free';
     const vaultRelPath =
@@ -218,8 +218,8 @@ export const GET: APIRoute = async ({ params, request, url, cookies }) => {
     ext === '.json'
       ? 'application/json; charset=utf-8'
       : ext === '.zip'
-      ? 'application/zip'
-      : 'application/octet-stream';
+        ? 'application/zip'
+        : 'application/octet-stream';
   const fileName = path.basename(fullPath);
 
   return new Response(fileBuffer, {

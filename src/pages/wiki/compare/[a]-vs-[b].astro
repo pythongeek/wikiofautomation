@@ -14,7 +14,7 @@ type Wiki = CollectionEntry<'wiki'>;
 
 export async function getStaticPaths() {
   const all = await getCollection('wiki');
-  const slugs = all.map((e: Wiki) => e.slug!.toLowerCase());
+  const slugs = all.map((e: Wiki) => e.id!.toLowerCase());
   const paths: { params: { a: string; b: string }; props: { aEntry?: Wiki; bEntry?: Wiki; aKey: string; bKey: string } }[] = [];
 
   // Generate every unordered pair from current entries
@@ -78,13 +78,13 @@ const infoboxRows: { label: string; a: string; b: string }[] = (() => {
         <div class="card-eyebrow">A</div>
         <h2>{titleA}</h2>
         {summaryA && <p>{summaryA}</p>}
-        {aEntry && <a class="more" href={`/wiki/${aEntry.data.category}/${aEntry.slug}`}>Read full entry →</a>}
+        {aEntry && <a class="more" href={`/wiki/${aEntry.data.category}/${aEntry.id}`}>Read full entry →</a>}
       </div>
       <div class="card b">
         <div class="card-eyebrow">B</div>
         <h2>{titleB}</h2>
         {summaryB && <p>{summaryB}</p>}
-        {bEntry && <a class="more" href={`/wiki/${bEntry.data.category}/${bEntry.slug}`}>Read full entry →</a>}
+        {bEntry && <a class="more" href={`/wiki/${bEntry.data.category}/${bEntry.id}`}>Read full entry →</a>}
       </div>
     </section>
 

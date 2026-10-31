@@ -10,7 +10,7 @@ export const prerender = true;
 
 const courseEntries = await getCollection('academy');
 const formattedCourses = courseEntries.map((c) => ({
-  slug: c.slug,
+  slug: c.id,
   title: c.data.title,
   instructor: c.data.instructor || 'Ada Lovelace',
   instructor_avatar: c.data.instructor_avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=ada',

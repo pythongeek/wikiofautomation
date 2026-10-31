@@ -40,13 +40,13 @@ const data = entry.data;
         <div>
           <a href="/admin/wiki" class="text-sm text-[#3DE0FF] hover:underline">← Wiki</a>
           <h1 class="text-3xl font-bold mt-1">Edit: {data.title}</h1>
-          <p class="font-mono text-xs text-gray-500 mt-1">{entry.slug}</p>
+          <p class="font-mono text-xs text-gray-500 mt-1">{entry.id}</p>
         </div>
-        <a href={`/wiki/${entry.slug}`} target="_blank" class="text-sm text-[#5B4CFF] hover:underline">View live ↗</a>
+        <a href={`/wiki/${entry.id}`} target="_blank" class="text-sm text-[#5B4CFF] hover:underline">View live ↗</a>
       </div>
 
       <form method="POST" action="/api/admin/wiki/save" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <input type="hidden" name="originalSlug" value={entry.slug} />
+        <input type="hidden" name="originalSlug" value={entry.id} />
 
         <!-- Body editor -->
         <div class="lg:col-span-2 bg-[#1A1A2E] border border-[#2D2D44] rounded-lg p-5">
@@ -58,7 +58,7 @@ const data = entry.data;
             class="w-full bg-[#0B0B10] border border-[#2D2D44] rounded p-3 font-mono text-sm focus:outline-none focus:border-[#5B4CFF]"
           >{body}</textarea>
           <p class="text-xs text-gray-500 mt-2">
-            Edit the raw markdown. Frontmatter is managed in the side panel. Save writes back to <code class="text-[#3DE0FF]">src/content/wiki/{entry.slug}.md</code>.
+            Edit the raw markdown. Frontmatter is managed in the side panel. Save writes back to <code class="text-[#3DE0FF]">src/content/wiki/{entry.id}.md</code>.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ const data = entry.data;
               class="w-full bg-[#0B0B10] border border-[#2D2D44] rounded px-3 py-2 mb-3 focus:border-[#5B4CFF]" />
 
             <label class="block text-sm font-medium mb-1">Slug</label>
-            <input type="text" name="slug" value={entry.slug}
+            <input type="text" name="slug" value={entry.id}
               class="w-full bg-[#0B0B10] border border-[#2D2D44] rounded px-3 py-2 mb-3 font-mono text-sm focus:border-[#5B4CFF]" />
 
             <label class="block text-sm font-medium mb-1">Category</label>

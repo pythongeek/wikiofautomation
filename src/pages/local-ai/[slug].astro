@@ -8,7 +8,7 @@ import Base from '~/layouts/Base.astro';
 export async function getStaticPaths() {
   const guides = await getCollection('local-ai');
   return guides.map((guide) => ({
-    params: { slug: guide.slug },
+    params: { slug: guide.id },
     props: { guide },
   }));
 }

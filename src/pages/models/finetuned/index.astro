@@ -78,7 +78,7 @@ const useCaseLabels: Record<string, string> = {
               </span>
             </div>
 
-            <a href={`/models/finetuned/${model.slug}`} class="no-underline group">
+            <a href={`/models/finetuned/${model.id}`} class="no-underline group">
               <h2 class="text-2xl font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
                 {model.data.title}
               </h2>
@@ -132,7 +132,7 @@ const useCaseLabels: Record<string, string> = {
                 </a>
               )}
               <a
-                href={`/models/finetuned/${model.slug}`}
+                href={`/models/finetuned/${model.id}`}
                 class="px-4 py-2 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold no-underline"
               >
                 Model Spec & Recipe →

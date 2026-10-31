@@ -104,7 +104,7 @@ const freeWorkflowList = n8nCatalog.free_workflows.slice(0, 24);
           const typeParam = item.data.type === 'ai-os' ? 'ai-os' : `${item.data.type}s`;
           return (
             <a
-              href={`/marketplace/${typeParam}/${item.slug}`}
+              href={`/marketplace/${typeParam}/${item.id}`}
               class="group bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,245,0,0.15)] flex flex-col justify-between no-underline"
             >
               <div>

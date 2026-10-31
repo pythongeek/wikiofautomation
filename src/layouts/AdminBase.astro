@@ -1,0 +1,83 @@
+---
+/**
+ * AdminBase.astro — Minimal layout for admin backend pages
+ * No Header/Footer/Ada widget — admin has its own sidebar nav
+ */
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const SITE = 'https://wikiofautomation.com';
+
+const {
+  title = 'Admin — Wiki of Automation',
+  description = 'WikiOfAutomation admin backend.',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE).toString();
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <link rel="canonical" href={canonical}>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#050508">
+
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <!-- Fonts: Geist, JetBrains Mono, Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS Engine -->
+  <script is:inline src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script is:inline id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#050508",
+            "surface": "#131317",
+            "surface-container-lowest": "#0e0e12",
+            "surface-container-low": "#1b1b1f",
+            "surface-container": "#1f1f23",
+            "surface-container-high": "#2a292e",
+            "surface-container-highest": "#353439",
+            "surface-bright": "#39393d",
+            "on-surface": "#e5e1e7",
+            "primary-container": "#c0f500",
+            "primary-fixed": "#c0f500",
+            "primary-fixed-dim": "#a8d700",
+            "secondary": "#bdf4ff",
+            "secondary-container": "#00e3fd",
+            "secondary-fixed-dim": "#00daf3",
+            "error": "#ffb4ab",
+            "error-container": "#93000a",
+          }
+        }
+      }
+    };
+  </script>
+  <ClientRouter />
+</head>
+<body class="bg-[#050508] text-[#e5e1e7] font-['Geist',sans-serif] min-h-screen antialiased">
+  <slot />
+</body>
+</html>

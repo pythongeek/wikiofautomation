@@ -1,0 +1,19 @@
+---
+/**
+ * /search — Search Results Page
+ */
+import Base from '~/layouts/Base.astro';
+import { SearchResultsPage } from '~/components/utility/SearchResultsPage';
+
+export const prerender = true;
+---
+
+<Base
+  title="Search Results — Wiki of Automation"
+  description="Search across wiki entries, marketplace AI tools, tech news, creator profiles, and academy courses."
+>
+  <div class="pt-20 min-h-screen bg-[#050508] relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#c0f500]/10 via-[#050508]/80 to-[#050508] pointer-events-none -z-10"></div>
+    <SearchResultsPage client:load />
+  </div>
+</Base>

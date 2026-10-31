@@ -1,0 +1,178 @@
+---
+/**
+ * /models/finetuned — Trained & Fine-Tuned AI for Specific Use Cases Catalog
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+type FinetunedModel = CollectionEntry<'finetuned-models'>;
+const allModels = await getCollection('finetuned-models');
+
+const useCaseLabels: Record<string, string> = {
+  'uncensored-reasoning': 'Uncensored & Abliterated Vision/Reasoning',
+  'json-function-calling': 'Strict JSON & MCP Tool Agents',
+  'seo-aeo-publishing': 'SEO / AEO Citation Publishing',
+  'code-workflow-generation': 'Code & n8n DAG Generation',
+  'vision-document-extraction': 'Vision OCR & Document Extraction',
+  'medical-legal-triage': 'Air-Gapped Medical & Legal Triage',
+};
+---
+
+<Base
+  title="Trained & Fine-Tuned AI Models for Specific Use Cases | Wiki of Automation"
+  description="Domain-specialized QLoRA and Unsloth fine-tuned AI models exported in GGUF & AWQ formats for n8n agents, strict JSON function calling, uncensored reasoning, AEO publishing, and air-gapped enterprise triage."
+>
+  <div class="pt-28 pb-24 max-w-[1380px] mx-auto px-6 text-white relative z-10">
+    <!-- Hero -->
+    <section class="mb-12">
+      <div class="inline-flex items-center gap-2 bg-[#131317] border border-[#c0f500]/30 rounded-full px-4 py-1.5 mb-5">
+        <span class="w-2 h-2 rounded-full bg-[#c0f500] animate-ping"></span>
+        <span class="font-mono text-xs text-[#c0f500] uppercase tracking-wider">
+          SPECIALIZED WEIGHTS · UNSLOTH QLoRA · GGUF & AWQ READY
+        </span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-bold tracking-tight mb-4">
+        Trained & <span class="text-[#c0f500]">Fine-Tuned AI</span> Catalog
+      </h1>
+      <p class="text-base sm:text-lg text-[#9ca3af] max-w-3xl leading-relaxed">
+        Generalist foundation models fail on strict schema adherence, niche compliance, and refusal-free enterprise extraction. Deploy domain-specialized fine-tuned weights with verified benchmark deltas, one-line `ollama run` commands, and reproducible Unsloth training recipes.
+      </p>
+    </section>
+
+    <!-- Use Case Filter Pills -->
+    <div class="flex flex-wrap gap-2 mb-10" id="useCaseFilterBar">
+      <button
+        type="button"
+        data-usecase="all"
+        class="usecase-btn px-4 py-2 rounded-full font-mono text-xs font-bold bg-[#c0f500] text-[#161f00] border border-[#c0f500] cursor-pointer transition-all"
+      >
+        All Use Cases ({allModels.length})
+      </button>
+      {Object.entries(useCaseLabels).map(([key, label]) => (
+        <button
+          type="button"
+          data-usecase={key}
+          class="usecase-btn px-4 py-2 rounded-full font-mono text-xs text-[#9ca3af] hover:text-white bg-[#131317] border border-white/10 cursor-pointer transition-all"
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+
+    <!-- Fine-Tuned Models Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="modelsGrid">
+      {allModels.map((model: FinetunedModel) => (
+        <article
+          data-usecase-card={model.data.use_case}
+          class="bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(192,245,0,0.15)] flex flex-col justify-between"
+        >
+          <div>
+            <!-- Top Badges -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <span class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-[#00e3fd]/10 text-[#00e3fd] border border-[#00e3fd]/30">
+                {useCaseLabels[model.data.use_case] || model.data.use_case}
+              </span>
+              <span class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-[#c0f500]/15 text-[#c0f500] border border-[#c0f500]/30">
+                {model.data.benchmark_delta}
+              </span>
+            </div>
+
+            <a href={`/models/finetuned/${model.slug}`} class="no-underline group">
+              <h2 class="text-2xl font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+                {model.data.title}
+              </h2>
+            </a>
+
+            <p class="text-xs sm:text-sm text-[#9ca3af] leading-relaxed mb-5">
+              {model.data.summary}
+            </p>
+
+            <!-- Specs Grid -->
+            <div class="grid grid-cols-3 gap-3 mb-5 font-mono text-xs">
+              <div class="bg-[#050508] p-3 rounded-xl border border-white/10">
+                <div class="text-[#9ca3af] text-[10px]">BASE MODEL</div>
+                <div class="text-white font-bold truncate" title={model.data.base_model}>{model.data.base_model}</div>
+              </div>
+              <div class="bg-[#050508] p-3 rounded-xl border border-white/10">
+                <div class="text-[#9ca3af] text-[10px]">METHOD</div>
+                <div class="text-[#00e3fd] font-bold truncate" title={model.data.tuning_method}>{model.data.tuning_method}</div>
+              </div>
+              <div class="bg-[#050508] p-3 rounded-xl border border-white/10">
+                <div class="text-[#9ca3af] text-[10px]">VRAM REQUIRED</div>
+                <div class="text-[#c0f500] font-bold">{model.data.vram_required_gb} GB</div>
+              </div>
+            </div>
+
+            <!-- Ollama Command Box -->
+            {model.data.ollama_run_cmd && (
+              <div class="bg-[#050508] border border-white/10 rounded-xl p-3 mb-5 flex items-center justify-between gap-2 font-mono text-xs">
+                <code class="text-[#c0f500] truncate">{model.data.ollama_run_cmd}</code>
+                <span class="text-[10px] text-[#9ca3af] uppercase shrink-0">GGUF Ready</span>
+              </div>
+            )}
+          </div>
+
+          <!-- Actions Footer -->
+          <div class="border-t border-white/10 pt-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap gap-1.5">
+              {model.data.quant_formats.map((q: string) => (
+                <span class="font-mono text-[10px] bg-white/5 text-[#c4caac] px-2 py-0.5 rounded border border-white/10">
+                  {q}
+                </span>
+              ))}
+            </div>
+            <div class="flex items-center gap-3">
+              {model.data.colab_notebook_slug && (
+                <a
+                  href={`/notebooks/${model.data.colab_notebook_slug}`}
+                  class="font-mono text-xs text-[#00e3fd] hover:underline no-underline"
+                >
+                  Run in Colab →
+                </a>
+              )}
+              <a
+                href={`/models/finetuned/${model.slug}`}
+                class="px-4 py-2 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold no-underline"
+              >
+                Model Spec & Recipe →
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<script is:inline>
+  (() => {
+    function initUseCaseFilter() {
+      const buttons = document.querySelectorAll('.usecase-btn');
+      const cards = document.querySelectorAll('[data-usecase-card]');
+      if (!buttons.length || !cards.length) return;
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-usecase');
+          buttons.forEach((b) => {
+            b.className =
+              b === btn
+                ? 'usecase-btn px-4 py-2 rounded-full font-mono text-xs font-bold bg-[#c0f500] text-[#161f00] border border-[#c0f500] cursor-pointer transition-all'
+                : 'usecase-btn px-4 py-2 rounded-full font-mono text-xs text-[#9ca3af] hover:text-white bg-[#131317] border border-white/10 cursor-pointer transition-all';
+          });
+          cards.forEach((c) => {
+            if (target === 'all' || c.getAttribute('data-usecase-card') === target) {
+              c.style.display = '';
+            } else {
+              c.style.display = 'none';
+            }
+          });
+        });
+      });
+    }
+    document.addEventListener('astro:page-load', initUseCaseFilter);
+    initUseCaseFilter();
+  })();
+</script>
+

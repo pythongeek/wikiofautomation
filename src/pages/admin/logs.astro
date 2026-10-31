@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/logs — Audit Log Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { AuditLog } from '~/components/admin/AuditLog';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Audit Trail — Admin — Wiki of Automation"
+  description="Immutable append-only administrative audit log for all system, user, and content actions."
+>
+  <AuditLog client:load />
+</AdminBase>

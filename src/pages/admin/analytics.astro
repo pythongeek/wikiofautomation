@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/analytics — Analytics Dashboard Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { AnalyticsDashboard } from '~/components/admin/AnalyticsDashboard';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Platform Analytics — Admin — Wiki of Automation"
+  description="Real-time page views, unique visitor trends, traffic by country/device/referrer, and Ada AI widget analytics."
+>
+  <AnalyticsDashboard client:load />
+</AdminBase>

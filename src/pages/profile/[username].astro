@@ -1,0 +1,34 @@
+---
+/**
+ * /profile/[username] — Builder Public Profile Page
+ */
+import Base from '~/layouts/Base.astro';
+import { UserProfile } from '~/components/community/UserProfile';
+
+export function getStaticPaths() {
+  return [
+    { params: { username: 'ada_lovelace' } },
+    { params: { username: 'linustech' } },
+    { params: { username: 'alex_rivera' } },
+    { params: { username: 'elena_r' } },
+    { params: { username: 'marcus_dev' } },
+    { params: { username: 'sarah_ai' } },
+    { params: { username: 'dev_swarm' } },
+    { params: { username: 'mcp_master' } },
+  ];
+}
+
+const { username } = Astro.params;
+
+export const prerender = true;
+---
+
+<Base
+  title={`@${username} — Builder Profile | Wiki of Automation`}
+  description={`Explore published AI tools, community reviews, and tech stack for builder @${username}.`}
+>
+  <div class="pt-20 min-h-screen bg-[#050508] relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#c0f500]/10 via-[#050508]/80 to-[#050508] pointer-events-none -z-10"></div>
+    <UserProfile username={username} client:load />
+  </div>
+</Base>

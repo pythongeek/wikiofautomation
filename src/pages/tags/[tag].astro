@@ -1,0 +1,33 @@
+---
+/**
+ * /tags/[tag] — Tag Hub Page
+ */
+import Base from '~/layouts/Base.astro';
+import { TagPage } from '~/components/utility/TagPage';
+
+export function getStaticPaths() {
+  return [
+    { params: { tag: 'n8n' } },
+    { params: { tag: 'claude' } },
+    { params: { tag: 'mcp' } },
+    { params: { tag: 'agents' } },
+    { params: { tag: 'workflows' } },
+    { params: { tag: 'docker' } },
+    { params: { tag: 'langgraph' } },
+  ];
+}
+
+const { tag } = Astro.params;
+
+export const prerender = true;
+---
+
+<Base
+  title={`#${tag} — Topic Tag Hub | Wiki of Automation`}
+  description={`Browse all wiki encyclopedia entries, marketplace tools, and tech news tagged #${tag}.`}
+>
+  <div class="pt-20 min-h-screen bg-[#050508] relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#00e3fd]/10 via-[#050508]/80 to-[#050508] pointer-events-none -z-10"></div>
+    <TagPage tag={tag} client:load />
+  </div>
+</Base>

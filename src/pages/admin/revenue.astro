@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/revenue — Revenue & Financial Analytics Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { RevenueAnalytics } from '~/components/admin/RevenueAnalytics';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Revenue Analytics — Admin — Wiki of Automation"
+  description="Platform financial dashboard: GMV, 10% platform net cut, subscription MRR, category revenue distribution, and live transaction ledger."
+>
+  <RevenueAnalytics client:load />
+</AdminBase>

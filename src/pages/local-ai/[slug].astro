@@ -1,0 +1,105 @@
+---
+/**
+ * /local-ai/[slug] — Individual Local AI Free Method Guide
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const guides = await getCollection('local-ai');
+  return guides.map((guide) => ({
+    params: { slug: guide.slug },
+    props: { guide },
+  }));
+}
+
+type Props = {
+  guide: CollectionEntry<'local-ai'>;
+};
+
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+---
+
+<Base
+  title={`${guide.data.title} — Local AI Free Methods | Wiki of Automation`}
+  description={guide.data.summary}
+>
+  <div class="pt-28 pb-24 max-w-[1100px] mx-auto px-6 text-white relative z-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider mb-8">
+      <a href="/local-ai" class="text-[#c0f500] hover:underline no-underline">LOCAL AI</a>
+      <span>/</span>
+      <span class="text-[#00e3fd]">{guide.data.runtime}</span>
+      <span>/</span>
+      <span class="text-white font-bold truncate">{guide.data.title}</span>
+    </nav>
+
+    <!-- Header Card -->
+    <header class="bg-[#131317] border border-white/10 rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl">
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <span class="font-mono text-xs font-bold uppercase px-3 py-1 rounded-full bg-[#c0f500]/15 text-[#c0f500] border border-[#c0f500]/30">
+          100% FREE METHOD
+        </span>
+        <span class="font-mono text-xs uppercase px-3 py-1 rounded-full bg-[#00e3fd]/10 text-[#00e3fd] border border-[#00e3fd]/30">
+          Runtime: {guide.data.runtime}
+        </span>
+        <span class="font-mono text-xs uppercase px-3 py-1 rounded-full bg-white/5 text-white border border-white/10">
+          Quant: {guide.data.quant_recommended}
+        </span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-4">
+        {guide.data.title}
+      </h1>
+
+      <p class="text-base sm:text-lg text-[#c4caac] leading-relaxed mb-6">
+        {guide.data.summary}
+      </p>
+
+      <!-- Hardware & Telemetry Specs -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-white/10 font-mono text-xs">
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">HARDWARE TARGET</div>
+          <div class="text-white font-bold">{guide.data.hardware_target}</div>
+        </div>
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">MIN VRAM</div>
+          <div class="text-[#c0f500] font-bold">{guide.data.vram_min_gb} GB</div>
+        </div>
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">THROUGHPUT</div>
+          <div class="text-[#00e3fd] font-bold">~{guide.data.tokens_per_sec}</div>
+        </div>
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">CATEGORY</div>
+          <div class="text-white font-bold uppercase">{guide.data.category}</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Guide Body -->
+    <article class="bg-[#131317]/90 border border-white/10 rounded-3xl p-6 sm:p-10 prose prose-invert max-w-none text-[#e5e1e7] leading-relaxed">
+      <Content />
+    </article>
+
+    <!-- Footer CTA -->
+    <div class="mt-10 bg-gradient-to-r from-[#131317] to-[#1f1f23] border border-[#c0f500]/30 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <h3 class="text-lg font-bold text-white">Need a Fine-Tuned Model or Colab GPU Notebook?</h3>
+        <p class="text-xs sm:text-sm text-[#9ca3af]">
+          Pair this local inference stack with our domain-specific GGUF fine-tunes or free T4/L4 notebook servers.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="/models/finetuned" class="px-4 py-2.5 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold no-underline">
+          Fine-Tuned Models →
+        </a>
+        <a href="/notebooks" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold no-underline">
+          Colab/Kaggle Notebooks
+        </a>
+      </div>
+    </div>
+  </div>
+</Base>
+

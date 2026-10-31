@@ -1,0 +1,37 @@
+---
+/**
+ * /academy — Academy Hub Page
+ */
+import { getCollection } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+import { AcademyHub } from '~/components/academy/AcademyHub';
+
+export const prerender = true;
+
+const courseEntries = await getCollection('academy');
+const formattedCourses = courseEntries.map((c) => ({
+  slug: c.slug,
+  title: c.data.title,
+  instructor: c.data.instructor || 'Ada Lovelace',
+  instructor_avatar: c.data.instructor_avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=ada',
+  rating: c.data.rating || 4.9,
+  enrolled_count: c.data.enrolled_count || '1.4k',
+  price_label: c.data.price_label || 'FREE',
+  level: c.data.level || 'Beginner',
+  duration: c.data.duration || '2h 30m',
+  lessons_count: c.data.lessons_count || 8,
+  tool_tag: c.data.tool_tag || 'n8n',
+  tags: c.data.tags || ['FREE', 'n8n'],
+  thumbnail: c.data.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
+}));
+---
+
+<Base
+  title="Automation Academy — Courses & Certificates | Wiki of Automation"
+  description="Learn automation, ship production n8n workflows, build Claude skills, and earn verified developer certificates."
+>
+  <div class="pt-20 min-h-screen bg-[#050508] relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#7b61ff]/15 via-[#050508]/80 to-[#050508] pointer-events-none -z-10"></div>
+    <AcademyHub client:load courses={formattedCourses} />
+  </div>
+</Base>

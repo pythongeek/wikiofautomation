@@ -1,10 +1,12 @@
 ---
 title: n8n
+bangla_title: এনএইটএন (n8n)
 category: frameworks
 tags: [automation, workflow, fair-code, self-host]
 created: '2026-07-15'
 updated: '2026-07-15'
 summary: Fair-code workflow automation that combines no-code flexibility with code extensibility and native AI agent support.
+bangla_summary: ফেয়ার-কোড ওয়ার্কফ্লো অটোমেশন যা নো-কোড নমনীয়তার সাথে কোড এক্সটেনসিবিলিটি এবং নেটিভ এআই এজেন্ট সাপোর্ট একত্রিত করে।
 sources:
   - title: n8n.io
     url: https://n8n.io/

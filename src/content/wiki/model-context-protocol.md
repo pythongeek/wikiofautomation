@@ -1,10 +1,12 @@
 ---
 title: Model Context Protocol (MCP)
+bangla_title: মডেল কনটেক্সট প্রোটোকল (MCP)
 category: protocols
 tags: [protocol, ai-agents, open-standard]
 created: '2026-07-15'
 updated: '2026-07-15'
 summary: The open standard that lets AI models securely connect to tools, files, and live data sources.
+bangla_summary: মুক্ত মানদণ্ড (Open Standard) যা এআই মডেলগুলোকে নিরাপদভাবে টুলস, ফাইলস এবং লাইভ ডেটা উৎসের সাথে যুক্ত করে।
 sources:
   - title: Model Context Protocol spec
     url: https://modelcontextprotocol.io/

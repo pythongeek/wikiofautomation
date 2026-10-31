@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/content/wiki — Wiki Management Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { WikiManagement } from '~/components/admin/WikiManagement';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Wiki Management — Admin — Wiki of Automation"
+  description="Manage wiki entries: create, edit, bulk import, publish, and optimize with Ada AI assist."
+>
+  <WikiManagement client:load />
+</AdminBase>

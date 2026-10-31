@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/system — System Settings & Feature Flags Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { SystemSettings } from '~/components/admin/SystemSettings';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="System Settings — Admin — Wiki of Automation"
+  description="Maintenance mode, Cloudflare/Redis cache control, feature flag toggles, and system danger zone."
+>
+  <SystemSettings client:load />
+</AdminBase>

@@ -1,54 +1,67 @@
 /**
- * src/lib/ada/router.ts — cheap intent classifier.
- *
- * Given a user message, returns which "pillar" the question belongs to
- * and what to focus the RAG retrieval on. Uses MiniMax M3 with JSON mode
- * to keep the call deterministic + small.
+ * src/lib/ada/router.ts — Intent classifier supporting Wiki, Notebooks, Local AI, Fine-Tuned Models, Marketplace, and News.
  */
 import { adaChat } from './client.ts';
 
-export type Intent = 'wiki' | 'marketplace' | 'news' | 'general';
+export type Intent = 'wiki' | 'marketplace' | 'news' | 'notebooks' | 'local-ai' | 'finetuned-models' | 'general';
 
 const ROUTER_SYSTEM = `
-You are the intent router for "wiki of automation" — the encyclopedia of the automation economy.
-Classify the user's message into exactly one of these intents and return strict JSON:
+You are the intent router for "Wiki of Automation".
+Classify the user's message into one of these intents and return strict JSON:
 
-- "wiki" — if the user is asking about a concept, framework, protocol, model, company, agent, or pattern
-- "marketplace" — if the user is looking for a tool, workflow, or template to use
-- "news" — if the user is asking about recent launches, releases, benchmarks, or industry news
-- "general" — anything else (greetings, feedback, off-topic)
+- "notebooks" — if asking about Kaggle, Google Colab, Jupyter notebooks, T4/L4 GPUs, or synthetic training data pipelines
+- "local-ai" — if asking about running AI locally for free, Ollama, llama.cpp, vLLM, VRAM requirements, quantization (GGUF, Q4_K_M), or local relays
+- "finetuned-models" — if asking about fine-tuning, Unsloth, QLoRA, specialized/trained models for JSON, OCR, medical/legal, coding, or uncensored models
+- "marketplace" — if looking for a free n8n workflow, free agent, or free plugin to download
+- "news" — if asking about recent launches, releases, or industry news
+- "wiki" — if asking about a general automation concept, framework, protocol (MCP), or comparison
+- "general" — greetings, feedback, or off-topic
 
-Return JSON only: {"intent": "wiki" | "marketplace" | "news" | "general", "confidence": 0.0-1.0}.
-No markdown, no commentary.
+Return JSON only: {"intent": "wiki" | "marketplace" | "news" | "notebooks" | "local-ai" | "finetuned-models" | "general", "confidence": 0.0-1.0}.
 `.trim();
 
 export async function classifyIntent(message: string): Promise<{ intent: Intent; confidence: number; ms: number }> {
   const t0 = Date.now();
-  const res = await adaChat(
-    [
-      { role: 'system', content: ROUTER_SYSTEM },
-      { role: 'user', content: message },
-    ],
-    { temperature: 0, maxTokens: 80 },
-  );
-  // Strip code fences if the model wraps the JSON anyway.
-  const raw = res.content.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
-  let parsed: { intent: Intent; confidence: number } = { intent: 'general', confidence: 0 };
+  const lower = message.toLowerCase();
+
   try {
+    const res = await adaChat(
+      [
+        { role: 'system', content: ROUTER_SYSTEM },
+        { role: 'user', content: message },
+      ],
+      { temperature: 0, maxTokens: 80 },
+    );
+    const raw = res.content.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
     const obj = JSON.parse(raw) as { intent?: Intent; confidence?: number };
-    if (obj.intent && ['wiki', 'marketplace', 'news', 'general'].includes(obj.intent)) {
-      parsed = { intent: obj.intent, confidence: typeof obj.confidence === 'number' ? obj.confidence : 0 };
+    if (
+      obj.intent &&
+      ['wiki', 'marketplace', 'news', 'notebooks', 'local-ai', 'finetuned-models', 'general'].includes(obj.intent)
+    ) {
+      return {
+        intent: obj.intent,
+        confidence: typeof obj.confidence === 'number' ? obj.confidence : 0.85,
+        ms: Date.now() - t0,
+      };
     }
   } catch {
-    // Heuristic fallback when JSON parse fails
-    const lower = message.toLowerCase();
-    if (/(find|recommend|suggest|show me|looking for|need a|tool|workflow|template|app)/.test(lower)) {
-      parsed.intent = 'marketplace';
-    } else if (/(when|release|launched|announce|news|today|this week|benchmark)/.test(lower)) {
-      parsed.intent = 'news';
-    } else if (/(what is|how does|explain|define|compare|vs|protocol|framework|model|agent)/.test(lower)) {
-      parsed.intent = 'wiki';
-    }
+    // Heuristic fallback when LLM API is unreachable or JSON parse fails
   }
-  return { ...parsed, ms: Date.now() - t0 };
+
+  let intent: Intent = 'general';
+  if (/(kaggle|colab|notebook|ipynb|dual t4|synthetic data|distillation)/.test(lower)) {
+    intent = 'notebooks';
+  } else if (/(local ai|ollama|llama\.cpp|vram|quantization|gguf|q4_k_m|offline|free method)/.test(lower)) {
+    intent = 'local-ai';
+  } else if (/(fine-tun|finetun|qlora|unsloth|abliterated|trained model|use case model)/.test(lower)) {
+    intent = 'finetuned-models';
+  } else if (/(workflow|template|download|n8n|agent|plugin)/.test(lower)) {
+    intent = 'marketplace';
+  } else if (/(news|launch|release|today|this week)/.test(lower)) {
+    intent = 'news';
+  } else if (/(what is|how does|explain|compare|vs|protocol|framework|mcp|aeo)/.test(lower)) {
+    intent = 'wiki';
+  }
+
+  return { intent, confidence: 0.8, ms: Date.now() - t0 };
 }

@@ -1,6 +1,6 @@
 ---
 /**
- * /wiki/[category] — all entries in a single category
+ * /wiki/[category] — Category listing with Cyber-Industrial styling
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '~/layouts/Base.astro';
@@ -14,83 +14,80 @@ const { category } = Astro.params;
 type Wiki = CollectionEntry<'wiki'>;
 const all = await getCollection('wiki', (e: Wiki) => e.data.category === category);
 const sorted: Wiki[] = all.sort((a: Wiki, b: Wiki) => a.data.title.localeCompare(b.data.title));
-const categoryLabels: Record<string, string> = {
-  agents: 'Agents',
-  frameworks: 'Frameworks',
-  protocols: 'Protocols',
-  models: 'Models',
-  companies: 'Companies',
-  concepts: 'Concepts',
+
+const categoryMeta: Record<string, { en: string; bn: string; icon: string; color: string; descEn: string }> = {
+  agents: { en: 'Agents', bn: 'এজেন্টস', icon: 'smart_toy', color: '#c0f500', descEn: 'Autonomous AI programs executing complex goals across browsers, APIs, and OS.' },
+  frameworks: { en: 'Frameworks', bn: 'ফ্রেমওয়ার্কস', icon: 'terminal', color: '#00e3fd', descEn: 'Orchestration libraries, canvas tools, and multi-agent development stacks.' },
+  protocols: { en: 'Protocols', bn: 'প্রোটোকল', icon: 'api', color: '#7b61ff', descEn: 'Open standards connecting LLMs to local tools, databases, and remote services.' },
+  models: { en: 'Models', bn: 'মডেলস', icon: 'neurology', color: '#a8d700', descEn: 'Frontier foundation LLMs, hybrid reasoning architectures, and local weights.' },
+  companies: { en: 'Companies', bn: 'কোম্পানি', icon: 'domain', color: '#9cf0ff', descEn: 'Pioneering labs, platforms, and infrastructure vendors building automation.' },
+  concepts: { en: 'Concepts', bn: 'কনসেপ্টস', icon: 'lightbulb', color: '#e5deff', descEn: 'Core paradigms: AEO, RAG, tool calling, human-in-the-loop, and agentic workflows.' },
 };
+
+const meta = categoryMeta[category!] || { en: category, bn: category, icon: 'book', color: '#c0f500', descEn: '' };
 ---
 
 <Base
-  title={`${categoryLabels[category!] ?? category} — Wiki`}
-  description={`All ${category} entries in the wiki of automation.`}
+  title={`${meta.en} — Wiki`}
+  description={`All verified ${meta.en} entries in the encyclopedia of automation.`}
 >
-  <div class="page-hero">
-    <div class="breadcrumb">
-      <a href="/wiki">Wiki</a> · {categoryLabels[category!] ?? category}
+  <div class="relative min-h-[80vh] pt-28 pb-20 px-6 max-w-[1280px] mx-auto">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider mb-6">
+      <a href="/wiki" class="text-[#c0f500] hover:underline no-underline">WIKI INDEX</a>
+      <span>/</span>
+      <span class="text-white font-bold">{meta.en}</span>
     </div>
-    <h1>{categoryLabels[category!] ?? category}</h1>
-    <p class="lead">{sorted.length} entries in this category.</p>
+
+    <!-- Title & Desc -->
+    <div class="flex items-center gap-4 mb-10">
+      <span class="material-symbols-outlined text-4xl" style={`color: ${meta.color}`}>{meta.icon}</span>
+      <div>
+        <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-white">
+          {meta.en} <span class="text-sm font-mono font-normal text-[#9ca3af]">({sorted.length} entries)</span>
+        </h1>
+        <p class="text-sm sm:text-base text-[#9ca3af] mt-1">{meta.descEn}</p>
+      </div>
+    </div>
+
+    <!-- Entries Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sorted.map(entry => (
+        <a
+          href={`/wiki/${entry.data.category}/${entry.slug}`}
+          class="group bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(192,245,0,0.15)] flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-white/5 text-[#c0f500] border border-white/10">
+                {entry.data.category}
+              </span>
+              <span class="text-xs text-[#9ca3af] font-mono">
+                {entry.data.updated}
+              </span>
+            </div>
+            <h3 class="text-xl font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+              {entry.data.title}
+            </h3>
+            {entry.data.bangla_title && (
+              <p class="text-xs text-[#c0f500]/80 font-mono mb-2">{entry.data.bangla_title}</p>
+            )}
+            <p class="text-xs text-[#9ca3af] line-clamp-3 leading-relaxed mb-4">
+              {entry.data.summary || 'View complete reference documentation.'}
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between border-t border-white/5 pt-4 text-xs font-mono text-[#c0f500]">
+            <span class="text-[#9ca3af] flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">link</span>
+              {entry.data.sources?.length || 0} sources
+            </span>
+            <span class="group-hover:translate-x-1 transition-transform flex items-center gap-1">
+              Read entry →
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
   </div>
-
-  <section class="entry-list-wrap">
-    {sorted.map(entry => (
-      <a class="row" href={`/wiki/${entry.data.category}/${entry.slug}`}>
-        <div>
-          <div class="title">{entry.data.title}</div>
-          {entry.data.summary && <div class="summary">{entry.data.summary}</div>}
-        </div>
-        <div class="meta">{entry.data.updated}</div>
-      </a>
-    ))}
-  </section>
 </Base>
-
-<style>
-  .page-hero {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: calc(var(--nav-height) + 60px) 36px 40px;
-  }
-  .breadcrumb {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .breadcrumb a { color: var(--cyan); }
-  h1 {
-    font-size: clamp(32px, 5vw, 50px);
-    margin-top: 12px;
-    margin-bottom: 12px;
-  }
-  .lead { color: var(--muted); font-size: 17px; }
-  section.entry-list-wrap {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: 24px 36px 100px;
-  }
-  .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--border);
-    color: inherit;
-    transition: padding 0.15s;
-  }
-  .row:hover { padding-left: 8px; }
-  .title { font-size: 17px; font-weight: 500; }
-  .summary { font-size: 13px; color: var(--muted); margin-top: 4px; max-width: 560px; }
-  .meta {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--muted-2);
-    flex-shrink: 0;
-  }
-</style>

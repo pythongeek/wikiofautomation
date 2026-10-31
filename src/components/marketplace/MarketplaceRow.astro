@@ -1,274 +1,166 @@
 ---
 /**
- * MarketplaceRow.astro v2
- * - Tab filter by type (client-side, no reload)
- * - Better card design
- * - "Try Now" link on each card
+ * MarketplaceRow.astro — Cyber Marketplace Showcase
+ * Source: Google Stitch Master Page Specification (SCREEN_14)
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 type Listing = CollectionEntry<'marketplace'>;
 
 const all = await getCollection('marketplace', (e: Listing) => e.data.status === 'live').catch(() => [] as Listing[]);
-const top = all.sort((a, b) => b.data.uses - a.data.uses).slice(0, 9);
+const top = all.sort((a, b) => b.data.uses - a.data.uses).slice(0, 8);
 
-const tabs = ['all', 'agent', 'workflow', 'ai-os', 'app'] as const;
-const tabLabels: Record<string, string> = {
-  all: 'All',
-  agent: 'Agents',
-  workflow: 'Workflows',
-  'ai-os': 'AI OS',
-  app: 'Apps',
-};
+const defaultItems = [
+  {
+    title: 'Inbox Triage Agent',
+    type: 'agent',
+    pricing: 'FREE',
+    rating: '4.8',
+    uses: '3.1k',
+    icon: 'mail',
+    slug: 'inbox-triage-agent',
+    summary: 'Automated email triage and auto-reply assistant.'
+  },
+  {
+    title: 'Omni-Ingestion Node',
+    type: 'workflow',
+    pricing: '0.05 SOL/mo',
+    rating: '4.9',
+    uses: '1.2k',
+    icon: 'hub',
+    slug: 'omni-ingestion-node',
+    summary: 'Multi-source document and API data ingestion workflow.'
+  },
+  {
+    title: 'Recursive Actor Framework',
+    type: 'ai-os',
+    pricing: 'FREE',
+    rating: '4.7',
+    uses: '800',
+    icon: 'memory',
+    slug: 'recursive-actor',
+    summary: 'Autonomous recursive task planner and execution stack.'
+  },
+  {
+    title: 'Lead Gen Assistant',
+    type: 'app',
+    pricing: '2 SOL',
+    rating: '4.6',
+    uses: '2.4k',
+    icon: 'person_search',
+    slug: 'lead-gen-assistant',
+    summary: 'High-converting B2B prospect researcher and outreach bot.'
+  }
+];
 
-function formatUses(n: number) {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return `${n}`;
-}
+const itemsToRender = top.length > 0 ? top.map(item => ({
+  title: item.data.title,
+  type: item.data.type,
+  pricing: item.data.pricing.toUpperCase(),
+  rating: item.data.rating.toFixed(1),
+  uses: item.data.uses >= 1000 ? `${(item.data.uses / 1000).toFixed(1)}k` : `${item.data.uses}`,
+  icon: item.data.type === 'agent' ? 'smart_toy' : item.data.type === 'workflow' ? 'hub' : 'memory',
+  slug: item.slug,
+  summary: item.data.summary || ''
+})) : defaultItems;
+
+const tabs = ['ALL', 'Agents', 'Workflows', 'AI OS', 'Apps'];
 ---
 
-<section class="mkt-section" id="marketplace">
-  <header class="section-head">
+<section class="max-w-[1280px] mx-auto px-6 py-20 relative z-10" id="marketplace">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
     <div>
-      <h2>Trending in the marketplace</h2>
-      <p class="section-sub">Install in one click. Try it free first.</p>
+      <h2 class="text-3xl font-bold text-white mb-2 font-sans tracking-tight">Trending in the marketplace</h2>
+      <p class="text-[#9CA3AF] text-sm font-sans">Install in one click. Try it free first.</p>
     </div>
-    <a class="see-all" href="/marketplace">View all {all.length} listings →</a>
-  </header>
+    <a class="text-[#c0f500] text-sm font-medium hover:underline flex items-center gap-1 group no-underline" href="/marketplace">
+      View all listings <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+    </a>
+  </div>
 
-  <!-- Type filter tabs -->
-  <div class="mkt-tabs" role="tablist" aria-label="Filter by type">
-    {tabs.map(t => (
+  <!-- Type Tabs -->
+  <div class="flex flex-wrap items-center gap-2.5 mb-8" role="tablist">
+    {tabs.map((t, i) => (
       <button
-        class={`mkt-tab ${t === 'all' ? 'active' : ''}`}
-        data-filter={t}
-        role="tab"
-        aria-selected={t === 'all' ? 'true' : 'false'}
+        class={`mkt-tab px-4 py-1.5 text-xs font-mono rounded-full transition-all cursor-pointer ${
+          i === 0
+            ? 'bg-[#c0f500] text-[#050508] font-bold shadow-[0_0_12px_rgba(192,245,0,0.3)]'
+            : 'bg-transparent text-[#9CA3AF] border border-white/10 hover:border-white/20 hover:text-white'
+        }`}
+        data-filter={t.toLowerCase()}
       >
-        {tabLabels[t]}
+        {t}
       </button>
     ))}
   </div>
 
-  <!-- Cards container -->
-  {top.length === 0 ? (
-    <div class="mkt-empty">
-      <p>Marketplace launching soon. <a href="/marketplace/publish">Submit the first listing →</a></p>
-    </div>
-  ) : (
-    <div class="mkt-row" id="mktCards">
-      {top.map(item => (
-        <article
-          class="mkt-card"
-          data-type={item.data.type}
-          aria-label={item.data.title}
-        >
-          <div class="card-top">
-            <div class="card-icon" aria-hidden="true">{item.data.icon ?? '⚡'}</div>
-            <span class={`badge badge-${item.data.pricing}`}>{item.data.pricing.toUpperCase()}</span>
+  <!-- Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="mktGrid">
+    {itemsToRender.map(item => (
+      <div class="mkt-card cyber-card bg-[#13131F] border border-white/5 hover:border-[#c0f500] rounded-xl p-5 relative overflow-hidden flex flex-col min-h-[190px] group cursor-pointer transition-all duration-300 hover:-translate-y-1" data-type={item.type}>
+        <div class="scan-line absolute left-0 right-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#c0f500] to-transparent opacity-0 z-10"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-[#131317] flex items-center justify-center border border-white/5">
+            <span class="material-symbols-outlined text-[#c0f500] text-xl">{item.icon}</span>
           </div>
-          <h4>{item.data.title}</h4>
-          <p class="card-desc">{item.data.summary ?? ''}</p>
-          <div class="card-footer">
-            <div class="card-meta">
-              <span class="star" aria-label={`Rating: ${item.data.rating.toFixed(1)} out of 5`}>
-                ★ {item.data.rating.toFixed(1)}
+          <div class="font-mono text-[10px] uppercase bg-white/5 px-2 py-1 rounded text-white tracking-wider border border-white/5">
+            {item.pricing}
+          </div>
+        </div>
+        <div class="mt-auto">
+          <h3 class="text-base font-semibold text-white mb-2 font-sans">{item.title}</h3>
+          <div class="flex justify-between items-end">
+            <div class="flex items-center gap-2">
+              <span class="text-[#c0f500] text-xs flex items-center font-medium font-mono">
+                <span class="material-symbols-outlined text-sm mr-0.5" style="font-variation-settings: 'FILL' 1;">star</span> {item.rating}
               </span>
-              <span class="uses">{formatUses(item.data.uses)} uses</span>
+              <span class="text-[#4B5563] text-xs font-mono">{item.uses} uses</span>
             </div>
-            <a class="try-btn" href={`/marketplace/${item.slug}`} aria-label={`Try ${item.data.title}`}>
-              Try →
+            <a href={`/marketplace/${item.slug}`} class="bg-[#c0f500] text-[#050508] rounded-full px-3 py-1 text-xs font-medium font-sans flex items-center gap-1 group-hover:shadow-[0_0_15px_rgba(192,245,0,0.4)] transition-all no-underline">
+              Try <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>
           </div>
-        </article>
-      ))}
-    </div>
-  )}
+        </div>
+      </div>
+    ))}
+  </div>
 </section>
 
 <script>
 (() => {
-  function init() {
+  function initMktTabs() {
     const tabs = document.querySelectorAll<HTMLButtonElement>('.mkt-tab');
     const cards = document.querySelectorAll<HTMLElement>('.mkt-card');
     if (!tabs.length || !cards.length) return;
 
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        // Update tab state
-        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
+        tabs.forEach(t => {
+          t.className = 'mkt-tab px-4 py-1.5 text-xs font-mono rounded-full transition-all cursor-pointer bg-transparent text-[#9CA3AF] border border-white/10 hover:border-white/20 hover:text-white';
+        });
+        tab.className = 'mkt-tab px-4 py-1.5 text-xs font-mono rounded-full transition-all cursor-pointer bg-[#c0f500] text-[#050508] font-bold shadow-[0_0_12px_rgba(192,245,0,0.3)]';
 
-        const filter = tab.dataset.filter || 'all';
-
-        // Filter cards
+        const filter = (tab.dataset.filter || 'all').toLowerCase();
         cards.forEach(card => {
-          const type = card.dataset.type || '';
-          const show = filter === 'all' || type === filter;
+          const type = (card.dataset.type || '').toLowerCase();
+          const show = filter === 'all' || type.includes(filter) || (filter === 'ai os' && type.includes('ai-os'));
           card.style.display = show ? 'flex' : 'none';
-          // Trigger re-fade animation
-          if (show) {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(8px)';
-            requestAnimationFrame(() => {
-              card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
-              card.style.opacity = '1';
-              card.style.transform = 'translateY(0)';
-            });
-          }
         });
       });
     });
   }
-  document.addEventListener('astro:page-load', init);
-  init();
+  document.addEventListener('astro:page-load', initMktTabs);
+  initMktTabs();
 })();
 </script>
 
 <style>
-  .mkt-section {
-    padding: 80px 36px;
-    max-width: var(--max-content);
-    margin: 0 auto;
+  .mkt-card:hover .scan-line {
+    animation: scan 1.5s ease-in-out infinite;
   }
-
-  .section-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-    gap: 16px;
+  @keyframes scan {
+    0% { top: 0; opacity: 0; }
+    30% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
   }
-  .section-head h2 { font-size: clamp(24px, 3vw, 34px); }
-  .section-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
-  .see-all {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--lime);
-    white-space: nowrap;
-    text-decoration: none;
-    transition: opacity 0.15s;
-  }
-  .see-all:hover { opacity: 0.75; }
-
-  /* Tabs */
-  .mkt-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .mkt-tab {
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    padding: 7px 16px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .mkt-tab:hover { color: var(--text); border-color: var(--indigo-soft); }
-  .mkt-tab.active {
-    background: var(--indigo);
-    color: #fff;
-    border-color: var(--indigo);
-  }
-  .mkt-tab:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
-
-  /* Cards row */
-  .mkt-row {
-    display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    padding-bottom: 12px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  .mkt-row::-webkit-scrollbar { height: 5px; }
-  .mkt-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .mkt-card {
-    flex: 0 0 260px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-  }
-  .mkt-card:hover {
-    border-color: var(--indigo-soft);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-  }
-
-  .card-top { display: flex; align-items: center; justify-content: space-between; }
-  .card-icon {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: var(--surface-2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
-  }
-
-  .badge {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: var(--radius-pill);
-    letter-spacing: 0.05em;
-  }
-  .badge-free { background: rgba(61,255,176,0.12); color: var(--mint); }
-  .badge-paid { background: rgba(255,177,61,0.12); color: var(--amber); }
-  .badge-freemium { background: rgba(91,76,255,0.16); color: var(--indigo-soft); }
-
-  .mkt-card h4 { font-size: 15.5px; color: var(--text); line-height: 1.3; }
-  .card-desc { color: var(--muted); font-size: 13px; line-height: 1.5; flex: 1; }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-  }
-  .card-meta {
-    display: flex;
-    gap: 10px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted-2);
-  }
-  .star { color: var(--lime); }
-
-  .try-btn {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--bg);
-    background: var(--lime);
-    padding: 5px 12px;
-    border-radius: var(--radius-pill);
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .try-btn:hover { box-shadow: 0 0 14px rgba(198,255,61,0.5); }
-
-  .mkt-empty {
-    text-align: center;
-    padding: 48px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-  }
-  .mkt-empty a { color: var(--lime); }
 </style>

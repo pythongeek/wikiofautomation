@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/content/news — News CMS Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { NewsCms } from '~/components/admin/NewsCms';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="News CMS — Admin — Wiki of Automation"
+  description="Manage news articles: write, schedule, distribute via newsletter and push notifications, with AI-draft support."
+>
+  <NewsCms client:load />
+</AdminBase>

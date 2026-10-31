@@ -1,0 +1,115 @@
+---
+/**
+ * /models/finetuned/[slug] — Fine-Tuned Model Detail & Training Recipe Page
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const models = await getCollection('finetuned-models');
+  return models.map((model) => ({
+    params: { slug: model.slug },
+    props: { model },
+  }));
+}
+
+type Props = {
+  model: CollectionEntry<'finetuned-models'>;
+};
+
+const { model } = Astro.props;
+const { Content } = await render(model);
+---
+
+<Base
+  title={`${model.data.title} — Fine-Tuned AI Model | Wiki of Automation`}
+  description={model.data.summary}
+>
+  <div class="pt-28 pb-24 max-w-[1140px] mx-auto px-6 text-white relative z-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider mb-8">
+      <a href="/models/finetuned" class="text-[#c0f500] hover:underline no-underline">FINE-TUNED AI</a>
+      <span>/</span>
+      <span class="text-[#00e3fd]">{model.data.use_case}</span>
+      <span>/</span>
+      <span class="text-white font-bold truncate">{model.data.title}</span>
+    </nav>
+
+    <!-- Model Spec Header -->
+    <header class="bg-[#131317] border border-white/10 rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl">
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <span class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-[#c0f500]/15 text-[#c0f500] border border-[#c0f500]/30">
+          {model.data.benchmark_delta}
+        </span>
+        <span class="font-mono text-xs px-3 py-1 rounded-full bg-[#00e3fd]/10 text-[#00e3fd] border border-[#00e3fd]/30">
+          Method: {model.data.tuning_method}
+        </span>
+        <span class="font-mono text-xs px-3 py-1 rounded-full bg-white/5 text-white border border-white/10">
+          Size: {model.data.parameter_size}
+        </span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-4">
+        {model.data.title}
+      </h1>
+
+      <p class="text-base sm:text-lg text-[#c4caac] leading-relaxed mb-6">
+        {model.data.summary}
+      </p>
+
+      <!-- Technical Specs Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-white/10 font-mono text-xs mb-6">
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">BASE ARCHITECTURE</div>
+          <div class="text-white font-bold">{model.data.base_model}</div>
+        </div>
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">VRAM REQUIREMENT</div>
+          <div class="text-[#c0f500] font-bold">{model.data.vram_required_gb} GB VRAM</div>
+        </div>
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">QUANTIZATION FORMATS</div>
+          <div class="text-[#00e3fd] font-bold">{model.data.quant_formats.join(', ')}</div>
+        </div>
+        <div class="bg-[#050508] p-3.5 rounded-xl border border-white/10">
+          <div class="text-[#9ca3af] mb-1">PARAMETERS</div>
+          <div class="text-white font-bold truncate" title={model.data.parameter_size}>{model.data.parameter_size}</div>
+        </div>
+      </div>
+
+      <!-- Quick Run & Notebook Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#050508] border border-[#c0f500]/30 rounded-2xl p-4">
+        <div class="font-mono text-xs">
+          <span class="text-[#9ca3af] block mb-1">QUICK DEPLOY COMMAND (OLLAMA / LLAMA.CPP):</span>
+          <code class="text-[#c0f500] text-sm font-bold">{model.data.ollama_run_cmd || `ollama run ${model.slug}`}</code>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          {model.data.hf_repo && (
+            <a
+              href={`https://huggingface.co/${model.data.hf_repo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold no-underline"
+            >
+              HuggingFace Weights ↗
+            </a>
+          )}
+          {model.data.colab_notebook_slug && (
+            <a
+              href={`/notebooks/${model.data.colab_notebook_slug}`}
+              class="px-4 py-2.5 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold no-underline"
+            >
+              Launch Colab Notebook →
+            </a>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <!-- Markdown Recipe & Evaluation Body -->
+    <article class="bg-[#131317]/90 border border-white/10 rounded-3xl p-6 sm:p-10 prose prose-invert max-w-none text-[#e5e1e7] leading-relaxed">
+      <Content />
+    </article>
+  </div>
+</Base>
+

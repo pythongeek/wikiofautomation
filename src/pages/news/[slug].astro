@@ -1,0 +1,68 @@
+---
+/**
+ * Single News Article Page: /news/[slug]
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+import { NewsDetail } from '~/components/news/NewsDetail';
+
+export async function getStaticPaths() {
+  const allNews = await getCollection('news');
+  return allNews.map((item, index) => {
+    const prev = index > 0 ? allNews[index - 1] : undefined;
+    const next = index < allNews.length - 1 ? allNews[index + 1] : undefined;
+
+    return {
+      params: { slug: item.slug },
+      props: { item, allNews, prev, next },
+    };
+  });
+}
+
+type Props = {
+  item: CollectionEntry<'news'>;
+  allNews: CollectionEntry<'news'>[];
+  prev?: CollectionEntry<'news'>;
+  next?: CollectionEntry<'news'>;
+};
+
+const { item, allNews, prev, next } = Astro.props;
+const { Content } = await render(item);
+
+const related_news = allNews
+  .filter((n) => n.slug !== item.slug)
+  .slice(0, 3)
+  .map((n) => ({
+    title: n.data.title,
+    slug: n.slug,
+    read_time: n.data.read_time || '4 min read',
+  }));
+---
+
+<Base
+  title={`${item.data.title} — News | Wiki of Automation`}
+  description={item.data.excerpt || `Read ${item.data.title} on WikiOfAutomation News.`}
+>
+  <div class="pt-20 min-h-screen bg-[#050508] relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#7b61ff]/15 via-[#050508]/80 to-[#050508] pointer-events-none -z-10"></div>
+
+    <NewsDetail
+      client:load
+      title={item.data.title}
+      category={item.data.category || 'LAUNCH'}
+      published={item.data.published}
+      author={item.data.author || 'Ada'}
+      author_avatar={item.data.author_avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=ada'}
+      read_time={item.data.read_time || '4 min read'}
+      tags={item.data.tags || []}
+      hero_image={item.data.hero_image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'}
+      toc={item.data.toc || []}
+      related_wiki={item.data.related_wiki || []}
+      related_news={related_news}
+      prev_post={prev ? { title: prev.data.title, slug: prev.slug } : undefined}
+      next_post={next ? { title: next.data.title, slug: next.slug } : undefined}
+    >
+      <Content />
+    </NewsDetail>
+  </div>
+</Base>

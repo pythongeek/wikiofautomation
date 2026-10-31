@@ -1,0 +1,21 @@
+{
+  "schema_version": "2026-11-01",
+  "name": "wikiofautomation-mcp-discovery",
+  "title": "Wiki of Automation — Sovereign AI, Notebooks & n8n Vault",
+  "description": "Public Model Context Protocol (MCP) and AEO discovery manifest for Wiki of Automation (wikiofautomation.com).",
+  "homepage_url": "https://wikiofautomation.com",
+  "llms_txt_url": "https://wikiofautomation.com/llms.txt",
+  "capabilities": {
+    "free_knowledge_search": "https://wikiofautomation.com/api/search.json",
+    "ada_assistant_endpoint": "https://wikiofautomation.com/api/ada",
+    "free_vault_download_pattern": "https://wikiofautomation.com/api/download/{slug}"
+  },
+  "hubs": [
+    { "name": "Wiki Encyclopedia", "path": "/wiki" },
+    { "name": "Ready Kaggle & Colab Notebooks", "path": "/notebooks" },
+    { "name": "Local AI Free Methods & VRAM Matrix", "path": "/local-ai" },
+    { "name": "Trained & Fine-Tuned AI Models", "path": "/models/finetuned" },
+    { "name": "Marketplace & 9,812 n8n Workflow Vault", "path": "/marketplace" },
+    { "name": "Free SEO & AEO Schema Tools", "path": "/seo-tools" }
+  ]
+}

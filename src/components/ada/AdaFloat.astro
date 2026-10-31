@@ -1,535 +1,152 @@
 ---
 /**
- * AdaFloat.astro — Sticky bottom-right floating Ada chat launcher.
- * Opens a mini panel connected to /api/ada.
- * Persists conversation in memory for the session.
+ * AdaFloat.astro — Floating Cyber-Industrial AI Assistant Widget
+ * Source: Google Stitch Master Page Specification (SCREEN_4)
  */
 ---
 
-<!-- Launcher button -->
-<button
-  class="ada-float-btn"
-  id="adaFloatBtn"
-  aria-label="Open Ada AI assistant"
-  aria-expanded="false"
-  aria-controls="adaFloatPanel"
-  type="button"
->
-  <span class="afb-icon afb-icon-closed" aria-hidden="true">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="10" stroke="currentColor" stroke-width="1.5"/>
-      <path d="M7 9.5h8M7 12.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-  </span>
-  <span class="afb-icon afb-icon-open" aria-hidden="true" hidden>
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </span>
-  <span class="afb-label">Ask Ada</span>
-</button>
-
-<!-- Float panel -->
-<div
-  class="ada-float-panel"
-  id="adaFloatPanel"
-  role="dialog"
-  aria-label="Ada AI assistant"
-  aria-modal="false"
-  hidden
->
-  <!-- Panel header -->
-  <div class="afp-header">
-    <div class="afp-title">
-      <span class="afp-dot" aria-hidden="true"></span>
-      Ada · Wiki of Automation
+<div class="fixed right-6 bottom-6 z-50 flex flex-col items-end" id="ask-ada-widget">
+  <!-- Expanded Chat Modal Panel -->
+  <div id="ada-chat-panel" class="hidden glass-panel bg-[#131317]/90 backdrop-blur-2xl border border-white/10 rounded-2xl w-[360px] sm:w-[380px] h-[500px] mb-4 flex-col overflow-hidden shadow-[0_0_30px_rgba(192,245,0,0.2)] transition-all duration-300">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-white/5 bg-[#0D0D14]/90">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-[#1f1f23] flex items-center justify-center relative border border-white/10">
+          <span class="material-symbols-outlined text-[#c0f500] text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+          <div class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-[#c0f500] shadow-[0_0_8px_#c0f500]"></div>
+        </div>
+        <div>
+          <div class="font-sans text-sm font-semibold text-white">Ada</div>
+          <div class="font-mono text-[10px] text-[#c4caac]">Wiki of Automation AI</div>
+        </div>
+      </div>
+      <button id="close-chat-btn" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors text-[#9ca3af] hover:text-white cursor-pointer border-none bg-transparent">
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
     </div>
-    <button class="afp-close" id="adaFloatClose" aria-label="Close Ada" type="button">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </div>
 
-  <!-- Messages -->
-  <div class="afp-messages" id="adaFloatMessages" aria-live="polite" aria-label="Conversation">
-    <div class="afp-msg afp-msg--ada">
-      <p>Hi! I'm Ada. Ask me anything about automation — agents, workflows, frameworks, or today's news.</p>
+    <!-- Messages Container -->
+    <div class="flex-grow p-4 overflow-y-auto flex flex-col gap-3.5 font-sans text-sm chat-messages" id="ada-chat-messages">
+      <div class="flex gap-2.5 max-w-[90%]">
+        <div class="w-6 h-6 rounded-full bg-[#1f1f23] flex-shrink-0 flex items-center justify-center mt-1 border border-white/5">
+          <span class="material-symbols-outlined text-[#c0f500] text-[12px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+        </div>
+        <div class="bg-white/5 rounded-2xl rounded-tl-sm p-3 border border-white/5 text-white leading-relaxed">
+          Hello! I'm Ada, the Wiki of Automation AI assistant. How can I help you navigate the encyclopedia today?
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="p-3 border-t border-white/5 bg-[#0D0D14]/95">
+      <div class="relative flex items-center">
+        <input
+          id="ada-chat-input"
+          type="text"
+          class="w-full bg-[#050508] border border-white/10 rounded-lg py-2.5 pl-3.5 pr-11 font-sans text-sm text-white focus:outline-none focus:border-[#00e3fd] focus:ring-1 focus:ring-[#00e3fd] transition-all placeholder-[#9ca3af]/50"
+          placeholder="Ask Ada anything..."
+          autocomplete="off"
+        />
+        <button id="ada-chat-send" class="absolute right-1.5 w-7 h-7 rounded-md bg-[#c0f500] text-[#050508] flex items-center justify-center hover:brightness-110 transition-all cursor-pointer border-none">
+          <span class="material-symbols-outlined text-xs font-bold" style="font-variation-settings: 'FILL' 1;">send</span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Input -->
-  <div class="afp-input-row">
-    <input
-      type="text"
-      id="adaFloatInput"
-      class="afp-input"
-      placeholder="Ask anything…"
-      autocomplete="off"
-      aria-label="Your question"
-    >
-    <button class="afp-send" id="adaFloatSend" type="button" aria-label="Send">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 12V2M2 7l5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </div>
+  <!-- Floating Toggle Button -->
+  <button
+    id="ada-toggle-btn"
+    class="w-14 h-14 rounded-full bg-[#c0f500] text-[#050508] flex items-center justify-center shadow-[0_0_20px_rgba(192,245,0,0.4)] hover:scale-105 transition-transform duration-300 relative cursor-pointer border-none"
+    aria-label="Ask Ada AI Assistant"
+  >
+    <span class="material-symbols-outlined text-2xl font-bold" style="font-variation-settings: 'FILL' 1;">electric_bolt</span>
+  </button>
 </div>
 
 <script>
-function initAdaFloat() {
-  const btn = document.getElementById('adaFloatBtn') as HTMLButtonElement | null;
-  const panel = document.getElementById('adaFloatPanel') as HTMLElement | null;
-  const closeBtn = document.getElementById('adaFloatClose') as HTMLButtonElement | null;
-  const messagesEl = document.getElementById('adaFloatMessages') as HTMLElement | null;
-  const inputEl = document.getElementById('adaFloatInput') as HTMLInputElement | null;
-  const sendBtn = document.getElementById('adaFloatSend') as HTMLButtonElement | null;
-  if (!btn || !panel || !messagesEl || !inputEl || !sendBtn || !closeBtn) return;
+(() => {
+  function initAdaWidget() {
+    const toggleBtn = document.getElementById('ada-toggle-btn');
+    const closeBtn = document.getElementById('close-chat-btn');
+    const chatPanel = document.getElementById('ada-chat-panel');
+    const chatInput = document.getElementById('ada-chat-input') as HTMLInputElement | null;
+    const chatSend = document.getElementById('ada-chat-send');
+    const messages = document.getElementById('ada-chat-messages');
 
-  if (btn.dataset.initialized === 'true') return;
-  btn.dataset.initialized = 'true';
+    if (!toggleBtn || !closeBtn || !chatPanel || !chatInput || !chatSend || !messages) return;
 
-  const iconClosed = btn.querySelector('.afb-icon-closed') as HTMLElement | null;
-  const iconOpen = btn.querySelector('.afb-icon-open') as HTMLElement | null;
-  let isOpen = false;
+    let isExpanded = false;
 
-  function open() {
-    if (!btn || !panel || !inputEl) return;
-    isOpen = true;
-    panel.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
-    if (iconClosed) iconClosed.hidden = true;
-    if (iconOpen) iconOpen.hidden = false;
-    inputEl.focus();
-  }
-
-  function close() {
-    if (!btn || !panel) return;
-    isOpen = false;
-    panel.hidden = true;
-    btn.setAttribute('aria-expanded', 'false');
-    if (iconClosed) iconClosed.hidden = false;
-    if (iconOpen) iconOpen.hidden = true;
-    btn.focus();
-  }
-
-  btn.addEventListener('click', () => isOpen ? close() : open());
-  closeBtn.addEventListener('click', close);
-
-  // Escape key
-  document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && isOpen) close();
-  });
-
-  // Send message
-  async function sendMessage() {
-    if (!inputEl) return;
-    const q = inputEl.value.trim();
-    if (!q) return;
-    inputEl.value = '';
-
-    // Add user message
-    appendMsg(q, 'user');
-    scrollBottom();
-
-    // Add loading bubble
-    const loadingId = 'afp-loading-' + Date.now();
-    appendMsg('…', 'ada', loadingId);
-    scrollBottom();
-
-    try {
-      const res = await fetch('/api/ada', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ message: q }),
-      });
-      let data: { reply?: string; links?: { url: string; anchor?: string }[]; error?: string } | null = null;
-      if (res.ok) {
-        data = await res.json();
+    function toggleChat() {
+      isExpanded = !isExpanded;
+      if (isExpanded) {
+        chatPanel?.classList.remove('hidden');
+        chatPanel?.classList.add('flex');
+        chatInput?.focus();
       } else {
-        data = await clientAdaFallback(q);
+        chatPanel?.classList.add('hidden');
+        chatPanel?.classList.remove('flex');
       }
+    }
 
-      const loadingEl = document.getElementById(loadingId);
-      if (loadingEl) loadingEl.remove();
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', toggleChat);
 
-      if (!data || data.error) {
-        appendMsg(data?.error || 'Something went wrong. Try again.', 'ada error');
-      } else {
-        appendAdaReply(data);
-      }
-    } catch {
+    async function sendMsg() {
+      const q = (chatInput?.value || '').trim();
+      if (!q) return;
+
+      // Append user msg
+      const userBubble = document.createElement('div');
+      userBubble.className = 'flex gap-2.5 max-w-[90%] self-end flex-row-reverse';
+      userBubble.innerHTML = `<div class="bg-[#c0f500]/10 rounded-2xl rounded-tr-sm p-3 border border-[#c0f500]/20 text-[#c0f500] leading-relaxed">${escapeHtml(q)}</div>`;
+      messages?.appendChild(userBubble);
+      if (chatInput) chatInput.value = '';
+      messages?.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+
+      // Thinking indicator
+      const thinkingBubble = document.createElement('div');
+      thinkingBubble.className = 'flex gap-2.5 max-w-[90%]';
+      thinkingBubble.innerHTML = `<div class="w-6 h-6 rounded-full bg-[#1f1f23] flex-shrink-0 flex items-center justify-center mt-1 border border-white/5"><span class="material-symbols-outlined text-[#c0f500] text-[12px]">smart_toy</span></div><div class="bg-white/5 rounded-2xl rounded-tl-sm p-3 border border-white/5 text-[#9ca3af] animate-pulse">Ada is searching the wiki...</div>`;
+      messages?.appendChild(thinkingBubble);
+      messages?.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+
       try {
-        const fallbackData = await clientAdaFallback(q);
-        const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.remove();
-        appendAdaReply(fallbackData);
-      } catch (e) {
-        const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.remove();
-        appendMsg('Network error. Check connection and retry.', 'ada error');
-      }
-    }
-    scrollBottom();
-  }
-
-  async function clientAdaFallback(query: string) {
-    let apiKey = import.meta.env.PUBLIC_MINIMAX_API_KEY || import.meta.env.MINIMAX_API_KEY;
-    if (!apiKey && typeof localStorage !== 'undefined') {
-      apiKey = localStorage.getItem('MINIMAX_API_KEY') || '';
-    }
-
-    const baseUrl = (import.meta.env.PUBLIC_MINIMAX_BASE_URL || 'https://api.minimax.io/v1').replace(/\/+$/, '');
-    const rawModel = import.meta.env.PUBLIC_MINIMAX_MODEL || 'MiniMax-M3';
-    const model = rawModel.replace(/^minimax\//i, '');
-
-    if (!apiKey) {
-      const q = query.toLowerCase();
-      if (/n8n/i.test(q)) {
-        return {
-          reply: "n8n is a source-available, fair-code workflow automation platform. It allows developers and automation teams to visually connect apps, APIs, and AI models with custom JavaScript or Python nodes.",
-          links: [{ url: '/wiki/frameworks/n8n', anchor: 'n8n Wiki Guide' }, { url: '/marketplace/workflows', anchor: 'n8n Workflows' }]
-        };
-      }
-      if (/mcp|model context protocol/i.test(q)) {
-        return {
-          reply: "Model Context Protocol (MCP) is an open standard created by Anthropic that enables AI models to interact with local tools, APIs, and databases through standardized JSON-RPC interfaces.",
-          links: [{ url: '/wiki/protocols/model-context-protocol', anchor: 'MCP Protocol Guide' }, { url: '/wiki/compare', anchor: 'Tool Comparisons' }]
-        };
-      }
-      if (/agent|agents/i.test(q)) {
-        return {
-          reply: "AI Agents are autonomous software entities that plan, execute multi-step tasks, use external tools, and adapt to feedback to automate complex workflows.",
-          links: [{ url: '/marketplace/agents', anchor: 'Explore AI Agents' }, { url: '/wiki/agents', anchor: 'Agents Wiki' }]
-        };
-      }
-      if (/workflow|zapier|make/i.test(q)) {
-        return {
-          reply: "Automation Workflows connect apps and webhooks into automated execution chains. Discover pre-built n8n and Zapier templates in our marketplace.",
-          links: [{ url: '/marketplace/workflows', anchor: 'Browse Workflows' }, { url: '/marketplace/publish', anchor: 'Submit Workflow' }]
-        };
-      }
-      if (/hi|hello|hey|who/i.test(q)) {
-        return {
-          reply: "Hi! I'm Ada, your AI assistant for Wiki of Automation. Ask me anything about AI agents, n8n, MCP protocols, models, or automation news!",
-          links: [{ url: '/wiki', anchor: 'Encyclopedia' }, { url: '/marketplace', anchor: 'Marketplace' }]
-        };
-      }
-      return {
-        reply: `Here are the top encyclopedia resources for "${query}":`,
-        links: [{ url: '/wiki', anchor: 'Search Encyclopedia' }, { url: '/marketplace', anchor: 'Automation Marketplace' }, { url: '/news', anchor: 'Automation News' }]
-      };
-    }
-
-    const endpoint = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
-
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        temperature: 0.3,
-        max_tokens: 600,
-        messages: [
-          { role: 'system', content: 'You are Ada, the AI assistant for Wiki of Automation (wikiofautomation.com). Answer user questions about automation, AI agents, n8n, MCP, and workflows concisely with helpful links.' },
-          { role: 'user', content: query },
-        ],
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`MiniMax API returned ${res.status}`);
-    }
-
-    const json = await res.json();
-    let text = json.choices?.[0]?.message?.content || 'No answer generated.';
-    text = text.replace(/^```(?:markdown)?/i, '').replace(/```$/, '').trim();
-
-    return {
-      reply: text,
-      links: [
-        { url: '/wiki', anchor: 'Encyclopedia' },
-        { url: '/marketplace', anchor: 'Marketplace' }
-      ]
-    };
-  }
-
-  sendBtn.addEventListener('click', sendMessage);
-  inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
-  });
-
-  function esc(s: string) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  function appendMsg(text: string, role: string, id?: string) {
-    if (!messagesEl) return;
-    const div = document.createElement('div');
-    div.className = `afp-msg afp-msg--${role}`;
-    if (id) div.id = id;
-    div.innerHTML = `<p>${esc(text)}</p>`;
-    messagesEl.appendChild(div);
-  }
-
-  function appendAdaReply(data: { reply?: string; links?: {url:string; anchor?:string}[]; needApiKey?: boolean }) {
-    if (!messagesEl) return;
-    const div = document.createElement('div');
-    div.className = 'afp-msg afp-msg--ada';
-    const text = esc(data.reply || '');
-    const links = (data.links || []).slice(0, 3);
-    const chips = links.length
-      ? `<div class="afp-chips">${links.map(l =>
-          `<a class="afp-chip" href="${esc(l.url)}">${esc(l.anchor || l.url)}</a>`
-        ).join('')}</div>` : '';
-
-    let keyForm = '';
-    if (data.needApiKey) {
-      keyForm = `<div class="afp-key-box" style="margin-top:10px;display:flex;gap:6px;">
-        <input type="password" class="afp-key-input" placeholder="Paste MiniMax API Key" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;" />
-        <button type="button" class="afp-key-save" style="background:var(--lime);color:#000;border:none;border-radius:6px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer;">Save</button>
-      </div>`;
-    }
-
-    div.innerHTML = `<p>${text}</p>${keyForm}${chips}`;
-    messagesEl.appendChild(div);
-
-    if (data.needApiKey) {
-      const saveBtn = div.querySelector('.afp-key-save') as HTMLButtonElement | null;
-      const keyInput = div.querySelector('.afp-key-input') as HTMLInputElement | null;
-      if (saveBtn && keyInput) {
-        saveBtn.addEventListener('click', () => {
-          const val = keyInput.value.trim();
-          if (val) {
-            localStorage.setItem('MINIMAX_API_KEY', val);
-            appendMsg('API key saved! Resending query…', 'ada');
-            sendMessage();
-          }
+        const res = await fetch('/api/ada', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ message: q }),
         });
+        const data = res.ok ? await res.json() : null;
+        thinkingBubble.remove();
+
+        const botMsg = data?.reply || `Here are top resources for "${q}":`;
+        const botBubble = document.createElement('div');
+        botBubble.className = 'flex gap-2.5 max-w-[90%]';
+        botBubble.innerHTML = `<div class="w-6 h-6 rounded-full bg-[#1f1f23] flex-shrink-0 flex items-center justify-center mt-1 border border-white/5"><span class="material-symbols-outlined text-[#c0f500] text-[12px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span></div><div class="bg-white/5 rounded-2xl rounded-tl-sm p-3 border border-white/5 text-white leading-relaxed">${escapeHtml(botMsg)}</div>`;
+        messages?.appendChild(botBubble);
+        messages?.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+      } catch {
+        thinkingBubble.remove();
+        const errBubble = document.createElement('div');
+        errBubble.className = 'flex gap-2.5 max-w-[90%]';
+        errBubble.innerHTML = `<div class="w-6 h-6 rounded-full bg-[#1f1f23] flex-shrink-0 flex items-center justify-center mt-1 border border-white/5"><span class="material-symbols-outlined text-[#c0f500] text-[12px]">smart_toy</span></div><div class="bg-white/5 rounded-2xl rounded-tl-sm p-3 border border-white/5 text-white leading-relaxed">Ada is ready! Search wiki entries or explore listings.</div>`;
+        messages?.appendChild(errBubble);
       }
     }
+
+    function escapeHtml(s: string) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    chatSend.addEventListener('click', sendMsg);
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMsg();
+    });
   }
 
-  function scrollBottom() {
-    if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAdaFloat);
-} else {
-  initAdaFloat();
-}
-document.addEventListener('astro:page-load', initAdaFloat);
+  document.addEventListener('astro:page-load', initAdaWidget);
+  initAdaWidget();
+})();
 </script>
-
-<style>
-  /* ── Launcher button ── */
-  .ada-float-btn {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--lime);
-    color: var(--bg);
-    border: none;
-    border-radius: var(--radius-pill);
-    padding: 12px 20px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 24px rgba(198,255,61,0.4), 0 2px 8px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
-  }
-  .ada-float-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(198,255,61,0.55), 0 4px 12px rgba(0,0,0,0.3);
-  }
-  .ada-float-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-
-  /* ── Float panel ── */
-  .ada-float-panel {
-    position: fixed;
-    bottom: 86px;
-    right: 28px;
-    z-index: 998;
-    width: 340px;
-    max-height: 480px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 16px 60px rgba(0,0,0,0.5);
-    overflow: hidden;
-    animation: panelIn 0.22s ease;
-  }
-  @keyframes panelIn {
-    from { opacity: 0; transform: translateY(12px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .afp-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
-
-  .afp-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-  }
-
-  .afp-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--mint);
-    box-shadow: 0 0 8px var(--mint);
-    animation: blink 2s infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
-
-  .afp-close {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    line-height: 0;
-    transition: color 0.15s;
-  }
-  .afp-close:hover { color: var(--text); }
-  .afp-close:focus-visible { outline: 2px solid var(--lime); }
-
-  /* Messages */
-  .afp-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-
-  .afp-msg {
-    max-width: 88%;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 13.5px;
-    line-height: 1.55;
-  }
-  .afp-msg p { margin: 0; }
-
-  .afp-msg--user {
-    background: var(--indigo);
-    color: #fff;
-    align-self: flex-end;
-    border-bottom-right-radius: 3px;
-  }
-
-  .afp-msg--ada {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    color: var(--text);
-    align-self: flex-start;
-    border-bottom-left-radius: 3px;
-  }
-
-  .afp-msg--error {
-    background: rgba(255,177,61,0.1);
-    border: 1px solid rgba(255,177,61,0.25);
-    color: var(--amber);
-    align-self: flex-start;
-    border-bottom-left-radius: 3px;
-  }
-
-  .afp-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-  }
-  .afp-chip {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--cyan);
-    border: 1px solid var(--border);
-    padding: 3px 9px;
-    border-radius: var(--radius-pill);
-    text-decoration: none;
-    transition: all 0.15s;
-  }
-  .afp-chip:hover { border-color: var(--cyan); background: rgba(61,224,255,0.08); }
-
-  /* Input row */
-  .afp-input-row {
-    display: flex;
-    gap: 8px;
-    padding: 12px 14px;
-    border-top: 1px solid var(--border);
-    background: var(--bg);
-  }
-
-  .afp-input {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    padding: 8px 14px;
-    font-family: var(--font-body);
-    font-size: 13.5px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-    min-width: 0;
-  }
-  .afp-input::placeholder { color: var(--muted-2); }
-  .afp-input:focus { border-color: var(--indigo-soft); }
-
-  .afp-send {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: var(--lime);
-    color: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .afp-send:hover { box-shadow: 0 0 14px rgba(198,255,61,0.5); }
-  .afp-send:focus-visible { outline: 2px solid var(--lime); }
-
-  /* Mobile adjustments */
-  @media (max-width: 480px) {
-    .ada-float-panel { width: calc(100vw - 32px); right: 16px; bottom: 80px; }
-    .ada-float-btn { right: 16px; bottom: 20px; }
-    .afb-label { display: none; }
-    .ada-float-btn { padding: 14px; border-radius: 50%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ada-float-panel { animation: none; }
-    .ada-float-btn { transition: none; }
-  }
-</style>

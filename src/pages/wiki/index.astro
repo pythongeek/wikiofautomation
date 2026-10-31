@@ -1,153 +1,355 @@
 ---
 /**
- * /wiki — index of all wiki entries, grouped by category
+ * /wiki — Cyber-Industrial Master Wiki Index with English & Bangla Support
+ * Source: Google Stitch Master Page Specification
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '~/layouts/Base.astro';
 
 type Wiki = CollectionEntry<'wiki'>;
 const all = await getCollection('wiki');
+
+const categories = ['agents', 'frameworks', 'protocols', 'models', 'companies', 'concepts'] as const;
+
+const categoryMeta: Record<string, { en: string; bn: string; icon: string; color: string; descEn: string; descBn: string }> = {
+  agents: {
+    en: 'Agents',
+    bn: 'এজেন্টস',
+    icon: 'smart_toy',
+    color: '#c0f500',
+    descEn: 'Autonomous AI programs executing complex goals across browsers, APIs, and OS.',
+    descBn: 'ব্রাউজার, এপিআই এবং ওএস-জুড়ে জটিল লক্ষ্য নির্দেশনাকারী স্বায়ত্তশাসিত এআই প্রোগ্রাম।',
+  },
+  frameworks: {
+    en: 'Frameworks',
+    bn: 'ফ্রেমওয়ার্কস',
+    icon: 'terminal',
+    color: '#00e3fd',
+    descEn: 'Orchestration libraries, canvas tools, and multi-agent development stacks.',
+    descBn: 'অর্কেস্ট্রেশন লাইব্রেরি, ক্যানভাস টুলস এবং মাল্টি-এজেন্ট ডেভেলপমেন্ট স্ট্যাক।',
+  },
+  protocols: {
+    en: 'Protocols',
+    bn: 'প্রোটোকল',
+    icon: 'api',
+    color: '#7b61ff',
+    descEn: 'Open standards connecting LLMs to local tools, databases, and remote services.',
+    descBn: 'এলএলএম-কে লোকাল টুলস, ডেটাবেস এবং রিমোট সার্ভিসের সাথে সংযোগকারী ওপেন স্ট্যান্ডার্ড।',
+  },
+  models: {
+    en: 'Models',
+    bn: 'মডেলস',
+    icon: 'neurology',
+    color: '#a8d700',
+    descEn: 'Frontier foundation LLMs, hybrid reasoning architectures, and local weights.',
+    descBn: 'ফ্রন্টিয়ার ফাউন্ডেশন এলএলএম, হাইব্রিড রিজনিং আর্কিটেকচার এবং লোকাল ওয়েটস।',
+  },
+  companies: {
+    en: 'Companies',
+    bn: 'কোম্পানি',
+    icon: 'domain',
+    color: '#9cf0ff',
+    descEn: 'Pioneering labs, platforms, and infrastructure vendors building automation.',
+    descBn: 'অটোমেশন অবকাঠামো নির্মাণকারী শীর্ষ এআই ল্যাব, প্ল্যাটফর্ম এবং ভেন্ডর।',
+  },
+  concepts: {
+    en: 'Concepts',
+    bn: 'কনসেপ্টস',
+    icon: 'lightbulb',
+    color: '#e5deff',
+    descEn: 'Core paradigms: AEO, RAG, tool calling, human-in-the-loop, and agentic workflows.',
+    descBn: 'মূল ধারণাসমূহ: এইও, র‍্যাগ, টুল কলিং, হিউম্যান-ইন-দ্য-লুপ এবং এজেন্টিক ওয়ার্কফ্লো।',
+  },
+};
+
 const byCategory: Record<string, Wiki[]> = {};
+for (const cat of categories) {
+  byCategory[cat] = [];
+}
 for (const entry of all) {
   const c = entry.data.category;
   if (!byCategory[c]) byCategory[c] = [];
   byCategory[c]!.push(entry);
 }
-// sort each category by title
+
+// Sort entries alphabetically
 for (const c of Object.keys(byCategory)) {
   byCategory[c]!.sort((a, b) => a.data.title.localeCompare(b.data.title));
 }
-
-const categoryLabels: Record<string, string> = {
-  agents: 'Agents',
-  frameworks: 'Frameworks',
-  protocols: 'Protocols',
-  models: 'Models',
-  companies: 'Companies',
-  concepts: 'Concepts',
-};
 ---
 
 <Base
-  title="The Encyclopedia of Automation"
-  description="Reference entries on every agent, framework, protocol, model, and concept shaping the automation economy."
+  title="Wiki Index — The Encyclopedia of Automation"
+  description="Verified reference documentation on every agent, framework, protocol, model, and concept shaping the automation economy. Available in English & Bangla."
 >
-  <div class="page-hero">
-    <div class="eyebrow eyebrow-row">
-      <span class="dot"></span>
-      <span>THE WIKI · {all.length} ENTRIES</span>
+  <div class="relative min-h-[90vh] pt-28 pb-20 px-6 max-w-[1280px] mx-auto">
+    <!-- Header Badge & Language Toggle -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+      <div class="inline-flex items-center gap-2.5 bg-[#131317] border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md">
+        <div class="relative w-2 h-2">
+          <div class="absolute inset-0 rounded-full bg-[#c0f500] animate-ping opacity-75"></div>
+          <div class="absolute inset-0 rounded-full bg-[#c0f500]"></div>
+        </div>
+        <span class="font-mono text-xs text-[#c4caac] uppercase tracking-wider">
+          VERIFIED INDEX · <span class="text-[#c0f500] font-bold">{all.length}</span> ENTRIES
+        </span>
+      </div>
+
+      <!-- Bangla Language Switcher -->
+      <div class="inline-flex items-center gap-1 bg-[#131317] border border-white/10 rounded-full p-1 text-xs font-mono">
+        <button id="langEnBtn" class="px-3 py-1 rounded-full bg-[#c0f500] text-[#161f00] font-bold transition-all" type="button">
+          English
+        </button>
+        <button id="langBnBtn" class="px-3 py-1 rounded-full text-[#9ca3af] hover:text-white transition-all" type="button">
+          বাংলা
+        </button>
+      </div>
     </div>
-    <h1>The encyclopedia of automation</h1>
-    <p class="lead">Reference-grade documentation for every agent, framework, protocol, model, and concept shaping the automation economy. Source-cited, kept current.</p>
-  </div>
 
-  <section class="wiki-index">
-    {Object.keys(byCategory).sort().map(cat => (
-      <div class="cat-block">
-        <h2 class="cat-title">{categoryLabels[cat] ?? cat}</h2>
-        <ul class="entry-list">
-          {byCategory[cat]!.map(entry => (
-            <li>
-              <a href={`/wiki/${entry.data.category}/${entry.slug}`}>
-                <span class="entry-title">{entry.data.title}</span>
-                {entry.data.summary && <span class="entry-summary">{entry.data.summary}</span>}
+    <!-- Title & Subtitle -->
+    <div class="mb-12">
+      <h1 class="text-4xl sm:text-6xl font-bold tracking-tight mb-4 leading-tight">
+        <span class="bg-gradient-to-r from-white via-white to-[#a8d700] bg-clip-text text-transparent" id="pageTitleEn">
+          The Encyclopedia of Automation
+        </span>
+        <span class="bg-gradient-to-r from-white via-white to-[#a8d700] bg-clip-text text-transparent hidden" id="pageTitleBn">
+          অটোমেশন এনসাইক্লোপিডিয়া
+        </span>
+      </h1>
+      <p class="text-base sm:text-lg text-[#9ca3af] max-w-3xl leading-relaxed" id="pageDescEn">
+        Reference-grade, source-cited documentation for every AI agent, framework, protocol, model, company, and concept shaping the automation economy.
+      </p>
+      <p class="text-base sm:text-lg text-[#9ca3af] max-w-3xl leading-relaxed hidden" id="pageDescBn">
+        অটোমেশন অর্থনীতি তৈরি করে এমন প্রতিটি এআই এজেন্ট, ফ্রেমওয়ার্ক, প্রোটোকল, মডেল, কোম্পানি এবং কনসেপ্টের জন্য ভেরিফায়েড ডকুমেন্টেশন।
+      </p>
+    </div>
+
+    <!-- Instant Search & Category Filter Bar -->
+    <div class="mb-12 space-y-6">
+      <!-- Search Input -->
+      <div class="relative max-w-xl">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]">search</span>
+        <input
+          id="wikiSearchInput"
+          type="text"
+          placeholder="Search wiki entries (e.g. n8n, MCP, LangGraph)..."
+          class="w-full bg-[#131317] border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-sm text-white placeholder-[#9ca3af] focus:outline-none focus:border-[#c0f500] transition-colors"
+        />
+      </div>
+
+      <!-- Filter Chips -->
+      <div class="flex flex-wrap gap-2" id="filterChips">
+        <button data-cat="all" class="cat-chip active px-4 py-2 rounded-full text-xs font-mono font-semibold bg-[#c0f500] text-[#161f00] border border-[#c0f500] transition-all">
+          ALL (<span id="count-all">{all.length}</span>)
+        </button>
+        {categories.map(cat => (
+          <button data-cat={cat} class="cat-chip px-4 py-2 rounded-full text-xs font-mono font-semibold bg-[#131317] text-[#9ca3af] hover:text-white border border-white/10 transition-all">
+            <span class="en-label">{categoryMeta[cat]!.en.toUpperCase()}</span>
+            <span class="bn-label hidden">{categoryMeta[cat]!.bn}</span>
+            <span class="opacity-60 ml-1">({byCategory[cat]?.length || 0})</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Category Sections Grid -->
+    <div class="space-y-12" id="categoryGrid">
+      {categories.map(cat => {
+        const entries = byCategory[cat] || [];
+        const meta = categoryMeta[cat]!;
+        return (
+          <section data-category={cat} class="category-block bg-[#131317]/60 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-xl">
+            <!-- Category Header -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-2xl" style={`color: ${meta.color}`}>{meta.icon}</span>
+                <div>
+                  <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <span class="en-label">{meta.en}</span>
+                    <span class="bn-label hidden">{meta.bn}</span>
+                    <span class="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[#c4caac]">
+                      {entries.length} entries
+                    </span>
+                  </h2>
+                  <p class="text-xs text-[#9ca3af] mt-0.5 en-label">{meta.descEn}</p>
+                  <p class="text-xs text-[#9ca3af] mt-0.5 bn-label hidden">{meta.descBn}</p>
+                </div>
+              </div>
+              <a href={`/wiki/${cat}`} class="text-xs font-mono text-[#c0f500] hover:underline flex items-center gap-1">
+                View all <span class="material-symbols-outlined text-sm">arrow_forward</span>
               </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))}
+            </div>
 
-    {all.length === 0 && (
-      <div class="empty">
-        <p>The wiki is just getting started. We're seeding the highest-value entries first.</p>
+            <!-- Entries Cards List -->
+            {entries.length > 0 ? (
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {entries.map(entry => (
+                  <a
+                    href={`/wiki/${entry.data.category}/${entry.slug}`}
+                    data-title={entry.data.title.toLowerCase()}
+                    data-[#131317]={(entry.data.summary || '').toLowerCase()}
+                    class="wiki-entry-card group bg-[#0D0D14] border border-white/5 hover:border-[#c0f500] rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,245,0,0.15)] flex flex-col justify-between"
+                  >
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-white/5 text-[#c0f500]">
+                          {entry.data.category}
+                        </span>
+                        <span class="text-xs text-[#9ca3af] font-mono">
+                          {entry.data.updated}
+                        </span>
+                      </div>
+                      <h3 class="text-lg font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+                        <span class="en-title">{entry.data.title}</span>
+                        <span class="bn-title hidden">{entry.data.bangla_title || entry.data.title}</span>
+                      </h3>
+                      <p class="text-xs text-[#9ca3af] line-clamp-3 leading-relaxed mb-4">
+                        <span class="en-summary">{entry.data.summary || 'Click to view complete entry documentation and sources.'}</span>
+                        <span class="bn-summary hidden">{entry.data.bangla_summary || entry.data.summary || 'সম্পূর্ণ এন্ট্রি ডকুমেন্টেশন দেখুন।'}</span>
+                      </p>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-2 text-xs font-mono text-[#c0f500]">
+                      <span class="flex items-center gap-1 text-[#9ca3af]">
+                        <span class="material-symbols-outlined text-sm">link</span>
+                        {entry.data.sources?.length || 0} sources
+                      </span>
+                      <span class="group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
+                        <span class="en-label">Read entry</span>
+                        <span class="bn-label hidden">পড়ুন</span>
+                        →
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div class="text-center py-8 text-[#9ca3af] text-sm font-mono border border-dashed border-white/10 rounded-xl">
+                No entries available in this category yet.
+              </div>
+            )}
+          </section>
+        );
+      })}
+    </div>
+
+    <!-- Comparison Banner -->
+    <div class="mt-16 bg-gradient-to-r from-[#7b61ff]/15 via-[#131317] to-[#00e3fd]/15 border border-white/10 rounded-2xl p-8 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <span class="text-xs font-mono text-[#00e3fd] uppercase tracking-wider">SIDE-BY-SIDE COMPARISONS</span>
+        <h3 class="text-2xl font-bold text-white mt-1">Compare Popular Tools & Protocols</h3>
+        <p class="text-sm text-[#9ca3af] mt-1 max-w-xl">
+          Deep benchmark matrices: n8n vs Zapier, Claude 3.7 vs GPT-4o, MCP vs REST APIs.
+        </p>
       </div>
-    )}
-  </section>
+      <a href="/wiki/compare/n8n-vs-model-context-protocol" class="bg-[#00e3fd] text-[#001f24] text-sm font-semibold px-6 py-3 rounded-full hover:shadow-[0_0_20px_rgba(0,227,253,0.4)] transition-all no-underline shrink-0">
+        Explore Comparisons →
+      </a>
+    </div>
+  </div>
 </Base>
 
-<style>
-  .page-hero {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: calc(var(--nav-height) + 80px) 36px 60px;
-  }
-  .eyebrow-row {
-    margin-bottom: 22px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .eyebrow-row .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--mint);
-    box-shadow: 0 0 8px var(--mint);
-    animation: blink 1.8s infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
-  h1 {
-    font-size: clamp(34px, 5vw, 56px);
-    line-height: 1.05;
-    margin-bottom: 16px;
-  }
-  .lead {
-    color: var(--muted);
-    font-size: 18px;
-    max-width: 640px;
-    line-height: 1.55;
-  }
-  section.wiki-index {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: 40px 36px 100px;
-  }
-  .cat-block {
-    margin-bottom: 48px;
-  }
-  .cat-title {
-    font-size: 22px;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-    color: var(--lime);
-    font-family: var(--font-mono);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    font-size: 14px;
-  }
-  .entry-list {
-    list-style: none;
-  }
-  .entry-list li a {
-    display: block;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-    color: inherit;
-    transition: padding 0.15s;
-  }
-  .entry-list li a:hover {
-    padding-left: 8px;
-    color: var(--lime);
-  }
-  .entry-title {
-    font-size: 17px;
-    font-weight: 500;
-    display: block;
-  }
-  .entry-summary {
-    font-size: 13.5px;
-    color: var(--muted);
-    margin-top: 4px;
-    display: block;
-  }
-  .empty {
-    text-align: center;
-    padding: 60px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-  }
-</style>
+<script is:inline>
+  (() => {
+    let currentLang = 'en';
+
+    function initWikiPage() {
+      const enBtn = document.getElementById('langEnBtn');
+      const bnBtn = document.getElementById('langBnBtn');
+      const titleEn = document.getElementById('pageTitleEn');
+      const titleBn = document.getElementById('pageTitleBn');
+      const descEn = document.getElementById('pageDescEn');
+      const descBn = document.getElementById('pageDescBn');
+      const searchInput = document.getElementById('wikiSearchInput');
+      const chips = document.querySelectorAll('.cat-chip');
+      const categoryBlocks = document.querySelectorAll('.category-block');
+      const entryCards = document.querySelectorAll('.wiki-entry-card');
+
+      if (!enBtn || !bnBtn) return;
+
+      // Language Switcher Toggle
+      function setLanguage(lang) {
+        currentLang = lang;
+        if (lang === 'bn') {
+          enBtn.classList.remove('bg-[#c0f500]', 'text-[#161f00]');
+          enBtn.classList.add('text-[#9ca3af]');
+          bnBtn.classList.add('bg-[#c0f500]', 'text-[#161f00]');
+          bnBtn.classList.remove('text-[#9ca3af]');
+
+          titleEn?.classList.add('hidden');
+          titleBn?.classList.remove('hidden');
+          descEn?.classList.add('hidden');
+          descBn?.classList.remove('hidden');
+
+          document.querySelectorAll('.en-label').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.bn-label').forEach(el => el.classList.remove('hidden'));
+          document.querySelectorAll('.en-title').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.bn-title').forEach(el => el.classList.remove('hidden'));
+          document.querySelectorAll('.en-summary').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.bn-summary').forEach(el => el.classList.remove('hidden'));
+        } else {
+          bnBtn.classList.remove('bg-[#c0f500]', 'text-[#161f00]');
+          bnBtn.classList.add('text-[#9ca3af]');
+          enBtn.classList.add('bg-[#c0f500]', 'text-[#161f00]');
+          enBtn.classList.remove('text-[#9ca3af]');
+
+          titleBn?.classList.add('hidden');
+          titleEn?.classList.remove('hidden');
+          descBn?.classList.add('hidden');
+          descEn?.classList.remove('hidden');
+
+          document.querySelectorAll('.bn-label').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.en-label').forEach(el => el.classList.remove('hidden'));
+          document.querySelectorAll('.bn-title').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.en-title').forEach(el => el.classList.remove('hidden'));
+          document.querySelectorAll('.bn-summary').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.en-summary').forEach(el => el.classList.remove('hidden'));
+        }
+      }
+
+      enBtn.addEventListener('click', () => setLanguage('en'));
+      bnBtn.addEventListener('click', () => setLanguage('bn'));
+
+      // Category Chips Filter
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          chips.forEach(c => {
+            c.classList.remove('bg-[#c0f500]', 'text-[#161f00]');
+            c.classList.add('bg-[#131317]', 'text-[#9ca3af]');
+          });
+          chip.classList.add('bg-[#c0f500]', 'text-[#161f00]');
+          chip.classList.remove('bg-[#131317]', 'text-[#9ca3af]');
+
+          const selectedCat = chip.getAttribute('data-cat');
+          categoryBlocks.forEach(block => {
+            const cat = block.getAttribute('data-category');
+            if (selectedCat === 'all' || selectedCat === cat) {
+              block.style.display = 'block';
+            } else {
+              block.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // Search Input Filtering
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const q = (e.target.value || '').toLowerCase().trim();
+          entryCards.forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const summary = card.getAttribute('data-summary') || '';
+            if (!q || title.includes(q) || summary.includes(q)) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      }
+    }
+
+    document.addEventListener('astro:page-load', initWikiPage);
+    initWikiPage();
+  })();
+</script>

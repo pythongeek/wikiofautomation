@@ -1,7 +1,7 @@
 ---
 /**
- * WikiSpotlight.astro — Featured wiki entries with category filter.
- * Replaces WikiGrid.astro. Import as WikiSpotlight in index.astro.
+ * WikiSpotlight.astro — From the Wiki (Encyclopedia Showcase)
+ * Source: Google Stitch Master Page Specification (SCREEN_10)
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 
@@ -11,257 +11,110 @@ const all = await getCollection('wiki').catch(() => [] as Wiki[]);
 const sorted = all.sort((a, b) => new Date(b.data.updated).getTime() - new Date(a.data.updated).getTime());
 const top = sorted.slice(0, 6);
 
-const categories = ['all', 'agents', 'frameworks', 'protocols', 'models', 'companies', 'concepts'] as const;
-const catColors: Record<string, string> = {
-  agents: 'var(--lime)',
-  frameworks: 'var(--cyan)',
-  protocols: 'var(--indigo-soft)',
-  models: 'var(--amber)',
-  companies: 'var(--mint)',
-  concepts: 'var(--muted)',
-};
+const defaultEntries = [
+  {
+    category: 'frameworks',
+    title: 'n8n',
+    summary: 'Fair-code workflow automation that combines no-code flexibility with code extensibility and native AI agent support.',
+    url: '/wiki/frameworks/n8n',
+    glowClass: 'hover:border-[#7B61FF] hover:shadow-[0_0_20px_rgba(123,97,255,0.2)] text-[#7B61FF]'
+  },
+  {
+    category: 'protocols',
+    title: 'Model Context Protocol (MCP)',
+    summary: 'The open standard created by Anthropic that lets AI models securely connect to local tools, databases, and live APIs.',
+    url: '/wiki/protocols/model-context-protocol',
+    glowClass: 'hover:border-[#00E5FF] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)] text-[#00E5FF]'
+  }
+];
 
-function isNew(dateStr: string) {
-  const d = new Date(dateStr);
-  return (Date.now() - d.getTime()) < 7 * 24 * 60 * 60 * 1000;
-}
-function daysAgo(dateStr: string) {
-  const d = Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
-  if (d === 0) return 'today';
-  if (d === 1) return '1d ago';
-  return `${d}d ago`;
-}
+const entriesToRender = top.length > 0 ? top.map((e, idx) => ({
+  category: e.data.category,
+  title: e.data.title,
+  summary: e.data.summary || '',
+  url: `/wiki/${e.data.category}/${e.slug}`,
+  glowClass: idx % 2 === 0
+    ? 'hover:border-[#7B61FF] hover:shadow-[0_0_20px_rgba(123,97,255,0.2)] text-[#7B61FF]'
+    : 'hover:border-[#00E5FF] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)] text-[#00E5FF]'
+})) : defaultEntries;
+
+const categories = ['ALL', 'Agents', 'Frameworks', 'Protocols', 'Models', 'Companies', 'Concepts'];
 ---
 
-<section class="wiki-section" id="wiki">
-  <header class="section-head">
-    <div>
-      <h2>From the wiki</h2>
-      <p class="section-sub">{all.length} reference entries — neutral, sourced, updated.</p>
+<section class="py-20 relative overflow-hidden bg-[#1b1b1f]/60 border-y border-white/5" id="wiki">
+  <div class="max-w-[1280px] mx-auto px-6 relative z-10">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-2 font-sans tracking-tight">From the wiki</h2>
+        <p class="text-sm text-[#9CA3AF] font-sans">{all.length || defaultEntries.length} reference entries — neutral, sourced, updated.</p>
+      </div>
+      <a class="text-sm text-[#00E5FF] hover:underline flex items-center gap-1 group no-underline transition-all" href="/wiki">
+        Open full index
+        <span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+      </a>
     </div>
-    <a class="see-all" href="/wiki">Open full index →</a>
-  </header>
 
-  <!-- Category tabs -->
-  {all.length > 0 && (
-    <div class="wiki-tabs" role="tablist" aria-label="Filter wiki by category">
-      {categories.map(c => (
+    <!-- Category Pills -->
+    <div class="flex flex-wrap gap-2.5 mb-8" role="tablist">
+      {categories.map((c, i) => (
         <button
-          class={`wiki-tab ${c === 'all' ? 'active' : ''}`}
-          data-cat={c}
-          role="tab"
-          aria-selected={c === 'all' ? 'true' : 'false'}
+          class={`wiki-tab rounded-full px-4 py-1 text-xs font-mono tracking-wide uppercase transition-all cursor-pointer ${
+            i === 0
+              ? 'bg-[#c0f500] text-[#050508] font-bold shadow-[0_0_10px_rgba(200,255,0,0.2)]'
+              : 'border border-white/10 text-[#9CA3AF] hover:border-[#c0f500] hover:text-[#c0f500]'
+          }`}
+          data-cat={c.toLowerCase()}
         >
-          {c === 'all' ? 'All' : c.charAt(0).toUpperCase() + c.slice(1)}
+          {c}
         </button>
       ))}
     </div>
-  )}
 
-  <!-- Cards grid -->
-  {top.length === 0 ? (
-    <div class="wiki-empty">
-      <p>Wiki seeding in progress — first entries coming soon.</p>
-    </div>
-  ) : (
-    <div class="wiki-grid" id="wikiCards">
-      {top.map(entry => (
-        <a
-          class="wiki-card"
-          href={`/wiki/${entry.data.category}/${entry.slug}`}
-          data-cat={entry.data.category}
-          style={`--cat-color: ${catColors[entry.data.category] ?? 'var(--muted)'}`}
-        >
-          <div class="wc-top">
-            <span class="wc-cat">{entry.data.category}</span>
-            <div class="wc-badges">
-              {isNew(entry.data.created) && <span class="badge-new">NEW</span>}
-              <span class="wc-time">{daysAgo(entry.data.updated)}</span>
-            </div>
+    <!-- Entry Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="wikiGrid">
+      {entriesToRender.map(entry => (
+        <a href={entry.url} class={`glass-card bg-[#131317]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-6 flex flex-col min-h-[260px] group cursor-pointer transition-all duration-300 no-underline ${entry.glowClass}`} data-cat={entry.category}>
+          <div class="mb-4">
+            <span class="text-xs font-mono font-bold tracking-[0.1em] uppercase opacity-90">{entry.category}</span>
           </div>
-          <h4>{entry.data.title}</h4>
-          <p>{entry.data.summary ?? ''}</p>
-          <span class="wc-cta">Read entry →</span>
+          <h3 class="text-lg font-semibold text-white mb-3 font-sans">{entry.title}</h3>
+          <p class="text-sm text-[#9CA3AF] mb-6 flex-grow leading-relaxed font-sans">
+            {entry.summary}
+          </p>
+          <div class="flex items-center text-sm font-medium mt-auto transition-colors font-sans">
+            Read entry
+            <span class="material-symbols-outlined text-base ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </div>
         </a>
       ))}
     </div>
-  )}
+  </div>
 </section>
 
 <script>
 (() => {
-  function init() {
+  function initWikiTabs() {
     const tabs = document.querySelectorAll<HTMLButtonElement>('.wiki-tab');
-    const cards = document.querySelectorAll<HTMLElement>('.wiki-card');
-    if (!tabs.length) return;
+    const cards = document.querySelectorAll<HTMLElement>('.glass-card');
+    if (!tabs.length || !cards.length) return;
 
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
+        tabs.forEach(t => {
+          t.className = 'wiki-tab rounded-full px-4 py-1 text-xs font-mono tracking-wide uppercase transition-all cursor-pointer border border-white/10 text-[#9CA3AF] hover:border-[#c0f500] hover:text-[#c0f500]';
+        });
+        tab.className = 'wiki-tab rounded-full px-4 py-1 text-xs font-mono tracking-wide uppercase transition-all cursor-pointer bg-[#c0f500] text-[#050508] font-bold shadow-[0_0_10px_rgba(200,255,0,0.2)]';
 
-        const cat = tab.dataset.cat || 'all';
+        const cat = (tab.dataset.cat || 'all').toLowerCase();
         cards.forEach(card => {
-          const show = cat === 'all' || card.dataset.cat === cat;
+          const itemCat = (card.dataset.cat || '').toLowerCase();
+          const show = cat === 'all' || itemCat.includes(cat);
           card.style.display = show ? 'flex' : 'none';
-          if (show) {
-            card.style.opacity = '0';
-            requestAnimationFrame(() => {
-              card.style.transition = 'opacity 0.22s ease';
-              card.style.opacity = '1';
-            });
-          }
         });
       });
     });
   }
-  document.addEventListener('astro:page-load', init);
-  init();
+  document.addEventListener('astro:page-load', initWikiTabs);
+  initWikiTabs();
 })();
 </script>
-
-<style>
-  .wiki-section {
-    padding: 80px 36px;
-    max-width: var(--max-content);
-    margin: 0 auto;
-  }
-
-  .section-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .section-head h2 { font-size: clamp(24px, 3vw, 34px); }
-  .section-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
-  .see-all {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--cyan);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: opacity 0.15s;
-  }
-  .see-all:hover { opacity: 0.7; }
-
-  /* Tabs */
-  .wiki-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 22px;
-    flex-wrap: wrap;
-  }
-  .wiki-tab {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-  .wiki-tab:hover { color: var(--text); border-color: var(--muted); }
-  .wiki-tab.active {
-    background: var(--surface);
-    color: var(--cyan);
-    border-color: var(--cyan);
-  }
-  .wiki-tab:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
-
-  /* Grid */
-  .wiki-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .wiki-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px;
-    text-decoration: none;
-    color: inherit;
-    position: relative;
-    transition: border-color 0.2s, transform 0.2s;
-    border-top: 2px solid var(--cat-color, var(--border));
-  }
-  .wiki-card:hover {
-    border-color: var(--cat-color, var(--indigo-soft));
-    transform: translateY(-2px);
-  }
-  .wiki-card:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
-
-  .wc-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .wc-cat {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cat-color, var(--muted));
-  }
-
-  .wc-badges {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .badge-new {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--lime);
-    background: rgba(198,255,61,0.12);
-    padding: 2px 6px;
-    border-radius: var(--radius-pill);
-  }
-
-  .wc-time {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--muted-2);
-  }
-
-  .wiki-card h4 { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
-  .wiki-card p { font-size: 13px; color: var(--muted); line-height: 1.55; flex: 1; }
-
-  .wc-cta {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--cat-color, var(--cyan));
-    margin-top: auto;
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: all 0.2s;
-  }
-  .wiki-card:hover .wc-cta { opacity: 1; transform: translateX(0); }
-
-  .wiki-empty {
-    text-align: center;
-    padding: 48px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-  }
-
-  @media (max-width: 900px) { .wiki-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 580px) { .wiki-grid { grid-template-columns: 1fr; } }
-</style>

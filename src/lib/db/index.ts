@@ -15,6 +15,14 @@ function ensureDataDir() {
   } catch {}
 }
 
+function safeAddColumn(sqlite: Database.Database, table: string, colDef: string) {
+  try {
+    sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${colDef};`);
+  } catch {
+    // Column already exists
+  }
+}
+
 function getRawConnection(): Database.Database {
   if (_sqlite) return _sqlite;
   ensureDataDir();
@@ -26,6 +34,7 @@ function getRawConnection(): Database.Database {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
+      tier TEXT DEFAULT 'free',
       created_at INTEGER,
       updated_at INTEGER
     );
@@ -50,18 +59,48 @@ function getRawConnection(): Database.Database {
 
     CREATE TABLE IF NOT EXISTS listings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT,
       title TEXT NOT NULL,
       description TEXT,
       category TEXT,
       type TEXT,
-      pricing TEXT,
+      pricing TEXT DEFAULT 'free',
+      visibility TEXT DEFAULT 'free',
+      node_count INTEGER,
+      lemon_variant_id TEXT,
+      lemon_checkout_url TEXT,
+      vault_asset TEXT,
       original_author TEXT,
       original_url TEXT,
       attribution TEXT,
-      price INTEGER,
+      price INTEGER DEFAULT 0,
       creator_email TEXT,
       status TEXT DEFAULT 'pending',
       published_at INTEGER,
+      created_at INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      lemon_order_id TEXT NOT NULL UNIQUE,
+      buyer_email TEXT NOT NULL,
+      item_slug TEXT NOT NULL,
+      variant_id TEXT,
+      amount_cents INTEGER DEFAULT 0,
+      currency TEXT DEFAULT 'USD',
+      status TEXT DEFAULT 'paid',
+      license_key TEXT,
+      created_at INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS entitlements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      buyer_email TEXT NOT NULL,
+      item_slug TEXT NOT NULL,
+      license_key TEXT NOT NULL,
+      is_active INTEGER DEFAULT 1,
+      download_count INTEGER DEFAULT 0,
+      max_downloads INTEGER DEFAULT 25,
       created_at INTEGER
     );
 
@@ -98,6 +137,16 @@ function getRawConnection(): Database.Database {
       created_at INTEGER
     );
   `);
+
+  // Ensure existing DBs have the new columns
+  safeAddColumn(_sqlite, 'users', "tier TEXT DEFAULT 'free'");
+  safeAddColumn(_sqlite, 'listings', 'slug TEXT');
+  safeAddColumn(_sqlite, 'listings', "visibility TEXT DEFAULT 'free'");
+  safeAddColumn(_sqlite, 'listings', 'node_count INTEGER');
+  safeAddColumn(_sqlite, 'listings', 'lemon_variant_id TEXT');
+  safeAddColumn(_sqlite, 'listings', 'lemon_checkout_url TEXT');
+  safeAddColumn(_sqlite, 'listings', 'vault_asset TEXT');
+
   return _sqlite;
 }
 
@@ -107,8 +156,6 @@ export function getDb(): BetterSQLite3Database<typeof schema> {
   return _db;
 }
 
-// Lazy proxy so drizzle helpers can be accessed without eagerly initializing the connection.
-// In dev/build, the first DB call (at request time) opens the connection.
 export const db = new Proxy({} as BetterSQLite3Database<typeof schema>, {
   get(_target, prop) {
     return (getDb() as any)[prop];

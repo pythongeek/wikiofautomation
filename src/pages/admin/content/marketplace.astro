@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/content/marketplace — Marketplace Moderation Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { MarketplaceModeration } from '~/components/admin/MarketplaceModeration';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Marketplace Moderation — Admin — Wiki of Automation"
+  description="Review submitted marketplace listings, check copyright scans, approve or reject submissions, and manage featured tools."
+>
+  <MarketplaceModeration client:load />
+</AdminBase>

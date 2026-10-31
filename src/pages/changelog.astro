@@ -1,0 +1,16 @@
+---
+/**
+ * Changelog Page — Wiki of Automation
+ */
+import BaseLayout from '~/layouts/Base.astro';
+import { ChangelogPage } from '~/components/utility/ChangelogPage';
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Changelog — Platform Feature Updates — Wiki of Automation"
+  description="Chronological log of features, fixes, and improvements shipped to Wiki of Automation."
+>
+  <ChangelogPage client:load />
+</BaseLayout>

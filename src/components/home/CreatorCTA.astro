@@ -1,262 +1,67 @@
 ---
 /**
- * CreatorCTA.astro v2 — creator monetization band with feature list.
+ * CreatorCTA.astro — Creator Monetization Band
+ * Source: Google Stitch Master Page Specification (SCREEN_8)
  */
-const features = [
-  'Keep up to 90% of every sale',
-  'Publish from web, CLI, or API',
-  'Analytics dashboard from day one',
-  'Listing mirrored across wiki entries',
-  'Free tier lets users try before paying',
-];
 ---
 
-<section class="creator-section">
-  <div class="creator-band">
-    <!-- Left: copy -->
-    <div class="creator-copy">
-      <div class="creator-eyebrow">FOR CREATORS</div>
-      <h2>Publish once.<br>Earn while you sleep.</h2>
-      <p>Ship a workflow, agent, or mini app in minutes. Wiki of Automation handles discovery, payments, and hosting — you keep the majority of the revenue.</p>
-      <ul class="feature-list" aria-label="Creator features">
-        {features.map(f => (
-          <li>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <circle cx="8" cy="8" r="7" stroke="var(--lime)" stroke-width="1.2"/>
-              <path d="M5 8l2.5 2.5L11 5.5" stroke="var(--lime)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            {f}
-          </li>
-        ))}
-      </ul>
-      <div class="creator-ctas">
-        <a class="cta-primary" href="/marketplace/publish">Start publishing →</a>
-        <a class="cta-secondary" href="/docs/creator">See how it works</a>
-      </div>
-    </div>
+<section class="max-w-[1280px] mx-auto px-6 pb-24 relative z-10">
+  <div class="relative overflow-hidden bg-gradient-to-br from-[#0D0D14] to-[#13131F] rounded-3xl border border-white/10 shadow-[0_0_30px_rgba(192,245,0,0.15)] p-8 md:p-12">
+    <!-- Particle dots -->
+    <div class="particle absolute w-1.5 h-1.5 bg-[#c0f500] rounded-full opacity-40 top-8 left-12 animate-pulse"></div>
+    <div class="particle absolute w-1.5 h-1.5 bg-[#00e3fd] rounded-full opacity-40 top-2/3 left-1/2 animate-ping"></div>
+    <div class="particle absolute w-1.5 h-1.5 bg-[#7b61ff] rounded-full opacity-40 top-1/3 right-16 animate-pulse"></div>
 
-    <!-- Right: stat card -->
-    <div class="creator-stat-card" aria-label="Revenue share statistics">
-      <div class="rev-ring" aria-hidden="true">
-        <svg viewBox="0 0 100 100" width="180" height="180">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="8"/>
-          <circle
-            cx="50" cy="50" r="42"
-            fill="none"
-            stroke="var(--lime)"
-            stroke-width="8"
-            stroke-dasharray="263.9"
-            stroke-dashoffset="26.4"
-            stroke-linecap="round"
-            transform="rotate(-90 50 50)"
-          />
-        </svg>
-        <div class="rev-label">
-          <span class="rev-pct">90%</span>
-          <span class="rev-sub">to creator</span>
-        </div>
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div class="lg:col-span-7">
+        <span class="font-mono text-xs text-[#c0f500] uppercase tracking-widest mb-3 block font-bold">FOR CREATORS</span>
+        <h2 class="font-sans text-3xl sm:text-4xl text-white font-bold leading-tight mb-4">Publish once.<br>Earn while you sleep.</h2>
+        <p class="font-sans text-sm sm:text-base text-[#9CA3AF] mb-6 max-w-lg leading-relaxed">
+          Monetize your automation scripts, AI prompts, and workflows. Join the network of top-tier engineers building the decentralized intelligence marketplace.
+        </p>
+
+        <ul class="flex flex-col gap-3 mb-8 list-none p-0">
+          <li class="flex items-center gap-3 font-sans text-sm sm:text-base text-white">
+            <span class="material-symbols-outlined text-[#c0f500] text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            Keep 90% of your revenue
+          </li>
+          <li class="flex items-center gap-3 font-sans text-sm sm:text-base text-white">
+            <span class="material-symbols-outlined text-[#c0f500] text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            Publish via Web, CLI, or API
+          </li>
+          <li class="flex items-center gap-3 font-sans text-sm sm:text-base text-white">
+            <span class="material-symbols-outlined text-[#c0f500] text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            Real-time performance analytics
+          </li>
+        </ul>
+
+        <a href="/marketplace/publish" class="bg-[#c0f500] text-[#050508] rounded-full px-6 py-3 font-sans text-base font-semibold hover:shadow-[0_0_30px_rgba(192,245,0,0.6)] hover:-translate-y-0.5 transition-all duration-300 inline-block no-underline">
+          Start publishing →
+        </a>
       </div>
-      <p class="rev-desc">Industry-leading revenue share. No hidden fees. Withdraw anytime.</p>
-      <div class="rev-stats">
-        <div>
-          <strong>$0</strong>
-          <span>to get started</span>
+
+      <!-- 90% Revenue Circle Ring -->
+      <div class="lg:col-span-5 flex flex-col items-center justify-center pt-6 lg:pt-0">
+        <div class="relative w-56 h-56 mb-6">
+          <div class="absolute inset-0 rounded-full border-[14px] border-[#1f1f23]"></div>
+          <div class="absolute inset-0 rounded-full border-[14px] border-transparent border-t-[#c0f500] border-r-[#7B61FF] rotate-45 opacity-90"></div>
+          <div class="absolute inset-0 flex items-center justify-center flex-col">
+            <span class="font-mono text-5xl font-bold text-[#c0f500]">90%</span>
+            <span class="font-mono text-xs text-[#c4caac] uppercase mt-1 tracking-wider">Revenue Share</span>
+          </div>
         </div>
-        <div>
-          <strong>1 min</strong>
-          <span>to publish</span>
+
+        <div class="flex gap-4 w-full max-w-sm">
+          <div class="flex-1 bg-[#2a292e]/50 border border-white/5 rounded-xl p-3.5 text-center backdrop-blur-sm">
+            <span class="block font-mono text-[#c0f500] font-bold text-base mb-0.5">$0</span>
+            <span class="font-sans text-xs text-[#c4caac]">to get started</span>
+          </div>
+          <div class="flex-1 bg-[#2a292e]/50 border border-white/5 rounded-xl p-3.5 text-center backdrop-blur-sm">
+            <span class="block font-mono text-[#c0f500] font-bold text-base mb-0.5">1 min</span>
+            <span class="font-sans text-xs text-[#c4caac]">to publish</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-
-<style>
-  .creator-section {
-    padding: 80px 36px 100px;
-    max-width: var(--max-content);
-    margin: 0 auto;
-  }
-
-  .creator-band {
-    background: linear-gradient(135deg,
-      rgba(91,76,255,0.1) 0%,
-      rgba(61,224,255,0.05) 50%,
-      rgba(198,255,61,0.06) 100%
-    );
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 60px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 60px;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Subtle radial glow */
-  .creator-band::before {
-    content: '';
-    position: absolute;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(91,76,255,0.15), transparent 70%);
-    top: -100px; right: -100px;
-    pointer-events: none;
-  }
-
-  .creator-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    color: var(--lime);
-    margin-bottom: 16px;
-  }
-
-  .creator-copy h2 {
-    font-size: clamp(26px, 3.2vw, 38px);
-    line-height: 1.15;
-    margin-bottom: 14px;
-  }
-
-  .creator-copy p {
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 480px;
-    margin-bottom: 24px;
-  }
-
-  .feature-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 32px;
-  }
-  .feature-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14.5px;
-    color: var(--text);
-  }
-  .feature-list svg { flex-shrink: 0; }
-
-  .creator-ctas {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .cta-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--lime);
-    color: var(--bg);
-    font-weight: 600;
-    font-size: 14px;
-    padding: 12px 24px;
-    border-radius: var(--radius-pill);
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-  .cta-primary:hover { box-shadow: 0 0 28px rgba(198,255,61,0.5); transform: translateY(-1px); }
-  .cta-primary:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-
-  .cta-secondary {
-    font-size: 14px;
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  .cta-secondary:hover { color: var(--text); }
-
-  /* Revenue ring card */
-  .creator-stat-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    min-width: 200px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .rev-ring {
-    position: relative;
-    width: 180px; height: 180px;
-  }
-  .rev-ring svg { display: block; }
-
-  .rev-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-  }
-  .rev-pct {
-    font-family: var(--font-headline);
-    font-size: 42px;
-    font-weight: 700;
-    color: var(--lime);
-    line-height: 1;
-  }
-  .rev-sub {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-  }
-
-  .rev-desc {
-    font-size: 13px;
-    color: var(--muted);
-    text-align: center;
-    max-width: 200px;
-    line-height: 1.5;
-  }
-
-  .rev-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    width: 100%;
-  }
-  .rev-stats > div {
-    text-align: center;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 8px;
-  }
-  .rev-stats strong {
-    display: block;
-    font-size: 20px;
-    color: var(--text);
-    font-family: var(--font-headline);
-  }
-  .rev-stats span {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-  }
-
-  @media (max-width: 900px) {
-    .creator-band {
-      grid-template-columns: 1fr;
-      padding: 40px 32px;
-      gap: 40px;
-    }
-    .creator-stat-card { align-self: center; margin: 0 auto; }
-  }
-  @media (max-width: 560px) {
-    .creator-band { padding: 32px 24px; }
-  }
-</style>

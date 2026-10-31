@@ -1,0 +1,163 @@
+---
+// src/pages/admin/knowledge-graph.astro — Obsidian Brain Dashboard
+import Base from '../../layouts/Base.astro';
+import { GraphEngineSwitcher } from '../../components/admin/GraphEngineSwitcher';
+import { buildBusinessGraph } from '../../lib/analytics-graph-builder';
+
+export const prerender = true;
+
+const url = new URL(Astro.request.url);
+const range = (url.searchParams.get('range') as '7d' | '30d' | '90d') || '30d';
+
+const graphData = await buildBusinessGraph(range);
+
+const totalRevenue = graphData.nodes
+  .filter(n => n.type === 'conversion' || n.metadata?.revenue)
+  .reduce((sum, n) => sum + (n.metadata?.revenue || 0), 0);
+
+const totalViews = graphData.nodes
+  .filter(n => ['product', 'blog', 'page'].includes(n.type))
+  .reduce((sum, n) => sum + (n.metadata?.views || 0), 0);
+
+const conversionPaths = graphData.links.filter(l => l.type === 'converted').length;
+---
+
+<Base title="Obsidian Brain Knowledge Graph | Admin Dashboard">
+  <main class="min-h-screen bg-[#0E0E12] text-[#E5E1E7] p-6 font-sans">
+    <div class="max-w-7xl mx-auto space-y-6">
+      
+      {/* Header */}
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#232329] pb-6">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#C0F500]">hub</span>
+            <h1 class="text-2xl font-bold font-mono tracking-tight text-white">Obsidian Brain Dashboard</h1>
+          </div>
+          <p class="text-sm text-[#8B8FA3] mt-1">
+            Visualizing 2D force-directed content relationships, traffic flows, and conversion paths (Dual Engine: Force Graph & Cytoscape.js).
+          </p>
+        </div>
+
+        {/* Time Range Filter */}
+        <div class="flex bg-[#131317] border border-[#232329] rounded-xl p-1 gap-1">
+          {['7d', '30d', '90d'].map((r) => (
+            <a
+              href={`?range=${r}`}
+              class={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+                range === r
+                  ? 'bg-[#C0F500] text-black font-bold shadow-md'
+                  : 'text-[#8B8FA3] hover:text-white hover:bg-[#1E1E24]'
+              }`}
+            >
+              {r === '7d' ? '7 Days' : r === '30d' ? '30 Days' : '90 Days'}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Metrics Cards */}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-[#131317] border border-[#232329] rounded-2xl p-5 shadow-lg space-y-1">
+          <span class="text-xs font-mono text-[#8B8FA3] uppercase block">Total Tracked Revenue</span>
+          <p class="text-2xl font-bold font-mono text-[#C0F500]">${totalRevenue.toLocaleString()}</p>
+        </div>
+
+        <div class="bg-[#131317] border border-[#232329] rounded-2xl p-5 shadow-lg space-y-1">
+          <span class="text-xs font-mono text-[#8B8FA3] uppercase block">Total Content Views</span>
+          <p class="text-2xl font-bold font-mono text-[#00DAF3]">{totalViews.toLocaleString()}</p>
+        </div>
+
+        <div class="bg-[#131317] border border-[#232329] rounded-2xl p-5 shadow-lg space-y-1">
+          <span class="text-xs font-mono text-[#8B8FA3] uppercase block">Knowledge Graph Nodes</span>
+          <p class="text-2xl font-bold font-mono text-[#9B93FF]">{graphData.nodes.length}</p>
+        </div>
+
+        <div class="bg-[#131317] border border-[#232329] rounded-2xl p-5 shadow-lg space-y-1">
+          <span class="text-xs font-mono text-[#8B8FA3] uppercase block">Conversion Paths</span>
+          <p class="text-2xl font-bold font-mono text-[#FF5376]">{conversionPaths}</p>
+        </div>
+      </div>
+
+      {/* Interactive Graph Container with Dual Engine Switcher */}
+      <div class="bg-[#131317] border border-[#232329] rounded-2xl p-2 shadow-2xl min-h-[580px] relative overflow-hidden">
+        <GraphEngineSwitcher client:only="react" data={graphData} />
+      </div>
+
+      {/* Data Insight Tables */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        
+        {/* Top Conversion Paths */}
+        <div class="bg-[#131317] border border-[#232329] rounded-2xl p-5 shadow-xl space-y-4">
+          <h3 class="text-sm font-bold font-mono uppercase text-[#E5E1E7] flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#C0F500]" style={{ fontSize: 18 }}>payments</span>
+            Top Conversion Paths
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs font-mono text-left">
+              <thead>
+                <tr class="border-b border-[#232329] text-[#5A5A68]">
+                  <th class="py-2 font-medium">Source Entity</th>
+                  <th class="py-2 font-medium">Target Node</th>
+                  <th class="py-2 text-right font-medium">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#1E1E24]">
+                {graphData.links
+                  .filter(l => l.type === 'converted')
+                  .slice(0, 5)
+                  .map((link) => (
+                    <tr class="hover:bg-[#1E1E24]/50 transition-colors">
+                      <td class="py-3 text-[#E5E1E7]">{String(link.source)}</td>
+                      <td class="py-3 text-[#8B8FA3]">{String(link.target)}</td>
+                      <td class="py-3 text-right text-[#C0F500] font-bold">
+                        ${(link.metadata?.revenue || 0).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Content Performance */}
+        <div class="bg-[#131317] border border-[#232329] rounded-2xl p-5 shadow-xl space-y-4">
+          <h3 class="text-sm font-bold font-mono uppercase text-[#E5E1E7] flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#00DAF3]" style={{ fontSize: 18 }}>analytics</span>
+            Content Node Performance
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs font-mono text-left">
+              <thead>
+                <tr class="border-b border-[#232329] text-[#5A5A68]">
+                  <th class="py-2 font-medium">Content Node</th>
+                  <th class="py-2 font-medium">Type</th>
+                  <th class="py-2 text-right font-medium">Views</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#1E1E24]">
+                {graphData.nodes
+                  .filter(n => ['product', 'blog', 'page'].includes(n.type))
+                  .slice(0, 5)
+                  .map((node) => (
+                    <tr class="hover:bg-[#1E1E24]/50 transition-colors">
+                      <td class="py-3 text-[#E5E1E7] truncate max-w-[200px]">{node.label}</td>
+                      <td class="py-3">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] uppercase font-bold bg-[#1E1E24] text-[#00DAF3] border border-[#232329]">
+                          {node.type}
+                        </span>
+                      </td>
+                      <td class="py-3 text-right text-[#E5E1E7]">
+                        {(node.metadata?.views || 0).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</Base>

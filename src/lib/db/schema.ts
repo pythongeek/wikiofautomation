@@ -3,11 +3,12 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 // Use unix-timestamp integers (Astro/Vite-compatible, no sqlite driver quirks)
 const ts = (name: string) => integer(name, { mode: 'timestamp' });
 
-// Users table for admin auth
+// Users table for admin & customer auth
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
   password_hash: text('password_hash').notNull(),
+  tier: text('tier').default('free'), // 'free' | 'pro' | 'enterprise' | 'admin'
   created_at: ts('created_at').$defaultFn(() => new Date()),
   updated_at: ts('updated_at').$defaultFn(() => new Date()),
 });
@@ -35,18 +36,50 @@ export const wiki_entries = sqliteTable('wiki_entries', {
 // Marketplace listings
 export const listings = sqliteTable('listings', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  slug: text('slug'),
   title: text('title').notNull(),
   description: text('description'),
   category: text('category'),
   type: text('type'),
-  pricing: text('pricing'),
+  pricing: text('pricing').default('free'), // 'free' | 'paid' | 'freemium'
+  visibility: text('visibility').default('free'), // 'free' | 'paid' (used by Ada AI hard filter)
+  node_count: integer('node_count'),
+  lemon_variant_id: text('lemon_variant_id'),
+  lemon_checkout_url: text('lemon_checkout_url'),
+  vault_asset: text('vault_asset'),
   original_author: text('original_author'),
   original_url: text('original_url'),
   attribution: text('attribution'),
-  price: integer('price'),
+  price: integer('price').default(0), // in cents
   creator_email: text('creator_email'),
   status: text('status').default('pending'),
   published_at: ts('published_at'),
+  created_at: ts('created_at').$defaultFn(() => new Date()),
+});
+
+// Lemon Squeezy Orders & Webhooks Log
+export const orders = sqliteTable('orders', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  lemon_order_id: text('lemon_order_id').notNull().unique(),
+  buyer_email: text('buyer_email').notNull(),
+  item_slug: text('item_slug').notNull(),
+  variant_id: text('variant_id'),
+  amount_cents: integer('amount_cents').default(0),
+  currency: text('currency').default('USD'),
+  status: text('status').default('paid'), // 'paid' | 'refunded' | 'subscription_active'
+  license_key: text('license_key'),
+  created_at: ts('created_at').$defaultFn(() => new Date()),
+});
+
+// Buyer Entitlements for Auth-Gated Downloads (/api/download/[slug])
+export const entitlements = sqliteTable('entitlements', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  buyer_email: text('buyer_email').notNull(),
+  item_slug: text('item_slug').notNull(),
+  license_key: text('license_key').notNull(),
+  is_active: integer('is_active').default(1),
+  download_count: integer('download_count').default(0),
+  max_downloads: integer('max_downloads').default(25),
   created_at: ts('created_at').$defaultFn(() => new Date()),
 });
 

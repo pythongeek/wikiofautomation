@@ -12,6 +12,7 @@ export const prerender = false;
 interface AdaRequest {
   message: string;
   context?: string;
+  conversationHistory?: string;
 }
 
 interface AdaLink {
@@ -105,16 +106,18 @@ export const POST: APIRoute = async ({ request }) => {
     const context = buildContext(chunks, intentInfo.intent);
 
     // 3) Compose final answer with system prompt + retrieved context + user message
+    const conversationContext = body.context ? `\n\nPrevious conversation context:\n${safe(body.context, 2000)}` : '';
+
     const userWithContext = context
-      ? `Context from wiki of automation (use these to ground your answer; cite with [N] and link to the URL):\n\n${context}\n\n---\n\nUser question: ${message}\n\nAnswer concisely. Prefer the canonical one-line answer first; then add 1–2 sentences of context. End with at least one link to wikiofautomation.com drawn from the context. Do not invent URLs.`
-      : `User question: ${message}\n\nAnswer concisely. If our wiki doesn't cover this topic, say so and suggest what to search next.`;
+      ? `Here is relevant context from Wiki of Automation. Use it to ground your answer — cite sources with markdown links using the exact URLs provided. Be creative, specific, and helpful.\n\n${context}${conversationContext}\n\n---\n\nUser question: ${message}`
+      : `${conversationContext}\n\nUser question: ${message}\n\nAnswer helpfully. If our wiki doesn't cover this topic, say so honestly and suggest what the user could explore next.`;
 
     const answer = await adaChat(
       [
         { role: 'system', content: ADA_SYSTEM_PROMPT },
         { role: 'user', content: userWithContext },
       ],
-      { temperature: 0.3, maxTokens: 600 },
+      { temperature: 0.6, maxTokens: 1200 },
     );
 
     result.reply = answer.content;

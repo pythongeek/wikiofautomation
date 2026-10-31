@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/overview — Admin Overview Dashboard
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { AdminOverview } from '~/components/admin/AdminOverview';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Admin Overview — Wiki of Automation"
+  description="Platform admin overview: live stats, revenue charts, system alerts, and recent activity feed."
+>
+  <AdminOverview client:load />
+</AdminBase>

@@ -1,0 +1,228 @@
+---
+/**
+ * /notebooks — Kaggle & Colab Ready Notebooks + Trained Data Pipelines Hub
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+type NotebookEntry = CollectionEntry<'notebooks'>;
+const allNotebooks = await getCollection('notebooks');
+const marketplaceKits = await getCollection(
+  'marketplace',
+  (e) => e.data.status === 'live' && e.data.type === 'notebook-kit',
+);
+
+const categories = [
+  { id: 'all', label: 'All Notebooks', icon: '⚡' },
+  { id: 'colab-inference', label: 'Colab GPU Servers', icon: '☁️' },
+  { id: 'kaggle-competition', label: 'Kaggle Dual-T4 & Competitions', icon: '🏆' },
+  { id: 'fine-tuning', label: 'Unsloth QLoRA Fine-Tuning', icon: '🧬' },
+  { id: 'training-data', label: 'Trained Data & Synthetic Pipelines', icon: '📊' },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Ready Kaggle & Google Colab AI Notebooks + Trained Data Pipelines — Wiki of Automation',
+  description:
+    'Reproducible, GPU-ready Google Colab and Kaggle notebooks for 27B–70B local LLM servers, Unsloth 2x QLoRA fine-tuning, synthetic training data distillation, and competition stacking.',
+  url: 'https://wikiofautomation.com/notebooks',
+};
+---
+
+<Base
+  title="Kaggle & Colab AI Notebooks + Trained Data Hub — Wiki of Automation"
+  description="Reproducible, GPU-ready Google Colab and Kaggle notebooks: Qwen 3.8 27B Vision servers, Kaggle Dual-T4 30GB vLLM playbooks, Unsloth QLoRA fine-tuning, and synthetic training-data curation pipelines."
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="pt-28 pb-24 max-w-[1360px] mx-auto px-6 relative z-10 text-white font-sans">
+    <!-- Hero Banner -->
+    <section class="mb-14">
+      <div class="inline-flex items-center gap-2.5 bg-[#131317] border border-[#c0f500]/30 rounded-full px-4 py-1.5 mb-6">
+        <span class="w-2 h-2 rounded-full bg-[#c0f500] animate-ping"></span>
+        <span class="font-mono text-xs text-[#c0f500] uppercase tracking-wider font-bold">
+          REPRODUCIBLE COMPUTE ARTIFACTS · COLAB T4 & KAGGLE 2×T4 READY
+        </span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-bold tracking-tight mb-4 leading-tight">
+        Ready <span class="text-[#c0f500]">Kaggle & Colab</span> Notebooks + Trained Data Hub
+      </h1>
+      <p class="text-base sm:text-lg text-[#9ca3af] max-w-3xl leading-relaxed mb-8">
+        Every notebook is verified on free cloud GPUs (Colab 15GB T4 & Kaggle 30GB Dual-T4), pre-equipped with idle Keep-Alive heartbeats, multi-connection <code class="text-[#00e3fd]">aria2c</code> model pullers, and one-click OpenAI-compatible tunnel endpoints.
+      </p>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap gap-2" id="nbFilterBar">
+        {categories.map((cat, idx) => (
+          <button
+            type="button"
+            data-cat={cat.id}
+            class={`nb-chip px-4 py-2 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer ${
+              idx === 0
+                ? 'bg-[#c0f500] text-[#161f00] border-[#c0f500]'
+                : 'bg-[#131317] text-[#9ca3af] hover:text-white border-white/10'
+            }`}
+          >
+            {cat.icon} {cat.label}
+          </button>
+        ))}
+      </div>
+    </section>
+
+    <!-- Notebooks Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16" id="nbGrid">
+      {allNotebooks.map((nb: NotebookEntry) => (
+        <article
+          data-category={nb.data.category}
+          class="nb-card bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-xl"
+        >
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold uppercase bg-[#c0f500]/10 text-[#c0f500] border border-[#c0f500]/30">
+                  {nb.data.platform === 'both' ? 'COLAB + KAGGLE' : nb.data.platform.toUpperCase()}
+                </span>
+                <span class="px-2.5 py-1 rounded-md text-[11px] font-mono text-[#00e3fd] bg-[#00e3fd]/10 border border-[#00e3fd]/30">
+                  {nb.data.gpu_required}
+                </span>
+              </div>
+              {nb.data.keep_alive_included && (
+                <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                  🛡️ Keep-Alive Built-In
+                </span>
+              )}
+            </div>
+
+            <a href={`/notebooks/${nb.slug}`} class="no-underline group">
+              <h2 class="text-xl sm:text-2xl font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+                {nb.data.title}
+              </h2>
+            </a>
+
+            <p class="text-xs sm:text-sm text-[#9ca3af] leading-relaxed mb-5">
+              {nb.data.summary}
+            </p>
+
+            <!-- Technical Specs Pill Row -->
+            <div class="bg-[#0B0B10] border border-white/5 rounded-xl p-4 mb-5 space-y-2 font-mono text-xs">
+              <div class="flex justify-between gap-4">
+                <span class="text-[#9ca3af]">Base Model / Stack:</span>
+                <span class="text-white font-semibold text-right">{nb.data.base_model}</span>
+              </div>
+              <div class="flex justify-between gap-4">
+                <span class="text-[#9ca3af]">Pipeline Method:</span>
+                <span class="text-[#c0f500] text-right">{nb.data.method}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <a
+                href={`/notebooks/${nb.slug}`}
+                class="px-4 py-2 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold hover:shadow-[0_0_15px_rgba(192,245,0,0.4)] no-underline transition-all"
+              >
+                View Run Guide & Code →
+              </a>
+              {nb.data.download_ipynb && (
+                <a
+                  href={nb.data.download_ipynb}
+                  download
+                  class="px-3.5 py-2 rounded-xl bg-[#1f1f23] hover:bg-white/10 text-white border border-white/10 font-mono text-xs no-underline transition-colors"
+                >
+                  ⬇ Download .ipynb
+                </a>
+              )}
+            </div>
+
+            <span class="font-mono text-xs text-[#c0f500] font-bold uppercase">
+              {nb.data.pricing === 'free' ? '100% FREE' : `$${nb.data.price_usd}`}
+            </span>
+          </div>
+        </article>
+      ))}
+    </section>
+
+    <!-- Trending Pro Kaggle & Colab Starter Kits Strip -->
+    <section class="bg-gradient-to-r from-[#131317] via-[#1a1829] to-[#131317] border border-[#00e3fd]/30 rounded-2xl p-8 mb-16">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <span class="font-mono text-xs text-[#00e3fd] uppercase tracking-wider font-bold">
+            ⚡ TRENDING PRODUCTION KITS FOR COLAB & KAGGLE
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">
+            Turn Free Cloud Notebooks into Production Infrastructure
+          </h2>
+        </div>
+        <a
+          href="/marketplace/notebook-kits"
+          class="font-mono text-xs text-[#c0f500] hover:underline no-underline shrink-0"
+        >
+          Browse All Starter Kits →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {marketplaceKits.map((kit) => (
+          <a
+            href={`/marketplace/notebook-kits/${kit.slug}`}
+            class="bg-[#0B0B10]/90 border border-white/10 hover:border-[#00e3fd] rounded-xl p-6 no-underline transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-2xl">{kit.data.icon ?? '🛰️'}</span>
+                <span class="px-3 py-1 rounded-full font-mono text-xs font-bold bg-[#00e3fd]/15 text-[#00e3fd] border border-[#00e3fd]/30">
+                  {kit.data.price_label}
+                </span>
+              </div>
+              <h3 class="text-lg font-bold text-white group-hover:text-[#00e3fd] transition-colors mb-2">
+                {kit.data.title}
+              </h3>
+              <p class="text-xs text-[#9ca3af] leading-relaxed mb-4">
+                {kit.data.summary}
+              </p>
+            </div>
+            <div class="flex items-center justify-between text-xs font-mono text-[#c0f500] pt-3 border-t border-white/5">
+              <span>★ {kit.data.rating.toFixed(1)} ({kit.data.uses} deploys)</span>
+              <span>Inspect Kit Architecture →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script is:inline>
+  (() => {
+    function initNbFilters() {
+      const chips = document.querySelectorAll('.nb-chip');
+      const cards = document.querySelectorAll('.nb-card');
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          chips.forEach((c) => {
+            c.classList.remove('bg-[#c0f500]', 'text-[#161f00]', 'border-[#c0f500]');
+            c.classList.add('bg-[#131317]', 'text-[#9ca3af]', 'border-white/10');
+          });
+          chip.classList.add('bg-[#c0f500]', 'text-[#161f00]', 'border-[#c0f500]');
+          chip.classList.remove('bg-[#131317]', 'text-[#9ca3af]', 'border-white/10');
+
+          const target = chip.getAttribute('data-cat');
+          cards.forEach((card) => {
+            const cat = card.getAttribute('data-category');
+            if (target === 'all' || target === cat) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+    }
+    document.addEventListener('astro:page-load', initNbFilters);
+    initNbFilters();
+  })();
+</script>
+

@@ -1,0 +1,16 @@
+---
+/**
+ * 404 Page Not Found — Wiki of Automation
+ */
+import BaseLayout from '~/layouts/Base.astro';
+import { NotFound } from '~/components/utility/NotFound';
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="404 — Page Not Found — Wiki of Automation"
+  description="This page isn't in the index. Use Ada AI to find what you need or browse the marketplace."
+>
+  <NotFound client:load />
+</BaseLayout>

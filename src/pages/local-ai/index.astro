@@ -1,0 +1,246 @@
+---
+/**
+ * /local-ai — Local AI Free Methods Hub + Interactive VRAM & Quantization Calculator Matrix
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+type LocalGuide = CollectionEntry<'local-ai'>;
+const allGuides = await getCollection('local-ai');
+
+const hardwareMatrix = [
+  {
+    tier: '0 GB (Zero Local GPU)',
+    gpu: 'Integrated / Laptop CPU + Remote Colab/Kaggle Relay',
+    modelSize: '27B – 72B (Remote)',
+    quant: 'Q4_K_M / AWQ',
+    nglFlag: '-ngl 99 (Remote T4/L4)',
+    tokSec: '24 – 48 tok/s',
+    recommended: 'Qwen 3.8 27B Vision via Cloudflare Reverse Tunnel Relay',
+    guideSlug: 'free-cloud-reverse-tunnel-relay',
+  },
+  {
+    tier: '6 – 8 GB VRAM',
+    gpu: 'RTX 3060 Laptop / RTX 4060 / M1/M2 8GB',
+    modelSize: '7B – 8B',
+    quant: 'Q4_K_M (4.7 GB)',
+    nglFlag: '-ngl 99',
+    tokSec: '55 – 85 tok/s',
+    recommended: 'Llama 3.3 8B Instruct / MedLegal-Triage-8B Air-Gapped',
+    guideSlug: 'ollama-local-runtime-guide',
+  },
+  {
+    tier: '12 GB VRAM',
+    gpu: 'RTX 3060 12GB / RTX 4070 / M2 Pro 16GB',
+    modelSize: '14B',
+    quant: 'Q4_K_M – Q5_K_M (9.0 GB)',
+    nglFlag: '-ngl 99 -fa',
+    tokSec: '42 – 65 tok/s',
+    recommended: 'AutoNode-JSON-14B MCP Specialist / AEO-Citation-Writer-14B',
+    guideSlug: 'ollama-local-runtime-guide',
+  },
+  {
+    tier: '16 GB VRAM',
+    gpu: 'RTX 4060 Ti 16GB / RTX 4080 / Colab T4',
+    modelSize: '14B (Q8_0) or 27B (IQ4_XS)',
+    quant: 'Q8_0 / IQ4_XS (14.2 GB)',
+    nglFlag: '-ngl 99 -ctk q8_0 -ctv q8_0',
+    tokSec: '28 – 50 tok/s',
+    recommended: 'Qwen 3.8 27B Heretic Vision (IQ4_XS) or AutoNode-JSON-14B (Q8_0)',
+    guideSlug: 'llama-cpp-bare-metal-server',
+  },
+  {
+    tier: '24 GB VRAM',
+    gpu: 'RTX 3090 / RTX 4090 / Mac Studio 32GB',
+    modelSize: '27B – 32B',
+    quant: 'Q4_K_M – Q5_K_M (16.8 – 19.8 GB)',
+    nglFlag: '-ngl 99 -fa --parallel 4',
+    tokSec: '38 – 62 tok/s',
+    recommended: 'FlowCoder-32B n8n Architect / Qwen 3.8 27B Vision (Q4_K_M)',
+    guideSlug: 'locally-uncensored-offline-suite',
+  },
+  {
+    tier: '30 GB VRAM (Free Cloud)',
+    gpu: 'Kaggle Dual T4 (2 × 15GB) Tensor Parallel',
+    modelSize: '32B – 70B',
+    quant: 'AWQ 4-bit / GGUF Q4_K_M',
+    nglFlag: '--tensor-parallel-size 2',
+    tokSec: '32 – 45 tok/s',
+    recommended: 'vLLM Tensor-Parallel 32B/70B Server on Kaggle Dual-T4',
+    guideSlug: 'free-cloud-reverse-tunnel-relay',
+  },
+  {
+    tier: '64 GB+ Unified Memory',
+    gpu: 'Mac Studio M2/M3/M4 Max & Ultra / Dual RTX 3090',
+    modelSize: '70B – 120B',
+    quant: 'Q5_K_M – Q8_0 (48 – 72 GB)',
+    nglFlag: '-ngl 99 -fa --ctx-size 65536',
+    tokSec: '22 – 40 tok/s',
+    recommended: 'Full 70B+ Sovereign Multi-Agent Swarm Cluster',
+    guideSlug: 'llama-cpp-bare-metal-server',
+  },
+];
+---
+
+<Base
+  title="Local AI Free Methods Hub & VRAM Quantization Calculator | Wiki of Automation"
+  description="Run uncensored, zero-API-cost local LLMs and vision models using Ollama, llama.cpp, vLLM, and free cloud-to-local reverse relays. Interactive VRAM & quantization matrix included."
+>
+  <div class="pt-28 pb-24 max-w-[1380px] mx-auto px-6 relative z-10 text-white">
+    <!-- Hero -->
+    <section class="mb-14">
+      <div class="inline-flex items-center gap-2 bg-[#131317] border border-[#00e3fd]/30 rounded-full px-4 py-1.5 mb-5">
+        <span class="w-2 h-2 rounded-full bg-[#00e3fd] animate-ping"></span>
+        <span class="font-mono text-xs text-[#00e3fd] uppercase tracking-wider">
+          SOVEREIGN INFERENCE · $0/TOKEN · 100% PRIVATE
+        </span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-bold tracking-tight mb-4">
+        Local AI <span class="text-[#c0f500]">Free Methods</span> Hub
+      </h1>
+      <p class="text-base sm:text-lg text-[#9ca3af] max-w-3xl leading-relaxed">
+        Eliminate monthly OpenAI and Anthropic token bills forever. Deploy high-throughput local inference engines (`Ollama`, `llama.cpp`, `vLLM`, `Locally Uncensored`), calculate exact GGUF quantization limits for your GPU, or bridge free Kaggle/Colab GPUs into your local n8n instance.
+      </p>
+    </section>
+
+    <!-- Interactive VRAM & Quantization Calculator Matrix -->
+    <section class="bg-[#131317] border border-white/10 rounded-3xl p-6 sm:p-8 mb-16 shadow-2xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6 mb-6">
+        <div>
+          <span class="font-mono text-xs text-[#c0f500] uppercase tracking-wider">INTERACTIVE HARDWARE SIZER</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">VRAM & Quantization Decision Matrix</h2>
+          <p class="text-xs sm:text-sm text-[#9ca3af] mt-1">
+            Select your available GPU VRAM tier below to view optimal model parameter size, GGUF quantization level, KV-cache flags, and real-world throughput.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="vramFilter" class="font-mono text-xs text-[#9ca3af] uppercase">Filter Hardware:</label>
+          <select
+            id="vramFilter"
+            class="bg-[#050508] border border-white/20 rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-[#c0f500]"
+          >
+            <option value="all">Show All VRAM Tiers (0 GB → 64 GB+)</option>
+            {hardwareMatrix.map((row, idx) => (
+              <option value={`tier-${idx}`}>{row.tier} — {row.modelSize}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse font-sans text-sm">
+          <thead>
+            <tr class="border-b border-white/10 font-mono text-xs text-[#9ca3af] uppercase">
+              <th class="py-3.5 px-4">VRAM Tier</th>
+              <th class="py-3.5 px-4">Typical Hardware</th>
+              <th class="py-3.5 px-4">Optimal Model Size</th>
+              <th class="py-3.5 px-4">Quantization</th>
+              <th class="py-3.5 px-4">Engine Flags</th>
+              <th class="py-3.5 px-4">Speed</th>
+              <th class="py-3.5 px-4">Recommended Stack</th>
+            </tr>
+          </thead>
+          <tbody id="vramMatrixBody" class="divide-y divide-white/5">
+            {hardwareMatrix.map((row, idx) => (
+              <tr data-tier={`tier-${idx}`} class="hover:bg-white/[0.03] transition-colors">
+                <td class="py-4 px-4 font-mono font-bold text-[#c0f500] whitespace-nowrap">{row.tier}</td>
+                <td class="py-4 px-4 text-xs text-[#e5e1e7]">{row.gpu}</td>
+                <td class="py-4 px-4 font-mono text-xs text-[#00e3fd] font-semibold">{row.modelSize}</td>
+                <td class="py-4 px-4 font-mono text-xs text-white">{row.quant}</td>
+                <td class="py-4 px-4">
+                  <code class="text-[11px] font-mono bg-[#050508] text-[#c0f500] px-2 py-1 rounded border border-white/10 whitespace-nowrap">
+                    {row.nglFlag}
+                  </code>
+                </td>
+                <td class="py-4 px-4 font-mono text-xs text-white whitespace-nowrap">{row.tokSec}</td>
+                <td class="py-4 px-4 text-xs">
+                  <a href={`/local-ai/${row.guideSlug}`} class="text-white hover:text-[#c0f500] font-medium underline decoration-[#c0f500]/50">
+                    {row.recommended} →
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Local AI Playbooks Grid -->
+    <section>
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <span class="font-mono text-xs text-[#00e3fd] uppercase tracking-wider">STEP-BY-STEP ARCHITECTURES</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Free Local Inference Guides & Relays</h2>
+        </div>
+        <a href="/models/finetuned" class="text-xs font-mono text-[#c0f500] hover:underline no-underline">
+          Browse Fine-Tuned GGUF Models →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {allGuides.map((guide: LocalGuide) => (
+          <a
+            href={`/local-ai/${guide.slug}`}
+            class="group bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(192,245,0,0.15)] no-underline flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <span class="font-mono text-xs font-bold uppercase px-3 py-1 rounded-full bg-[#c0f500]/10 text-[#c0f500] border border-[#c0f500]/30">
+                  {guide.data.runtime}
+                </span>
+                <div class="flex items-center gap-2 font-mono text-xs text-[#9ca3af]">
+                  <span class="bg-[#050508] px-2.5 py-1 rounded border border-white/10 text-[#00e3fd]">
+                    Min VRAM: {guide.data.vram_min_gb} GB
+                  </span>
+                  <span class="bg-[#050508] px-2.5 py-1 rounded border border-white/10 text-white">
+                    ~{guide.data.tokens_per_sec} tok/s
+                  </span>
+                </div>
+              </div>
+
+              <h3 class="text-xl font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+                {guide.data.title}
+              </h3>
+              <p class="text-xs sm:text-sm text-[#9ca3af] leading-relaxed mb-5">
+                {guide.data.summary}
+              </p>
+            </div>
+
+            <div class="border-t border-white/10 pt-4 flex items-center justify-between text-xs font-mono">
+              <span class="text-[#9ca3af]">Target: <strong class="text-white">{guide.data.hardware_target}</strong></span>
+              <span class="text-[#c0f500] font-bold group-hover:translate-x-1 transition-transform">
+                Read Setup Guide →
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script is:inline>
+  (() => {
+    function initVramFilter() {
+      const select = document.getElementById('vramFilter');
+      const tbody = document.getElementById('vramMatrixBody');
+      if (!select || !tbody) return;
+
+      select.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const rows = tbody.querySelectorAll('tr[data-tier]');
+        rows.forEach((r) => {
+          if (val === 'all' || r.getAttribute('data-tier') === val) {
+            r.style.display = '';
+          } else {
+            r.style.display = 'none';
+          }
+        });
+      });
+    }
+    document.addEventListener('astro:page-load', initVramFilter);
+    initVramFilter();
+  })();
+</script>
+

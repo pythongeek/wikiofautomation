@@ -179,83 +179,16 @@ function initAdaBar() {
     }
   }
 
-  async function clientAdaBarFallback(query) {
-    const apiKey = import.meta.env.PUBLIC_MINIMAX_API_KEY || import.meta.env.MINIMAX_API_KEY;
-    const baseUrl = (import.meta.env.PUBLIC_MINIMAX_BASE_URL || 'https://api.minimax.io/v1').replace(/\/+$/, '');
-    const rawModel = import.meta.env.PUBLIC_MINIMAX_MODEL || 'MiniMax-M3';
-    const model = rawModel.replace(/^minimax\//i, '');
-
-    if (!apiKey) {
-      const q = query.toLowerCase();
-      if (/n8n/i.test(q)) {
-        return {
-          reply: "n8n is a source-available, fair-code workflow automation platform. It allows developers and automation teams to visually connect apps, APIs, and AI models with custom JavaScript or Python nodes.",
-          links: [{ url: '/wiki/frameworks/n8n', anchor: 'n8n Wiki Guide' }, { url: '/marketplace/workflows', anchor: 'n8n Workflows' }]
-        };
-      }
-      if (/mcp|model context protocol/i.test(q)) {
-        return {
-          reply: "Model Context Protocol (MCP) is an open standard created by Anthropic that enables AI models to interact with local tools, APIs, and databases through standardized JSON-RPC interfaces.",
-          links: [{ url: '/wiki/protocols/model-context-protocol', anchor: 'MCP Protocol Guide' }, { url: '/wiki/compare', anchor: 'Tool Comparisons' }]
-        };
-      }
-      if (/agent|agents/i.test(q)) {
-        return {
-          reply: "AI Agents are autonomous software entities that plan, execute multi-step tasks, use external tools, and adapt to feedback to automate complex workflows.",
-          links: [{ url: '/marketplace/agents', anchor: 'Explore AI Agents' }, { url: '/wiki/agents', anchor: 'Agents Wiki' }]
-        };
-      }
-      if (/workflow|zapier|make/i.test(q)) {
-        return {
-          reply: "Automation Workflows connect apps and webhooks into automated execution chains. Discover pre-built n8n and Zapier templates in our marketplace.",
-          links: [{ url: '/marketplace/workflows', anchor: 'Browse Workflows' }, { url: '/marketplace/publish', anchor: 'Submit Workflow' }]
-        };
-      }
-      if (/hi|hello|hey|who/i.test(q)) {
-        return {
-          reply: "Hi! I'm Ada, your AI assistant for Wiki of Automation. Ask me anything about AI agents, n8n, MCP protocols, models, or automation news!",
-          links: [{ url: '/wiki', anchor: 'Encyclopedia' }, { url: '/marketplace', anchor: 'Marketplace' }]
-        };
-      }
-      return {
-        reply: `Here are the top encyclopedia resources for "${query}":`,
-        links: [{ url: '/wiki', anchor: 'Search Encyclopedia' }, { url: '/marketplace', anchor: 'Automation Marketplace' }, { url: '/news', anchor: 'Automation News' }]
-      };
-    }
-
-    const endpoint = baseUrl.endsWith('/chat/completions') ? baseUrl : `${baseUrl}/chat/completions`;
-
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        temperature: 0.3,
-        max_tokens: 600,
-        messages: [
-          { role: 'system', content: 'You are Ada, the AI assistant for Wiki of Automation (wikiofautomation.com). Answer user questions about automation, AI agents, n8n, MCP, and workflows concisely with helpful links.' },
-          { role: 'user', content: query },
-        ],
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`MiniMax API returned ${res.status}`);
-    }
-
-    const json = await res.json();
-    let text = json.choices?.[0]?.message?.content || 'No answer generated.';
-    text = text.replace(/^```(?:markdown)?/i, '').replace(/```$/, '').trim();
-
+  // Emergency fallback — only used when /api/ada is truly unreachable (network error)
+  function clientAdaBarFallback(query) {
     return {
-      reply: text,
+      reply: "Ada's AI brain is temporarily unreachable. Try again in a moment, or browse the wiki directly!",
+      intent: 'general',
       links: [
-        { url: '/wiki', anchor: 'Encyclopedia' },
-        { url: '/marketplace', anchor: 'Marketplace' }
-      ]
+        { url: '/wiki', anchor: 'Browse Encyclopedia' },
+        { url: '/marketplace', anchor: 'Automation Marketplace' },
+        { url: '/news', anchor: "Today's News" },
+      ],
     };
   }
 
@@ -287,12 +220,31 @@ function initAdaBar() {
       ? `<div class="reply-links">${links.map(l =>
           `<a class="reply-chip" href="${esc(l.url)}">${esc(l.anchor || l.url)}</a>`
         ).join('')}</div>` : '';
+
+    // Render basic markdown in the reply text
+    let replyHtml = esc(d.reply || '');
+    // Bold: **text**
+    replyHtml = replyHtml.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text*
+    replyHtml = replyHtml.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Inline code: `code`
+    replyHtml = replyHtml.replace(/`([^`]+)`/g, '<code style="background:rgba(192,245,0,0.08);padding:1px 5px;border-radius:4px;font-size:12px;">$1</code>');
+    // Links: [text](url) — after esc, they'll be [text](url) so we match that
+    replyHtml = replyHtml.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="reply-chip" style="display:inline;">$1</a>');
+    // Line breaks
+    replyHtml = replyHtml.replace(/\n/g, '<br/>');
+    // Bullet points
+    replyHtml = replyHtml.replace(/(?:^|<br\/>)\s*[-•]\s+(.+?)(?=<br\/>|$)/g, '<li style="margin-left:16px;list-style:disc;">$1</li>');
+    if (replyHtml.includes('<li')) {
+      replyHtml = replyHtml.replace(/(<li[^>]*>.*?<\/li>)+/g, '<ul style="margin:6px 0;">$&</ul>');
+    }
+
     return `<div class="reply-inner">
       <div class="reply-meta">
         <span class="reply-badge">ADA</span>
         <span class="reply-intent">${esc(intent)}</span>
       </div>
-      <p class="reply-text">${esc(d.reply || '')}</p>
+      <div class="reply-text">${replyHtml}</div>
       ${linkChips}
     </div>`;
   }

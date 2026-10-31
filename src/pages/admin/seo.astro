@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/seo — SEO Settings & Schema Audit Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { SeoSettings } from '~/components/admin/SeoSettings';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="SEO Settings — Admin — Wiki of Automation"
+  description="Manage global meta templates, automated XML sitemaps, robots.txt, schema gap audits, and hreflang tag mappings."
+>
+  <SeoSettings client:load />
+</AdminBase>

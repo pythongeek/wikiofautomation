@@ -1,0 +1,16 @@
+---
+/**
+ * Documentation Center — Wiki of Automation
+ */
+import BaseLayout from '~/layouts/Base.astro';
+import { DocsViewer } from '~/components/docs/DocsViewer';
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Documentation & Creator Guide — Wiki of Automation"
+  description="Official developer & creator documentation for publishing, API keys, WebMCP bridges, and revenue payouts."
+>
+  <DocsViewer client:load />
+</BaseLayout>

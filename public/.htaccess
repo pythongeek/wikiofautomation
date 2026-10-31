@@ -1,22 +1,22 @@
-# Hostinger Node.js App Gateway for Wiki of Automation
-<IfModule mod_passenger.c>
-    PassengerEnabled on
-    PassengerAppType node
-    PassengerStartupFile index.js
-</IfModule>
-
+# Hostinger Apache Static Routing for Wiki of Automation (Astro Static Site)
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
 
-    # Serve static assets directly if file exists
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
+    # 1. Serve physical files directly if they exist
+    RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
-    # Handle client router fallback for SPA routes (excluding API endpoints)
+    # 2. Append .html if extension is missing and matching file exists
+    RewriteCond %{REQUEST_FILENAME}.html -f
+    RewriteRule ^(.*)$ /$1.html [L]
+
+    # 3. Serve subfolder index.html if folder exists
+    RewriteCond %{REQUEST_FILENAME}/index.html -f
+    RewriteRule ^(.*)$ /$1/index.html [L]
+
+    # 4. Fallback to 404 page for missing routes
     RewriteCond %{REQUEST_URI} !^/api/
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ /index.html [L]
+    RewriteCond %{DOCUMENT_ROOT}/404/index.html -f
+    RewriteRule ^(.*)$ /404/index.html [L]
 </IfModule>

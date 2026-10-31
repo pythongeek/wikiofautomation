@@ -1,15 +1,19 @@
 ---
 /**
- * Header.astro — fixed top nav
- * Master plan §4 + Drive HTML <header>
+ * Header.astro — Cyber-Industrial Fixed Header with Desktop & Mobile Navigation
+ * Source: Google Stitch Master Page Specification
  */
-import Logo from '~/components/brand/Logo.astro';
 
 const navLinks = [
-  { href: '/wiki',       label: 'Wiki',       icon: '📚' },
-  { href: '/marketplace',label: 'Marketplace',icon: '🛒' },
-  { href: '/news',       label: 'News',       icon: '📡' },
-  { href: '/academy',    label: 'Academy',    icon: '🎓' },
+  { href: '/wiki',             label: 'Wiki',          icon: 'menu_book' },
+  { href: '/marketplace',      label: 'Marketplace',   icon: 'storefront' },
+  { href: '/notebooks',        label: 'Notebooks',     icon: 'terminal' },
+  { href: '/local-ai',         label: 'Local AI',      icon: 'memory' },
+  { href: '/models/finetuned', label: 'Fine-Tuned AI', icon: 'neurology' },
+  { href: '/news',             label: 'News',          icon: 'newspaper' },
+  { href: '/academy',          label: 'Academy',       icon: 'school' },
+  { href: '/seo-tools',        label: 'SEO Tools',     icon: 'build' },
+  { href: '/chat',             label: 'AI Chat',       icon: 'smart_toy' },
 ];
 
 const path = Astro.url.pathname;
@@ -18,101 +22,155 @@ function isActive(href: string) {
 }
 ---
 
-<header>
-  <a href="/" class="brand">
-    <Logo size={26} />
-    <span class="wordmark">wiki <span class="of">of</span> <span class="automation">automation</span></span>
-  </a>
-  <nav>
-    <ul>
+<!-- Desktop Navigation Header -->
+<header id="main-nav" aria-label="Main Navigation" class="fixed top-0 w-full z-50 h-[64px] border-b border-white/5 bg-[#050508]/80 backdrop-blur-xl px-6 py-4 hidden md:flex transition-all duration-300">
+  <div class="flex justify-between items-center w-full max-w-[1280px] mx-auto h-full relative z-10">
+    <div class="flex items-center gap-3">
+      <div class="relative w-2 h-2">
+        <div class="absolute inset-0 rounded-full bg-[#c0f500] animate-ping opacity-75"></div>
+        <div class="absolute inset-0 rounded-full bg-[#c0f500]"></div>
+      </div>
+      <a class="flex items-center text-lg tracking-tight hover:opacity-80 transition-opacity no-underline" href="/">
+        <span class="font-normal text-white">Wiki</span>
+        <span class="font-normal text-[#c4caac] mx-1">of</span>
+        <span class="font-bold text-[#c0f500]">Automation</span>
+      </a>
+    </div>
+
+    <nav class="flex items-center gap-8">
       {navLinks.map(l => (
-        <li><a href={l.href} class:list={[{ active: isActive(l.href) }]}>{l.label}</a></li>
+        <a
+          href={l.href}
+          class:list={[
+            'font-medium text-sm transition-all duration-200 no-underline relative py-1',
+            isActive(l.href)
+              ? 'text-[#c0f500] active-nav-glow'
+              : 'text-[#9ca3af] hover:text-white'
+          ]}
+        >
+          {l.label}
+        </a>
       ))}
-    </ul>
-  </nav>
-  <div class="nav-right">
-    <a href="/admin/login" class="btn">Sign in</a>
-    <a href="/marketplace/publish" class="btn btn-primary">Publish</a>
+    </nav>
+
+    <div class="flex items-center gap-5">
+      <a class="text-sm font-medium text-white hover:text-[#c0f500] transition-colors no-underline" href="/admin/login">Sign In</a>
+      <a class="bg-[#c0f500] text-[#161f00] text-sm font-semibold px-5 py-2 rounded-full hover:shadow-[0_0_20px_rgba(192,245,0,0.5)] hover:scale-[1.02] hover:-translate-y-[1px] transition-all duration-300 no-underline" href="/marketplace/publish">
+        Publish
+      </a>
+    </div>
   </div>
 </header>
 
+<!-- Mobile Navigation Header -->
+<header id="mobile-nav" aria-label="Mobile Navigation" class="md:hidden fixed top-0 w-full z-50 h-[64px] border-b border-white/5 bg-[#050508]/90 backdrop-blur-xl px-5 py-4 flex justify-between items-center">
+  <div class="flex items-center gap-2 relative z-10">
+    <div class="relative w-2 h-2">
+      <div class="absolute inset-0 rounded-full bg-[#c0f500] animate-ping opacity-75"></div>
+      <div class="absolute inset-0 rounded-full bg-[#c0f500]"></div>
+    </div>
+    <a class="text-base font-bold tracking-tight no-underline" href="/">
+      <span class="font-normal text-white">Wiki</span>
+      <span class="font-normal text-[#c4caac] mx-0.5">of</span>
+      <span class="font-bold text-[#c0f500]">Auto</span>
+    </a>
+  </div>
+
+  <button
+    id="mobileMenuToggle"
+    aria-label="Toggle Menu"
+    class="relative z-50 w-9 h-9 flex flex-col justify-center items-center gap-1.5 focus:outline-none bg-[#131317] border border-white/10 rounded-lg cursor-pointer"
+    type="button"
+  >
+    <span class="line-1 w-5 h-[2px] bg-white transition-all duration-300 origin-center"></span>
+    <span class="line-2 w-5 h-[2px] bg-white transition-all duration-300"></span>
+    <span class="line-3 w-5 h-[2px] bg-white transition-all duration-300 origin-center"></span>
+  </button>
+</header>
+
+<!-- Mobile Drawer Overlay -->
+<div id="mobileDrawerOverlay" class="md:hidden fixed inset-0 bg-[#050508]/80 backdrop-blur-md z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+<!-- Mobile Drawer Side Panel -->
+<aside id="mobileDrawer" class="md:hidden drawer fixed top-0 right-0 h-full w-[280px] bg-[#1f1f23]/95 backdrop-blur-2xl border-l border-white/10 z-40 translate-x-full pt-[80px] px-6 pb-6 flex flex-col overflow-y-auto shadow-[-10px_0_30px_rgba(0,0,0,0.7)] transition-transform duration-300">
+  <nav class="flex flex-col gap-5 flex-grow mt-2">
+    {navLinks.map(l => (
+      <a
+        href={l.href}
+        class:list={[
+          'text-lg font-semibold flex items-center gap-3 no-underline py-2.5 px-3 rounded-lg transition-colors',
+          isActive(l.href)
+            ? 'text-[#c0f500] bg-[#c0f500]/10 border border-[#c0f500]/20'
+            : 'text-white hover:text-[#c0f500] hover:bg-white/5'
+        ]}
+      >
+        <span class="material-symbols-outlined text-2xl text-[#c0f500]">{l.icon}</span>
+        {l.label}
+      </a>
+    ))}
+  </nav>
+  <div class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-6">
+    <a class="flex items-center justify-center gap-2 text-sm font-medium text-white hover:text-[#c0f500] py-3 no-underline transition-colors" href="/admin/login">
+      <span class="material-symbols-outlined text-lg">login</span>
+      Sign In
+    </a>
+    <a class="bg-[#c0f500] text-[#161f00] text-sm font-semibold py-3 rounded-full text-center hover:shadow-[0_0_20px_rgba(192,245,0,0.4)] no-underline transition-shadow" href="/marketplace/publish">
+      Publish
+    </a>
+  </div>
+</aside>
+
+<script>
+(() => {
+  function initHeader() {
+    const toggle = document.getElementById('mobileMenuToggle');
+    const drawer = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('mobileDrawerOverlay');
+    if (!toggle || !drawer || !overlay) return;
+
+    let isOpen = false;
+    function openMenu() {
+      isOpen = true;
+      toggle?.classList.add('menu-open');
+      drawer?.classList.remove('translate-x-full');
+      overlay?.classList.remove('opacity-0', 'pointer-events-none');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      isOpen = false;
+      toggle?.classList.remove('menu-open');
+      drawer?.classList.add('translate-x-full');
+      overlay?.classList.add('opacity-0', 'pointer-events-none');
+      document.body.style.overflow = '';
+    }
+
+    toggle.addEventListener('click', () => {
+      if (isOpen) closeMenu();
+      else openMenu();
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) closeMenu();
+    });
+  }
+
+  document.addEventListener('astro:page-load', initHeader);
+  initHeader();
+})();
+</script>
+
 <style>
-  header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 36px;
-    background: linear-gradient(180deg, rgba(10,10,15,0.9), rgba(10,10,15,0));
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--font-headline);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .brand .of { color: var(--muted); font-weight: 400; }
-  .brand .automation { color: var(--lime); }
-
-  nav ul {
-    list-style: none;
-    display: flex;
-    gap: 30px;
-    font-size: 14px;
-    color: var(--muted);
-  }
-  nav ul a {
-    color: inherit;
-    transition: color 0.2s ease;
-  }
-  nav ul a:hover { color: var(--text); }
-  nav ul a.active {
-    color: var(--text);
-  }
-
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .btn {
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 18px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-  }
-  .btn:hover { border-color: var(--indigo-soft); }
-
-  .btn-primary {
-    background: var(--lime);
-    color: var(--bg);
-    border: none;
-  }
-  .btn-primary:hover {
-    box-shadow: 0 0 24px rgba(198, 255, 61, 0.45);
-    transform: translateY(-1px);
-  }
-
-  @media (max-width: 900px) {
-    nav ul { display: none; }
-    header { padding: 14px 20px; }
+  .active-nav-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #c0f500, transparent);
+    box-shadow: 0 0 8px #c0f500;
   }
 </style>

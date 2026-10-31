@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/creators — Creator Management & Payouts Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { CreatorManagement } from '~/components/admin/CreatorManagement';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Creator Payouts — Admin — Wiki of Automation"
+  description="Manage creator payout requests, view per-tool net earnings breakdown, and approve bulk Stripe disbursements."
+>
+  <CreatorManagement client:load />
+</AdminBase>

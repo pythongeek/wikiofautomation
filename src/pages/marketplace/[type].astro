@@ -1,13 +1,26 @@
 ---
 /**
- * /marketplace/[type] — type-filtered listing
+ * /marketplace/[type] — Type-filtered listing grid supporting all 9 verticals
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '~/layouts/Base.astro';
 
 export async function getStaticPaths() {
-  const VALID = ['agent', 'workflow', 'ai-os', 'app', 'prompt'] as const;
-  return VALID.map((t: typeof VALID[number]) => ({ params: { type: t === 'ai-os' ? 'ai-os' : `${t}s` } }));
+  const VALID = [
+    'agent',
+    'workflow',
+    'enterprise-workflow',
+    'plugin',
+    'notebook-kit',
+    'turnkey-game',
+    'ai-os',
+    'app',
+    'prompt',
+  ] as const;
+
+  return VALID.map((t: typeof VALID[number]) => ({
+    params: { type: t === 'ai-os' ? 'ai-os' : `${t}s` },
+  }));
 }
 
 type Listing = CollectionEntry<'marketplace'>;
@@ -19,99 +32,103 @@ const filtered: Listing[] = all.filter((e: Listing) => {
   return `${t}s` === type;
 });
 filtered.sort((a: Listing, b: Listing) => b.data.uses - a.data.uses);
+
+const typeTitles: Record<string, string> = {
+  agents: 'Autonomous AI Agents',
+  workflows: 'n8n & Automation Workflows',
+  'enterprise-workflows': '150+ Node Enterprise Mega-Workflows',
+  plugins: 'WordPress, MCP & DirectRelay Plugins',
+  'notebook-kits': 'Kaggle & Colab GPU Relay Kits',
+  'turnkey-games': 'Turnkey Arcade & iGaming Platforms',
+  'ai-os': 'AI OS Stacks',
+  apps: 'Full-Stack Automation Apps',
+  prompts: 'System Prompts & Specs',
+};
 ---
 
 <Base
-  title={`${type} — Marketplace`}
-  description={`${type} listings in the wiki of automation marketplace.`}
+  title={`${typeTitles[type ?? ''] ?? type} — Marketplace | Wiki of Automation`}
+  description={`${typeTitles[type ?? ''] ?? type} listings in the Neural Discovery Marketplace.`}
 >
-  <div class="page-hero">
-    <div class="breadcrumb"><a href="/marketplace">Marketplace</a> · {type}</div>
-    <h1>{type}</h1>
-    <p class="lead">{filtered.length} live listings in this category.</p>
+  <div class="pt-28 pb-20 max-w-[1440px] mx-auto px-6 relative z-10">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase tracking-wider mb-6">
+      <a href="/marketplace" class="text-[#c0f500] hover:underline no-underline">MARKETPLACE</a>
+      <span>/</span>
+      <span class="text-white font-bold">{type}</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-10 border-b border-white/10 pb-6">
+      <div>
+        <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-white">
+          {typeTitles[type ?? ''] ?? type}{' '}
+          <span class="text-sm font-mono font-normal text-[#9ca3af]">({filtered.length} listings)</span>
+        </h1>
+        <p class="text-sm sm:text-base text-[#9ca3af] mt-1">
+          Verified {type} nodes and production packages ready for immediate deployment.
+        </p>
+      </div>
+      <a
+        href="/marketplace/publish"
+        class="bg-[#c0f500] text-[#161f00] text-xs font-mono font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(192,245,0,0.4)] transition-all no-underline"
+      >
+        + Publish Listing
+      </a>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {filtered.map((item) => {
+        const typeParam = item.data.type === 'ai-os' ? 'ai-os' : `${item.data.type}s`;
+        return (
+          <a
+            href={`/marketplace/${typeParam}/${item.slug}`}
+            class="group bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,245,0,0.15)] flex flex-col justify-between no-underline"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg">
+                  {item.data.icon ?? '⚡'}
+                </div>
+                <div class="flex items-center gap-1.5">
+                  {item.data.node_count && (
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/5 text-[#c4caac] border border-white/10">
+                      {item.data.node_count} nodes
+                    </span>
+                  )}
+                  <span
+                    class={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase ${
+                      item.data.pricing === 'free'
+                        ? 'bg-[#c0f500]/10 text-[#c0f500] border border-[#c0f500]/20'
+                        : item.data.pricing === 'paid'
+                        ? 'bg-[#00e3fd]/10 text-[#00e3fd] border border-[#00e3fd]/20'
+                        : 'bg-[#7b61ff]/10 text-[#7b61ff] border border-[#7b61ff]/20'
+                    }`}
+                  >
+                    {item.data.price_label || item.data.pricing}
+                  </span>
+                </div>
+              </div>
+              <h3 class="text-lg font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+                {item.data.title}
+              </h3>
+              <p class="text-xs text-[#9ca3af] line-clamp-2 leading-relaxed mb-4">{item.data.summary ?? ''}</p>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between text-xs font-mono text-[#9ca3af] mb-3">
+                <span class="text-[#c0f500]">★ {item.data.rating.toFixed(1)}</span>
+                <span>{item.data.uses.toLocaleString()} uses</span>
+              </div>
+              <div class="flex items-center justify-between border-t border-white/5 pt-3 text-xs font-mono text-[#9ca3af]">
+                <span class="text-[#00e3fd] font-semibold">{item.data.type}</span>
+                <span>by {item.data.original_author}</span>
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
   </div>
-
-  <section class="grid">
-    {filtered.map(item => (
-      <article class="card">
-        <div class="card-top">
-          <div class="card-icon">{item.data.icon ?? '⚡'}</div>
-          <span class={`badge ${item.data.pricing}`}>{item.data.pricing.toUpperCase()}</span>
-        </div>
-        <h3>{item.data.title}</h3>
-        <p>{item.data.summary ?? ''}</p>
-        <div class="card-meta">
-          <span class="star">★ {item.data.rating.toFixed(1)}</span>
-          <span>{item.data.uses} uses</span>
-        </div>
-      </article>
-    ))}
-  </section>
 </Base>
-
-<style>
-  .page-hero {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: calc(var(--nav-height) + 60px) 36px 40px;
-  }
-  .breadcrumb {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .breadcrumb a { color: var(--cyan); }
-  h1 {
-    font-size: clamp(32px, 5vw, 50px);
-    margin-top: 12px;
-    margin-bottom: 10px;
-    text-transform: capitalize;
-  }
-  .lead { color: var(--muted); font-size: 16px; }
-  section.grid {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: 24px 36px 100px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 18px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .card-top { display: flex; justify-content: space-between; align-items: center; }
-  .card-icon {
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    background: var(--surface-2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .badge {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    padding: 4px 9px;
-    border-radius: var(--radius-pill);
-  }
-  .badge.free { background: rgba(61, 255, 176, 0.12); color: var(--mint); }
-  .badge.paid { background: rgba(255, 177, 61, 0.12); color: var(--amber); }
-  .badge.freemium { background: rgba(91, 76, 255, 0.16); color: var(--indigo-soft); }
-  .card h3 { font-size: 16px; }
-  .card p { color: var(--muted); font-size: 13px; line-height: 1.5; }
-  .card-meta {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    color: var(--muted-2);
-  }
-  .star { color: var(--lime); }
-</style>

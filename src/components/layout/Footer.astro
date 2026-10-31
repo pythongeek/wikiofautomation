@@ -1,108 +1,74 @@
 ---
 /**
- * Footer.astro — 5-column footer from Drive HTML §4
+ * Footer.astro — Cyber-Industrial 5-Column Footer
+ * Source: Google Stitch Master Page Specification (SCREEN_4)
  */
 import Logo from '~/components/brand/Logo.astro';
 const year = new Date().getFullYear();
 ---
 
-<footer>
-  <div class="foot-grid">
-    <div class="foot-col">
-      <Logo size={26} withWordmark />
-      <p>The encyclopedia of automation — understand it, find it, ship it.</p>
+<footer class="bg-[#0e0e12] border-t border-white/5 pt-16 pb-8 px-6 mt-20 relative z-10">
+  <div class="max-w-[1280px] mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 mb-14">
+      <div class="lg:col-span-4 flex flex-col gap-5">
+        <a href="/" class="flex items-center gap-2 text-lg font-bold text-white tracking-tight no-underline">
+          <Logo size={24} />
+          <span>wiki <span class="text-[#c4caac] font-normal">of</span> <span class="text-[#c0f500]">automation</span></span>
+        </a>
+        <p class="font-sans text-sm text-[#9CA3AF] max-w-sm leading-relaxed">
+          The encyclopedia of automation — understand it, find it, ship it.
+        </p>
+        <div class="font-mono text-xs text-[#9CA3AF]/60 mt-auto pt-4">
+          © {year} Wiki of Automation
+        </div>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h4 class="font-mono text-xs text-white mb-5 tracking-widest uppercase font-bold">AI & Compute</h4>
+        <ul class="flex flex-col gap-3 font-sans text-sm text-[#9CA3AF] list-none p-0">
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/notebooks">Kaggle & Colab</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/local-ai">Local AI Free Methods</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/models/finetuned">Fine-Tuned Models</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/wiki">Automation Wiki</a></li>
+        </ul>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h4 class="font-mono text-xs text-white mb-5 tracking-widest uppercase font-bold">Marketplace</h4>
+        <ul class="flex flex-col gap-3 font-sans text-sm text-[#9CA3AF] list-none p-0">
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/marketplace/enterprise-workflows">150+ Node Workflows</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/marketplace/plugins">WP & MCP Plugins</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/marketplace/notebook-kits">Colab/Kaggle Kits</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/marketplace/turnkey-games">Turnkey Games</a></li>
+        </ul>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h4 class="font-mono text-xs text-white mb-5 tracking-widest uppercase font-bold">Company</h4>
+        <ul class="flex flex-col gap-3 font-sans text-sm text-[#9CA3AF] list-none p-0">
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/about">About</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/newsletter">Newsletter</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline flex items-center gap-2" href="/jobs">Jobs <span class="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded border border-white/10 uppercase text-[#c0f500]">Hiring</span></a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/changelog">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h4 class="font-mono text-xs text-white mb-5 tracking-widest uppercase font-bold">Language</h4>
+        <ul class="flex flex-col gap-3 font-sans text-sm text-[#9CA3AF] list-none p-0">
+          <li><a class="text-[#c0f500] hover:text-[#a8d700] transition-colors flex items-center gap-2 no-underline" href="/">
+            <span class="material-symbols-outlined text-base">language</span>
+            English
+          </a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/bn/">বাংলা</a></li>
+          <li><a class="hover:text-[#c0f500] transition-colors no-underline" href="/hi/">हिन्दी</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="foot-col">
-      <h5>Wiki</h5>
-      <a href="/wiki/agents">Agents</a>
-      <a href="/wiki/frameworks">Frameworks</a>
-      <a href="/wiki/protocols">Protocols</a>
-      <a href="/wiki/glossary">Glossary</a>
+
+    <div class="border-t border-white/5 pt-6 flex justify-between items-center text-xs font-mono text-[#4B5563]">
+      <span>Built for the Automation Economy</span>
+      <span>Made with ❤ in Bangladesh</span>
     </div>
-    <div class="foot-col">
-      <h5>Marketplace</h5>
-      <a href="/marketplace/agents">Agents</a>
-      <a href="/marketplace/workflows">Workflows</a>
-      <a href="/marketplace/ai-os">AI OS</a>
-      <a href="/marketplace/apps">Apps</a>
-    </div>
-    <div class="foot-col">
-      <h5>Company</h5>
-      <a href="/about">About</a>
-      <a href="/newsletter">Newsletter</a>
-      <a href="/jobs">Jobs board</a>
-      <a href="/changelog">Changelog</a>
-    </div>
-    <div class="foot-col">
-      <h5>Language</h5>
-      <a href="/" hreflang="en">English</a>
-      <a href="/bn/" hreflang="bn">বাংলা</a>
-      <a href="/hi/" hreflang="hi">हिंदी</a>
-    </div>
-  </div>
-  <div class="foot-bottom">
-    <span>© {year} wiki of automation</span>
-    <span>Made with ♥ in Bangladesh</span>
   </div>
 </footer>
-
-<style>
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 60px 36px 30px;
-    color: var(--muted-2);
-    font-size: 13px;
-    background: var(--bg);
-  }
-
-  .foot-grid {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1.4fr repeat(4, 1fr);
-    gap: 30px;
-    margin-bottom: 50px;
-  }
-
-  .foot-col h5 {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 14px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .foot-col a {
-    display: block;
-    color: var(--muted-2);
-    font-size: 13.5px;
-    margin-bottom: 10px;
-    transition: color 0.15s ease;
-  }
-  .foot-col a:hover { color: var(--text); }
-
-  .foot-col p {
-    color: var(--muted-2);
-    font-size: 13px;
-    max-width: 240px;
-    margin-top: 10px;
-  }
-
-  .foot-bottom {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    border-top: 1px solid var(--border);
-    padding-top: 24px;
-  }
-
-  @media (max-width: 900px) {
-    .foot-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-</style>

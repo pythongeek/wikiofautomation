@@ -1,0 +1,139 @@
+---
+/**
+ * /notebooks/[slug] — Reproducible Kaggle & Colab Notebook Detail Page
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const notebooks = await getCollection('notebooks');
+  return notebooks.map((nb) => ({
+    params: { slug: nb.slug },
+    props: { nb },
+  }));
+}
+
+type Props = { nb: CollectionEntry<'notebooks'> };
+const { nb } = Astro.props;
+const { Content } = await render(nb);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: nb.data.title,
+  description: nb.data.summary,
+  dateModified: nb.data.updated,
+  author: { '@type': 'Organization', name: 'Wiki of Automation' },
+};
+---
+
+<Base title={`${nb.data.title} — Notebooks | Wiki of Automation`} description={nb.data.summary}>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <div class="pt-28 pb-24 max-w-[1200px] mx-auto px-6 text-white font-sans relative z-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-mono text-[#9ca3af] uppercase mb-8">
+      <a href="/notebooks" class="text-[#c0f500] hover:underline no-underline">NOTEBOOKS & TRAINED DATA</a>
+      <span>/</span>
+      <span class="text-white">{nb.data.category}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <main class="lg:col-span-8 space-y-8">
+        <div class="space-y-4 border-b border-white/10 pb-6">
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#c0f500]/15 text-[#c0f500] border border-[#c0f500]/30">
+              {nb.data.gpu_required}
+            </span>
+            <span class="px-3 py-1 rounded-full text-xs font-mono bg-[#00e3fd]/15 text-[#00e3fd] border border-[#00e3fd]/30">
+              VRAM: {nb.data.vram_gb} GB
+            </span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">{nb.data.title}</h1>
+          <p class="text-sm sm:text-base text-[#c4caac] leading-relaxed bg-[#131317] border-l-4 border-[#c0f500] p-4 rounded-r-xl">
+            <strong>Canonical Summary (AEO):</strong> {nb.data.summary}
+          </p>
+        </div>
+
+        <!-- Step-by-Step Execution Checklist -->
+        {nb.data.run_steps.length > 0 && (
+          <div class="bg-[#131317] border border-white/10 rounded-2xl p-6 space-y-4">
+            <h2 class="text-lg font-mono font-bold text-[#c0f500] uppercase tracking-wider">
+              ⚡ Reproducible Execution Steps
+            </h2>
+            <ol class="space-y-3 list-decimal list-inside text-sm text-[#e5e1e7]">
+              {nb.data.run_steps.map((step) => (
+                <li class="bg-[#1f1f23] p-3.5 rounded-xl border border-white/5 leading-relaxed">{step}</li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        <!-- Main Body -->
+        <div class="prose prose-invert max-w-none text-sm sm:text-base leading-relaxed space-y-4 bg-[#131317]/60 border border-white/10 rounded-2xl p-6 sm:p-8">
+          <Content />
+        </div>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-4 space-y-6 h-fit sticky top-24">
+        <div class="bg-[#131317] border border-white/10 rounded-2xl p-6 space-y-5 shadow-2xl">
+          <div>
+            <span class="font-mono text-xs text-[#9ca3af] uppercase">Compute Artifact</span>
+            <div class="text-2xl font-bold font-mono text-[#c0f500] mt-1">
+              {nb.data.pricing === 'free' ? 'FREE OPEN NOTEBOOK' : `$${nb.data.price_usd}`}
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            {nb.data.download_ipynb && (
+              <a
+                href={nb.data.download_ipynb}
+                download
+                class="w-full py-3 px-4 rounded-xl bg-[#c0f500] text-[#161f00] font-mono text-xs font-bold flex items-center justify-center gap-2 no-underline hover:shadow-[0_0_20px_rgba(192,245,0,0.4)] transition-all"
+              >
+                ⬇ Download Ready .ipynb File
+              </a>
+            )}
+            {nb.data.colab_url && (
+              <a
+                href={nb.data.colab_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full py-3 px-4 rounded-xl bg-[#1f1f23] hover:bg-white/10 text-white border border-white/15 font-mono text-xs font-bold flex items-center justify-center gap-2 no-underline transition-all"
+              >
+                🚀 Launch in Google Colab ↗
+              </a>
+            )}
+            {nb.data.kaggle_url && (
+              <a
+                href={nb.data.kaggle_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full py-3 px-4 rounded-xl bg-[#1f1f23] hover:bg-white/10 text-[#00e3fd] border border-[#00e3fd]/30 font-mono text-xs font-bold flex items-center justify-center gap-2 no-underline transition-all"
+              >
+                🏆 Open in Kaggle (2×T4) ↗
+              </a>
+            )}
+          </div>
+
+          <div class="border-t border-white/10 pt-4 space-y-2 text-xs font-mono">
+            <div class="flex justify-between">
+              <span class="text-[#9ca3af]">Base Stack:</span>
+              <span class="text-white text-right">{nb.data.base_model}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#9ca3af]">Keep-Alive:</span>
+              <span class="text-emerald-400">Dual JS + WebAudio</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#9ca3af]">Last Verified:</span>
+              <span class="text-white">{nb.data.updated}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Base>
+

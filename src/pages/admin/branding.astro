@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/branding — Admin Brand Identity & Media Guidelines Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { AdminBranding } from '~/components/admin/AdminBranding';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="Branding & Media Guidelines — Admin — Wiki of Automation"
+  description="Official design tokens, image dimensions, typography rules, and interactive asset validation checker for WikiOfAutomation."
+>
+  <AdminBranding client:load />
+</AdminBase>

@@ -1,0 +1,141 @@
+---
+/**
+ * /ui-showcase — Shared Component Library Showcase for WikiOfAutomation.com
+ */
+import Base from '~/layouts/Base.astro';
+import { Button, Card, Badge, Input, Toggle, Skeleton, Modal, ToastProvider, Table } from '~/components/ui';
+
+export const prerender = true;
+
+const sampleTableData = [
+  { id: 'NODE-842', name: 'Nexus Scraper v4', category: 'Data Extraction', uses: '14,382', status: 'Active', price: '240 cr/mo' },
+  { id: 'NODE-319', name: 'Social Sentinel', category: 'AI Processing', uses: '8,920', status: 'Active', price: 'FREE' },
+  { id: 'NODE-512', name: 'Quantum Agent', category: 'Agent Swarm', uses: '6,140', status: 'Active', price: '150 cr/mo' },
+];
+
+const sampleColumns = [
+  { key: 'id', header: 'Node ID', isMono: true, sortable: true },
+  { key: 'name', header: 'Node Name', sortable: true },
+  { key: 'category', header: 'Cluster Category' },
+  { key: 'uses', header: 'Telemetry Installs', align: 'right' as const, sortable: true },
+  { key: 'price', header: 'Pricing', isMono: true, align: 'right' as const },
+];
+---
+
+<Base
+  title="Component Library — Wiki of Automation"
+  description="Shared Component Library Showcase (React + TypeScript + Tailwind CSS) for WikiOfAutomation.com"
+>
+  <div class="pt-28 pb-20 max-w-[1280px] mx-auto px-6 text-white font-sans">
+    <!-- Header -->
+    <div class="border-b border-white/10 pb-8 mb-12">
+      <span class="font-mono text-xs text-[#c0f500] uppercase tracking-wider">DESIGN SYSTEM v1.0</span>
+      <h1 class="text-4xl font-bold tracking-tight text-white mt-1">Shared Component Library</h1>
+      <p class="text-[#9ca3af] text-sm mt-2 max-w-2xl font-mono">
+        Production-ready React + TypeScript + Tailwind CSS components built for WikiOfAutomation.com.
+      </p>
+    </div>
+
+    <div class="space-y-16">
+      <!-- 1. BUTTON COMPONENT -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          1. Button Component
+        </h2>
+        <div class="flex flex-wrap gap-4 items-center">
+          <Button variant="primary" client:load>Primary Button</Button>
+          <Button variant="secondary" client:load>Secondary Button</Button>
+          <Button variant="ghost" client:load>Ghost Button</Button>
+          <Button variant="danger" client:load>Danger Button</Button>
+          <Button variant="pill" client:load>Pill Variant</Button>
+          <Button variant="primary" isLoading client:load>Loading</Button>
+          <Button variant="primary" disabled client:load>Disabled</Button>
+        </div>
+      </section>
+
+      <!-- 2. CARD COMPONENT -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          2. Card Component
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card variant="default" title="Default Surface Card" subtitle="Hover to see green glow border" client:load>
+            <p class="text-xs text-[#9ca3af]">Standard background with smooth border transition.</p>
+          </Card>
+          <Card variant="outlined" title="Outlined Card" subtitle="Transparent background" client:load>
+            <p class="text-xs text-[#9ca3af]">Outlined border with subtle hover response.</p>
+          </Card>
+          <Card variant="elevated" title="Elevated Card" subtitle="Deep box shadow" client:load>
+            <p class="text-xs text-[#9ca3af]">Deep elevation shadow for high contrast containers.</p>
+          </Card>
+        </div>
+      </section>
+
+      <!-- 3. BADGE COMPONENT -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          3. Badge Component
+        </h2>
+        <div class="flex flex-wrap gap-4 items-center">
+          <Badge variant="category" category="agents" client:load />
+          <Badge variant="category" category="workflows" client:load />
+          <Badge variant="category" category="skills" client:load />
+          <Badge variant="category" category="seo" client:load />
+          <Badge variant="price" price="FREE" client:load />
+          <Badge variant="price" price="PRO" client:load />
+          <Badge variant="price" price="PAID" client:load />
+          <Badge variant="platform" platform="claude" client:load />
+          <Badge variant="platform" platform="n8n" client:load />
+          <Badge variant="platform" platform="hermes" client:load />
+          <Badge variant="platform" platform="openclaw" client:load />
+        </div>
+      </section>
+
+      <!-- 4. INPUT COMPONENT -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          4. Input Component
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl">
+          <Input label="Email Address" placeholder="agent@wikiofautomation.com" client:load />
+          <Input label="Password" type="password" placeholder="••••••••" client:load />
+          <Input label="Admin Mode Input" variantContext="admin" placeholder="36px admin input..." client:load />
+          <Input label="Error State" error="Invalid API token format" value="invalid_token_123" client:load />
+        </div>
+      </section>
+
+      <!-- 5. TOGGLE / SWITCH -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          5. Toggle Component
+        </h2>
+        <div class="flex flex-wrap gap-8 items-center">
+          <Toggle label="Enable Neural Engine" checked client:load />
+          <Toggle label="Autonomous Execution" client:load />
+        </div>
+      </section>
+
+      <!-- 6. SKELETON LOADER -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          6. Skeleton Loader Component
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl">
+          <Skeleton variant="card" client:load />
+          <div class="space-y-4">
+            <Skeleton variant="text" lines={3} client:load />
+            <Skeleton variant="button" client:load />
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. TABLE COMPONENT -->
+      <section class="space-y-6">
+        <h2 class="text-xl font-mono font-bold text-[#c0f500] uppercase tracking-wider border-b border-white/10 pb-2">
+          9. Table Component
+        </h2>
+        <Table columns={sampleColumns} data={sampleTableData} client:load />
+      </section>
+    </div>
+  </div>
+</Base>

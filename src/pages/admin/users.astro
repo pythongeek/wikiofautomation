@@ -1,0 +1,16 @@
+---
+/**
+ * /admin/users — User Management Page
+ */
+import AdminBase from '~/layouts/AdminBase.astro';
+import { UserManagement } from '~/components/admin/UserManagement';
+
+export const prerender = true;
+---
+
+<AdminBase
+  title="User Directory — Admin — Wiki of Automation"
+  description="Manage user directory, role permissions, suspension states, and individual user profile records."
+>
+  <UserManagement client:load />
+</AdminBase>

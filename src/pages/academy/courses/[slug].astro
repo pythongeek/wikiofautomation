@@ -1,0 +1,50 @@
+---
+/**
+ * Single Course Detail Page: /academy/courses/[slug]
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+import { CourseDetail } from '~/components/academy/CourseDetail';
+
+export async function getStaticPaths() {
+  const allCourses = await getCollection('academy');
+  return allCourses.map((item) => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+type Props = {
+  item: CollectionEntry<'academy'>;
+};
+
+const { item } = Astro.props;
+const { Content } = await render(item);
+---
+
+<Base
+  title={`${item.data.title} — Academy | Wiki of Automation`}
+  description={`Learn ${item.data.title} taught by ${item.data.instructor} on WikiOfAutomation Academy.`}
+>
+  <div class="pt-20 min-h-screen bg-[#050508] relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#7b61ff]/15 via-[#050508]/80 to-[#050508] pointer-events-none -z-10"></div>
+
+    <CourseDetail
+      client:load
+      title={item.data.title}
+      instructor={item.data.instructor || 'Ada Lovelace'}
+      instructor_avatar={item.data.instructor_avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=ada'}
+      rating={item.data.rating || 4.9}
+      enrolled_count={item.data.enrolled_count || '1.4k'}
+      price_label={item.data.price_label || 'FREE'}
+      level={item.data.level || 'Beginner'}
+      duration={item.data.duration || '2h 30m'}
+      lessons_count={item.data.lessons_count || 8}
+      thumbnail={item.data.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop'}
+      what_youll_learn={item.data.what_youll_learn || []}
+      lessons={item.data.lessons || []}
+    >
+      <Content />
+    </CourseDetail>
+  </div>
+</Base>

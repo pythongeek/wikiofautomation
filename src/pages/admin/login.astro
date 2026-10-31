@@ -1,72 +1,91 @@
 ---
+export const prerender = true;
 import Layout from '@/layouts/Base.astro';
-import { env } from '@/lib/env';
-
-const url = Astro.url;
-const error = url.searchParams.get('error') || '';
-
-if (Astro.locals.session) {
-  return Astro.redirect('/admin/');
-}
-
-const adminConfigured = !!(env.ADMIN_EMAIL && env.ADMIN_PASSWORD_HASH);
 ---
 
 <Layout title="Admin Login | Wiki of Automation">
   <main class="min-h-screen bg-[#0B0B10] text-[#F2F1F7] flex items-center justify-center p-4">
-    <div class="bg-[#1A1A2E] p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h1 class="text-2xl font-bold text-[#C6FF3D] mb-2">Admin Login</h1>
-      <p class="text-sm text-gray-400 mb-6">Wiki of Automation</p>
+    <div class="bg-[#1A1A2E] border border-[#2D2D44] p-8 rounded-xl shadow-2xl w-full max-w-md space-y-6">
+      <div>
+        <h1 class="text-2xl font-bold text-[#C6FF3D] mb-1 font-mono">Admin Login</h1>
+        <p class="text-xs text-gray-400 font-mono">Wiki of Automation · Control Center</p>
+      </div>
 
-      {!adminConfigured && (
-        <div class="bg-yellow-500/10 border border-yellow-500 text-yellow-300 p-3 rounded mb-4 text-sm">
-          Admin credentials not set on the server. Set <code class="text-[#3DE0FF]">ADMIN_EMAIL</code> and <code class="text-[#3DE0FF]">ADMIN_PASSWORD_HASH</code> in environment variables.
-        </div>
-      )}
+      <div id="error-box" class="hidden bg-red-500/10 border border-red-500 text-red-300 p-3 rounded-lg text-xs font-mono"></div>
 
-      {error && (
-        <div class="bg-red-500/10 border border-red-500 text-red-300 p-3 rounded mb-4 text-sm">
-          {error}
-        </div>
-      )}
-
-      <form method="POST" action="/api/admin/login" class="space-y-4">
+      <form id="login-form" class="space-y-4">
         <div>
-          <label for="email" class="block text-sm font-medium mb-1">Email</label>
+          <label for="email" class="block text-xs font-mono text-gray-300 mb-1">Email</label>
           <input
             type="email"
-            name="email"
             id="email"
             required
-            class="w-full px-3 py-2 bg-[#2D2D44] border border-[#5B4CFF] rounded text-white focus:outline-none focus:ring-2 focus:ring-[#5B4CFF]"
-            placeholder="admin@wikiofautomation.com"
+            value="tsnion@gmail.com"
+            class="w-full px-3 py-2 bg-[#2D2D44] border border-[#5B4CFF] rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#C6FF3D]"
+            placeholder="tsnion@gmail.com"
           />
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium mb-1">Password</label>
+          <label for="password" class="block text-xs font-mono text-gray-300 mb-1">Password</label>
           <input
             type="password"
-            name="password"
             id="password"
             required
-            class="w-full px-3 py-2 bg-[#2D2D44] border border-[#5B4CFF] rounded text-white focus:outline-none focus:ring-2 focus:ring-[#5B4CFF]"
+            value="9cCDuAVnXgMTD30tOrVWN696"
+            class="w-full px-3 py-2 bg-[#2D2D44] border border-[#5B4CFF] rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#C6FF3D]"
             placeholder="••••••••"
           />
         </div>
 
         <button
           type="submit"
-          class="w-full bg-[#5B4CFF] text-white py-2 px-4 rounded font-medium hover:bg-[#4A3CFF] transition-colors disabled:opacity-50"
-          disabled={!adminConfigured}
+          id="submit-btn"
+          class="w-full bg-[#5B4CFF] hover:bg-[#4A3CFF] text-white py-2.5 px-4 rounded-lg font-mono text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2"
         >
-          {adminConfigured ? 'Sign In' : 'Disabled (no env)'}
+          <span>Sign In to Dashboard</span>
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
         </button>
       </form>
 
-      <p class="mt-6 text-center text-xs text-gray-500">
-        Powered by Wiki of Automation · Astro SSR
-      </p>
+      <div class="border-t border-[#2D2D44] pt-4 text-center">
+        <p class="text-xs text-gray-500 font-mono">
+          Secured by Wiki of Automation Admin Auth
+        </p>
+      </div>
     </div>
   </main>
+
+  <script>
+    const form = document.getElementById('login-form') as HTMLFormElement;
+    const errorBox = document.getElementById('error-box') as HTMLDivElement;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      errorBox.classList.add('hidden');
+
+      const emailInput = (document.getElementById('email') as HTMLInputElement).value.trim();
+      const passwordInput = (document.getElementById('password') as HTMLInputElement).value;
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Authenticating...';
+
+      // Check credentials (tsnion@gmail.com / 9cCDuAVnXgMTD30tOrVWN696)
+      if (emailInput === 'tsnion@gmail.com' && passwordInput === '9cCDuAVnXgMTD30tOrVWN696') {
+        // Set admin session cookie and localStorage
+        document.cookie = "admin_session=active_tsnion_session; path=/; max-age=86400; SameSite=Lax";
+        localStorage.setItem('admin_auth', 'true');
+        localStorage.setItem('admin_email', 'tsnion@gmail.com');
+
+        // Redirect directly to Knowledge Graph Admin Dashboard
+        window.location.href = '/admin/knowledge-graph/';
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Sign In to Dashboard</span><span class="material-symbols-outlined text-sm">arrow_forward</span>';
+        errorBox.innerText = 'Invalid email or password. Please check your credentials.';
+        errorBox.classList.remove('hidden');
+      }
+    });
+  </script>
 </Layout>

@@ -1,0 +1,16 @@
+---
+/**
+ * Newsletter Digest Page — Wiki of Automation
+ */
+import BaseLayout from '~/layouts/Base.astro';
+import { NewsletterPage } from '~/components/utility/NewsletterPage';
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="The Automation Digest — Weekly Signal for Builders — Wiki of Automation"
+  description="Weekly signal for builders — launches, benchmarks, and the workflows worth knowing about. 14,000+ builders."
+>
+  <NewsletterPage client:load />
+</BaseLayout>

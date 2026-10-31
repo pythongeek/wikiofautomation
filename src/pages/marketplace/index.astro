@@ -1,192 +1,294 @@
 ---
 /**
- * /marketplace — full listing grid
+ * /marketplace — Neural Discovery Engine + 9,812 n8n Workflow & Enterprise Explorer
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '~/layouts/Base.astro';
+import n8nCatalog from '~/data/n8n-catalog.json';
 
 type Listing = CollectionEntry<'marketplace'>;
 const all = await getCollection('marketplace', (e: Listing) => e.data.status === 'live');
 const sorted: Listing[] = all.sort((a: Listing, b: Listing) => b.data.uses - a.data.uses);
 
-const types = ['agents', 'workflows', 'ai-os', 'apps', 'prompts'] as const;
+const types = [
+  'agents',
+  'workflows',
+  'enterprise-workflows',
+  'plugins',
+  'notebook-kits',
+  'turnkey-games',
+  'ai-os',
+  'apps',
+  'prompts',
+] as const;
+
 const typeLabels: Record<string, string> = {
   agents: 'Agents',
   workflows: 'Workflows',
+  'enterprise-workflows': '150+ Node Enterprise',
+  plugins: 'WP & MCP Plugins',
+  'notebook-kits': 'Kaggle/Colab Kits',
+  'turnkey-games': 'Turnkey Games',
   'ai-os': 'AI OS',
   apps: 'Apps',
   prompts: 'Prompts',
 };
+
+const enterpriseList = n8nCatalog.enterprise_workflows.slice(0, 12);
+const freeWorkflowList = n8nCatalog.free_workflows.slice(0, 24);
 ---
 
 <Base
-  title="Marketplace"
-  description="Free and paid agents, n8n workflows, AI OS stacks, hosted apps, and prompts. Try before you install."
+  title="Neural Discovery Engine — Marketplace & 9,812 n8n Workflow Vault"
+  description="Explore 9,812 scrubbed n8n workflows, 157-node enterprise automation blueprints, WordPress MCP plugins, Kaggle/Colab GPU relay kits, and turnkey platforms."
 >
-  <div class="page-hero">
-    <div class="eyebrow eyebrow-row">
-      <span class="dot"></span>
-      <span>THE MARKETPLACE · {sorted.length} LIVE LISTINGS</span>
-    </div>
-    <h1>Find the right tool — try it, then ship it.</h1>
-    <p class="lead">Free and paid agents, n8n/Zapier/Make workflows, full AI OS stacks, and hosted mini apps. Every listing is attributed to its original author.</p>
+  <div class="pt-28 pb-24 max-w-[1440px] mx-auto px-6 relative z-10">
 
-    <nav class="cat-tabs">
-      <a href="/marketplace" class="cat-tab active">All</a>
-      {types.map(t => <a href={`/marketplace/${t}`} class="cat-tab">{typeLabels[t]}</a>)}
-    </nav>
-  </div>
-
-  <section class="grid">
-    {sorted.length === 0 ? (
-      <div class="empty">
-        <p>Marketplace launching soon. <a href="/marketplace/publish">Submit the first listing →</a></p>
+    <!-- Hero Section -->
+    <section class="text-center mb-14 relative z-10">
+      <div class="inline-flex items-center gap-2 bg-[#131317] border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md mb-6 shadow-[0_0_20px_rgba(192,245,0,0.15)]">
+        <div class="relative w-2 h-2">
+          <div class="absolute inset-0 rounded-full bg-[#c0f500] animate-ping opacity-75"></div>
+          <div class="absolute inset-0 rounded-full bg-[#c0f500]"></div>
+        </div>
+        <span class="font-mono text-xs text-[#c4caac] uppercase tracking-wider">
+          VAULT VERIFIED · <span class="text-[#c0f500] font-bold">{n8nCatalog.library_stats.total_workflows_scanned.toLocaleString()}</span> N8N WORKFLOWS · <span class="text-[#00e3fd] font-bold">0 LEAKED SECRETS</span>
+        </span>
       </div>
-    ) : (
-      sorted.map(item => (
-        <article class="card">
-          <div class="card-top">
-            <div class="card-icon">{item.data.icon ?? '⚡'}</div>
-            <span class={`badge ${item.data.pricing}`}>{item.data.pricing.toUpperCase()}</span>
+
+      <h1 class="font-sans text-4xl sm:text-6xl font-bold tracking-tight mb-4 uppercase">
+        <span class="bg-gradient-to-r from-[#c0f500] via-[#00e3fd] to-[#c0f500] bg-clip-text text-transparent">
+          Neural Discovery Engine
+        </span>
+      </h1>
+      <p class="text-base sm:text-lg text-[#9ca3af] max-w-3xl mx-auto mb-8 leading-relaxed font-sans">
+        Deploy 157-node enterprise n8n architectures, WordPress MCP plugins (`WebMCP Nexus`, `DirectRelay Pro`), Kaggle/Colab GPU relay kits, and 5,762 verified current community workflows.
+      </p>
+
+      <!-- Filter Pills Bar -->
+      <div class="flex flex-wrap items-center justify-center gap-2 max-w-5xl mx-auto">
+        <a
+          href="/marketplace"
+          class="px-4 py-1.5 rounded-full text-xs font-mono font-semibold bg-[#c0f500] text-[#161f00] border border-[#c0f500] shadow-[0_0_15px_rgba(192,245,0,0.3)] no-underline"
+        >
+          All Verticals ({sorted.length})
+        </a>
+        {types.map((t) => (
+          <a
+            href={`/marketplace/${t}`}
+            class="px-4 py-1.5 rounded-full text-xs font-mono font-medium text-[#9ca3af] hover:text-white bg-[#131317] border border-white/10 hover:border-[#00e3fd] transition-all no-underline"
+          >
+            {typeLabels[t]}
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- First-Party & Curated Marketplace Listings Grid -->
+    <section class="mb-20">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <span class="font-mono text-xs text-[#c0f500] uppercase tracking-wider">FLAGSHIP PRODUCTS & TOOLS</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Featured Marketplace Releases</h2>
+        </div>
+        <a
+          href="/marketplace/publish"
+          class="bg-[#c0f500] text-[#161f00] text-xs font-mono font-bold px-5 py-2.5 rounded-full hover:shadow-[0_0_20px_rgba(192,245,0,0.4)] transition-all no-underline"
+        >
+          + Publish Listing
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {sorted.map((item) => {
+          const typeParam = item.data.type === 'ai-os' ? 'ai-os' : `${item.data.type}s`;
+          return (
+            <a
+              href={`/marketplace/${typeParam}/${item.slug}`}
+              class="group bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(192,245,0,0.15)] flex flex-col justify-between no-underline"
+            >
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg">
+                    {item.data.icon ?? '⚡'}
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    {item.data.node_count && (
+                      <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-white/5 text-[#00e3fd] border border-[#00e3fd]/30">
+                        {item.data.node_count} nodes
+                      </span>
+                    )}
+                    <span
+                      class={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full uppercase ${
+                        item.data.pricing === 'free'
+                          ? 'bg-[#c0f500]/10 text-[#c0f500] border border-[#c0f500]/20'
+                          : item.data.pricing === 'paid'
+                          ? 'bg-[#00e3fd]/10 text-[#00e3fd] border border-[#00e3fd]/20'
+                          : 'bg-[#7b61ff]/10 text-[#7b61ff] border border-[#7b61ff]/20'
+                      }`}
+                    >
+                      {item.data.price_label || item.data.pricing}
+                    </span>
+                  </div>
+                </div>
+                <h3 class="text-lg font-bold text-white group-hover:text-[#c0f500] transition-colors mb-2">
+                  {item.data.title}
+                </h3>
+                <p class="text-xs text-[#9ca3af] line-clamp-2 leading-relaxed mb-4">{item.data.summary ?? ''}</p>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between text-xs font-mono text-[#9ca3af] mb-3">
+                  <span class="text-[#c0f500]">★ {item.data.rating.toFixed(1)}</span>
+                  <span>{item.data.uses.toLocaleString()} uses</span>
+                </div>
+                <div class="flex items-center justify-between border-t border-white/5 pt-3 text-xs font-mono text-[#9ca3af]">
+                  <span class="text-[#00e3fd] font-semibold">{item.data.type}</span>
+                  <span>by {item.data.original_author}</span>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- 9,812 n8n Workflow Vault Explorer -->
+    <section class="border-t border-white/10 pt-16">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
+        <div>
+          <span class="font-mono text-xs text-[#00e3fd] uppercase tracking-wider">
+            GATE-1 SCRUBBED · GATE-3 VERSION VERIFIED
+          </span>
+          <h2 class="text-2xl sm:text-4xl font-bold text-white mt-1">
+            9,812 n8n Workflow Vault Explorer
+          </h2>
+          <p class="text-xs sm:text-sm text-[#9ca3af] mt-1 max-w-2xl">
+            Every workflow JSON has been scanned for hardcoded credentials, stripped of `pinData`, and categorized by node complexity. Community 10–35 node templates are 100% Free; 120–246 node mega-architectures are available in the Enterprise Vault.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <input
+            id="n8nVaultSearch"
+            type="text"
+            placeholder="Search workflows by name, category, node..."
+            class="bg-[#131317] border border-white/20 rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-[#c0f500] w-64"
+          />
+          <select
+            id="n8nTierSelect"
+            class="bg-[#131317] border border-white/20 rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-[#c0f500]"
+          >
+            <option value="all">All Tiers (Free + Enterprise 120+ Nodes)</option>
+            <option value="free">Free Community Workflows (10–35 Nodes)</option>
+            <option value="paid">Enterprise Mega-Workflows (120–246 Nodes)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Vault Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="n8nVaultGrid">
+        {enterpriseList.map((wf) => (
+          <div
+            data-wf-tier="paid"
+            data-wf-search={`${wf.title} ${wf.category} ${wf.node_types.join(' ')}`.toLowerCase()}
+            class="bg-[#131317] border border-[#00e3fd]/30 hover:border-[#00e3fd] rounded-2xl p-5 flex flex-col justify-between transition-all"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3 font-mono text-[11px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-[#00e3fd]/15 text-[#00e3fd] font-bold">
+                  {wf.total_nodes} NODES · ENTERPRISE
+                </span>
+                <span class="text-[#c0f500] font-bold">${wf.price_usd}</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1.5">{wf.title}</h3>
+              <p class="text-xs text-[#9ca3af] font-mono mb-3">{wf.category}</p>
+              <div class="flex flex-wrap gap-1 mb-4">
+                {wf.node_types.slice(0, 6).map((nt) => (
+                  <span class="text-[10px] font-mono bg-[#050508] text-[#c4caac] px-2 py-0.5 rounded border border-white/10">
+                    {nt}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div class="border-t border-white/10 pt-3 flex items-center justify-between font-mono text-xs">
+              <span class="text-[10px] text-[#9ca3af]">
+                {wf.freshness === 'verified_current' ? '✓ Verified Current' : 'Legacy Compatible'}
+              </span>
+              <a
+                href={`/store/checkout?item=${encodeURIComponent(wf.slug)}&title=${encodeURIComponent(wf.title)}&price=${wf.price_usd}`}
+                class="px-3 py-1.5 rounded-lg bg-[#00e3fd] text-[#050508] font-bold no-underline hover:opacity-90"
+              >
+                Buy Blueprint →
+              </a>
+            </div>
           </div>
-          <h3>{item.data.title}</h3>
-          <p>{item.data.summary ?? ''}</p>
-          <div class="card-meta">
-            <span class="star">★ {item.data.rating.toFixed(1)}</span>
-            <span>{item.data.uses} uses</span>
+        ))}
+
+        {freeWorkflowList.map((wf) => (
+          <div
+            data-wf-tier="free"
+            data-wf-search={`${wf.title} ${wf.category} ${wf.node_types.join(' ')}`.toLowerCase()}
+            class="bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-2xl p-5 flex flex-col justify-between transition-all"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3 font-mono text-[11px]">
+                <span class="px-2.5 py-0.5 rounded-full bg-[#c0f500]/15 text-[#c0f500] font-bold">
+                  {wf.total_nodes} NODES · FREE
+                </span>
+                <span class="text-[#c0f500]">✓ Verified Current</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1.5">{wf.title}</h3>
+              <p class="text-xs text-[#9ca3af] font-mono mb-3">{wf.category}</p>
+              <div class="flex flex-wrap gap-1 mb-4">
+                {wf.node_types.slice(0, 6).map((nt) => (
+                  <span class="text-[10px] font-mono bg-[#050508] text-[#c4caac] px-2 py-0.5 rounded border border-white/10">
+                    {nt}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div class="border-t border-white/10 pt-3 flex items-center justify-between font-mono text-xs">
+              <span class="text-[10px] text-[#9ca3af]">CC-BY-4.0 Scrubbed JSON</span>
+              <a
+                href={`/api/download/${wf.slug}`}
+                class="px-3 py-1.5 rounded-lg bg-[#c0f500] text-[#161f00] font-bold no-underline hover:opacity-90"
+              >
+                ⬇ Free JSON
+              </a>
+            </div>
           </div>
-          <div class="card-footer">
-            <span class="type">{item.data.type}</span>
-            <span class="attr">by {item.data.original_author}</span>
-          </div>
-        </article>
-      ))
-    )}
-  </section>
+        ))}
+      </div>
+    </section>
+  </div>
 </Base>
 
-<style>
-  .page-hero {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: calc(var(--nav-height) + 60px) 36px 40px;
-  }
-  .eyebrow-row {
-    margin-bottom: 22px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .eyebrow-row .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--lime);
-    box-shadow: 0 0 8px var(--lime);
-    animation: blink 1.8s infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
-  h1 {
-    font-size: clamp(32px, 5vw, 50px);
-    line-height: 1.1;
-    margin-bottom: 14px;
-  }
-  .lead {
-    color: var(--muted);
-    font-size: 18px;
-    max-width: 640px;
-    line-height: 1.55;
-    margin-bottom: 28px;
-  }
-  .cat-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .cat-tab {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    padding: 8px 14px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    background: var(--surface);
-    transition: all 0.15s;
-  }
-  .cat-tab:hover { color: var(--text); border-color: var(--indigo-soft); }
-  .cat-tab.active {
-    background: var(--lime);
-    color: var(--bg);
-    border-color: var(--lime);
-  }
+<script is:inline>
+  (() => {
+    function initVaultExplorer() {
+      const searchInput = document.getElementById('n8nVaultSearch');
+      const tierSelect = document.getElementById('n8nTierSelect');
+      const cards = document.querySelectorAll('#n8nVaultGrid > div[data-wf-tier]');
+      if (!searchInput || !tierSelect || !cards.length) return;
 
-  section.grid {
-    max-width: var(--max-content);
-    margin: 0 auto;
-    padding: 30px 36px 100px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 18px;
-  }
-  .empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-  }
-  .empty a { color: var(--lime); text-decoration: underline; }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition: all 0.2s;
-  }
-  .card:hover { border-color: var(--indigo-soft); transform: translateY(-3px); }
-  .card-top { display: flex; justify-content: space-between; align-items: center; }
-  .card-icon {
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    background: var(--surface-2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .badge {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    padding: 4px 9px;
-    border-radius: var(--radius-pill);
-    letter-spacing: 0.05em;
-  }
-  .badge.free { background: rgba(61, 255, 176, 0.12); color: var(--mint); }
-  .badge.paid { background: rgba(255, 177, 61, 0.12); color: var(--amber); }
-  .badge.freemium { background: rgba(91, 76, 255, 0.16); color: var(--indigo-soft); }
-  .card h3 { font-size: 16px; }
-  .card p { color: var(--muted); font-size: 13px; line-height: 1.5; }
-  .card-meta {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    color: var(--muted-2);
-  }
-  .star { color: var(--lime); }
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid var(--border);
-    padding-top: 10px;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    color: var(--muted-2);
-  }
-  .attr { color: var(--muted); }
-  .type { color: var(--cyan); }
-</style>
+      function filterVault() {
+        const q = searchInput.value.toLowerCase().trim();
+        const tier = tierSelect.value;
+        cards.forEach((card) => {
+          const cardTier = card.getAttribute('data-wf-tier');
+          const hay = card.getAttribute('data-wf-search') || '';
+          const matchTier = tier === 'all' || cardTier === tier;
+          const matchQ = !q || hay.includes(q);
+          card.style.display = matchTier && matchQ ? '' : 'none';
+        });
+      }
+
+      searchInput.addEventListener('input', filterVault);
+      tierSelect.addEventListener('change', filterVault);
+    }
+
+    document.addEventListener('astro:page-load', initVaultExplorer);
+    initVaultExplorer();
+  })();
+</script>

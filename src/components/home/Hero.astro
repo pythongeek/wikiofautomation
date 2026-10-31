@@ -1,68 +1,113 @@
 ---
 /**
- * Hero.astro v2 — full-viewport hero
- * Ada search is the hero's primary interaction.
- * NetworkCanvas provides the animated background.
+ * Hero.astro — Cyber-Industrial Intelligence Hero Section
+ * Source: Google Stitch Master Page Specification
  */
-import NetworkCanvas from '~/components/home/NetworkCanvas.astro';
 import AdaOrb from '~/components/ada/AdaOrb.astro';
 import AdaBar from '~/components/ada/AdaBar.astro';
 ---
 
-<section class="hero">
-  <NetworkCanvas />
-  <div class="hero-vignette"></div>
-
-  <div class="hero-content">
-    <!-- Eyebrow pill -->
-    <div class="eyebrow-pill">
-      <span class="dot"></span>
-      <span>ADA IS ONLINE · INDEXING 14,382 TOOLS</span>
-    </div>
-
-    <!-- Orb -->
-    <AdaOrb />
-
-    <!-- Headline -->
-    <h1>
-      The <em>encyclopedia</em><br>of automation is alive.
-    </h1>
-
-    <p class="sub">
-      Ask Ada anything — she reads the whole wiki, the marketplace,
-      and today's launches so you don't have to.
-    </p>
-
-    <!-- Ada search bar -->
-    <AdaBar />
-
-    <!-- Intent routing chips -->
-    <div class="intents">
-      <button class="intent-chip" data-prompt="Find me a free lead-gen agent">
-        <span class="intent-icon">🛰️</span> Find an agent
-      </button>
-      <button class="intent-chip" data-prompt="What is Model Context Protocol?">
-        <span class="intent-icon">📚</span> Learn a concept
-      </button>
-      <button class="intent-chip" data-prompt="Show me trending n8n workflows this week">
-        <span class="intent-icon">⚡</span> Get a workflow
-      </button>
-      <button class="intent-chip" data-prompt="What launched in AI automation today?">
-        <span class="intent-icon">📡</span> Read today's news
-      </button>
-    </div>
+<section class="relative flex flex-col justify-center items-center min-h-[90vh] pt-28 pb-16 z-10 w-full overflow-hidden">
+  <!-- Background WebGL Shader Canvas -->
+  <div class="absolute inset-0 z-0 pointer-events-none opacity-60">
+    <canvas id="shader-canvas-hero" class="w-full h-full block"></canvas>
   </div>
 
-  <!-- Scroll cue -->
-  <div class="scroll-cue" aria-hidden="true">
-    <span>SCROLL</span>
-    <span class="line"></span>
+  <div class="relative z-10 w-full max-w-[1280px] mx-auto px-6 flex flex-col items-center text-center">
+    <!-- Status Pill -->
+    <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md mb-8 shadow-[0_0_15px_rgba(192,245,0,0.1)]">
+      <div class="relative w-2 h-2">
+        <div class="absolute inset-0 rounded-full bg-[#c0f500] animate-ping opacity-75"></div>
+        <div class="absolute inset-0 rounded-full bg-[#c0f500]"></div>
+      </div>
+      <span class="font-mono text-xs text-[#c4caac] uppercase tracking-wider">
+        ADA IS ONLINE — INDEXING <span class="text-[#c0f500] font-bold" id="tool-counter">14,382</span> TOOLS
+      </span>
+    </div>
+
+    <!-- 3D Orb Scene -->
+    <div class="relative w-[180px] h-[180px] mb-8 flex justify-center items-center">
+      <AdaOrb />
+      <div class="absolute inset-0 bg-[#c0f500]/15 rounded-full blur-[40px] -z-10"></div>
+    </div>
+
+    <!-- Gradient Headline -->
+    <h1 class="font-sans text-4xl sm:text-6xl md:text-[64px] font-bold tracking-tight mb-4 max-w-4xl leading-[1.08]">
+      <span class="bg-gradient-to-r from-white to-[#a8d700] bg-clip-text text-transparent">The encyclopedia</span><br>
+      <span class="text-white">of automation is alive.</span>
+    </h1>
+
+    <p class="text-base sm:text-lg text-[#9ca3af] max-w-2xl mb-10 leading-relaxed font-sans">
+      Ask Ada anything — she reads the whole wiki, the marketplace, and today's launches so you don't have to.
+    </p>
+
+    <!-- Ada Search Bar Integration -->
+    <div class="w-full max-w-2xl mb-8 relative z-20">
+      <AdaBar />
+    </div>
+
+    <!-- Intent Prompt Chips -->
+    <div class="flex flex-wrap justify-center gap-3 mt-2">
+      <button class="intent-chip bg-[#131317]/80 hover:bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-full px-4 py-2 text-xs font-mono text-[#e5e1e7] hover:text-[#c0f500] transition-all duration-200 flex items-center gap-2 cursor-pointer backdrop-blur-md shadow-sm" data-prompt="Find me a free lead-gen agent">
+        <span class="opacity-80">⚡</span> Find an agent
+      </button>
+      <button class="intent-chip bg-[#131317]/80 hover:bg-[#131317] border border-white/10 hover:border-[#00e3fd] rounded-full px-4 py-2 text-xs font-mono text-[#e5e1e7] hover:text-[#00e3fd] transition-all duration-200 flex items-center gap-2 cursor-pointer backdrop-blur-md shadow-sm" data-prompt="What is Model Context Protocol?">
+        <span class="opacity-80">📚</span> Learn a concept
+      </button>
+      <button class="intent-chip bg-[#131317]/80 hover:bg-[#131317] border border-white/10 hover:border-[#c0f500] rounded-full px-4 py-2 text-xs font-mono text-[#e5e1e7] hover:text-[#c0f500] transition-all duration-200 flex items-center gap-2 cursor-pointer backdrop-blur-md shadow-sm" data-prompt="Show me trending n8n workflows this week">
+        <span class="opacity-80">🔥</span> Get a workflow
+      </button>
+      <button class="intent-chip bg-[#131317]/80 hover:bg-[#131317] border border-white/10 hover:border-[#7b61ff] rounded-full px-4 py-2 text-xs font-mono text-[#e5e1e7] hover:text-[#7b61ff] transition-all duration-200 flex items-center gap-2 cursor-pointer backdrop-blur-md shadow-sm" data-prompt="What launched in AI automation today?">
+        <span class="opacity-80">📰</span> Read today's news
+      </button>
+    </div>
   </div>
 </section>
 
 <script>
 (() => {
-  function bind() {
+  function initShader() {
+    const canvas = document.getElementById('shader-canvas-hero') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    function syncSize() {
+      if (!canvas) return;
+      const w = canvas.parentElement?.clientWidth || window.innerWidth;
+      const h = canvas.parentElement?.clientHeight || window.innerHeight;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w; canvas.height = h;
+      }
+    }
+    syncSize();
+    window.addEventListener('resize', syncSize);
+
+    const gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
+    if (!gl) return;
+
+    const vs = `attribute vec2 a_position; varying vec2 v_texCoord; void main() { v_texCoord = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }`;
+    const fs = `precision highp float; varying vec2 v_texCoord; uniform float u_time; uniform vec2 u_resolution;
+    vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+    float snoise(vec2 v){ const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439); vec2 i  = floor(v + dot(v, C.yy) ); vec2 x0 = v - i + dot(i, C.xx); vec2 i1; i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0); vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1; i = mod(i, 289.0); vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 )); vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0); m = m*m ; m = m*m ; vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5; vec3 ox = floor(x + 0.5); vec3 a0 = x - ox; m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h ); vec3 g; g.x = a0.x * x0.x + h.x * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw; return 130.0 * dot(m, g); }
+    void main() { vec2 uv = v_texCoord; vec2 p = uv * 2.0 - 1.0; p.x *= u_resolution.x / u_resolution.y; vec3 voidBlack = vec3(0.0196, 0.0196, 0.0314); vec3 neonLime = vec3(0.784, 1.0, 0.0); vec3 cyan = vec3(0.0, 0.898, 1.0); vec3 violet = vec3(0.482, 0.380, 1.0); float b1 = smoothstep(0.6, 0.0, length(p - vec2(sin(u_time * 0.4), cos(u_time * 0.3)) * 0.6)); float b2 = smoothstep(0.7, 0.0, length(p - vec2(cos(u_time * 0.3), sin(u_time * 0.5)) * 0.7)); float b3 = smoothstep(0.8, 0.0, length(p - vec2(sin(u_time * 0.2), sin(u_time * 0.4)) * 0.8)); vec3 color = voidBlack; color = mix(color, violet, b1 * 0.07); color = mix(color, cyan, b2 * 0.05); color = mix(color, neonLime, b3 * 0.04); float grain = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453); color += grain * 0.012; gl_FragColor = vec4(color, 1.0); }`;
+
+    function cs(type: number, src: string) { const s = gl!.createShader(type)!; gl!.shaderSource(s, src); gl!.compileShader(s); return s; }
+    const prog = gl.createProgram()!; gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog); gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const pos = gl.getAttribLocation(prog, 'a_position'); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+    const uTime = gl.getUniformLocation(prog, 'u_time'); const uRes = gl.getUniformLocation(prog, 'u_resolution');
+
+    function render(t: number) {
+      if (!canvas || !gl) return;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      if (uTime) gl.uniform1f(uTime, t * 0.001);
+      if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+  }
+
+  function bindChips() {
     const input = document.getElementById('askField') as HTMLInputElement | null;
     if (!input) return;
     document.querySelectorAll<HTMLButtonElement>('.intent-chip').forEach(chip => {
@@ -70,163 +115,20 @@ import AdaBar from '~/components/ada/AdaBar.astro';
         const prompt = chip.dataset.prompt || '';
         input.value = prompt;
         input.focus();
-        // Fire the submit on AdaBar
-        document.getElementById('askSend')?.click();
+        if (typeof (window as any).__adaSubmit === 'function') {
+          (window as any).__adaSubmit();
+        } else {
+          document.getElementById('askSend')?.click();
+        }
       });
     });
   }
-  document.addEventListener('astro:page-load', bind);
-  bind();
+
+  document.addEventListener('astro:page-load', () => {
+    initShader();
+    bindChips();
+  });
+  initShader();
+  bindChips();
 })();
 </script>
-
-<style>
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: calc(var(--nav-height) + 80px) 24px 100px;
-    overflow: hidden;
-  }
-
-  .hero-vignette {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 70% 55% at 50% 38%, rgba(91,76,255,0.18), transparent 65%),
-      radial-gradient(ellipse 120% 50% at 50% 100%, var(--bg) 25%, transparent 70%);
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 860px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-
-  /* Eyebrow pill */
-  .eyebrow-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(91,76,255,0.12);
-    border: 1px solid rgba(91,76,255,0.3);
-    border-radius: var(--radius-pill);
-    padding: 6px 14px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--indigo-soft);
-    margin-bottom: 32px;
-  }
-  .eyebrow-pill .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--mint);
-    box-shadow: 0 0 8px var(--mint);
-    animation: blink 1.8s infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.25;} }
-
-  /* Headline */
-  h1 {
-    font-size: clamp(36px, 6vw, 68px);
-    line-height: 1.04;
-    letter-spacing: -0.02em;
-    margin-top: 28px;
-    margin-bottom: 20px;
-    max-width: 780px;
-  }
-  h1 em {
-    font-style: normal;
-    background: linear-gradient(95deg, var(--indigo-soft) 0%, var(--cyan) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .sub {
-    color: var(--muted);
-    font-size: clamp(15px, 2vw, 18px);
-    max-width: 520px;
-    line-height: 1.6;
-    margin-bottom: 40px;
-  }
-
-  /* Intent chips */
-  .intents {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 22px;
-  }
-  .intent-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: rgba(20,20,29,0.7);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    padding: 9px 16px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(6px);
-  }
-  .intent-chip:hover {
-    color: var(--text);
-    border-color: var(--indigo-soft);
-    box-shadow: 0 0 16px rgba(91,76,255,0.2);
-    transform: translateY(-1px);
-  }
-  .intent-chip:focus-visible {
-    outline: 2px solid var(--lime);
-    outline-offset: 3px;
-  }
-  .intent-icon { font-size: 14px; }
-
-  /* Scroll cue */
-  .scroll-cue {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    color: var(--muted-2);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-  .scroll-cue .line {
-    width: 1px;
-    height: 28px;
-    background: linear-gradient(var(--muted-2), transparent);
-    animation: cueflow 2s ease-in-out infinite;
-  }
-  @keyframes cueflow {
-    0%,100% { opacity: 0; transform: scaleY(0); transform-origin: top; }
-    50% { opacity: 1; transform: scaleY(1); }
-  }
-
-  @media (max-width: 640px) {
-    .intents { gap: 8px; }
-    .intent-chip { font-size: 12px; padding: 8px 12px; }
-  }
-</style>
